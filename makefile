@@ -7,6 +7,6 @@ TARGET := lib/libclas.a
 build/products.o : src/products.cxx
 	@mkdir -p build
 	$(CC) $(CFLAGS) src/products.cxx -o build/products.o $(INC) $(LIB) 
-	@ar cr lib/libclas.a build/products.o
 	@mkdir -p lib
+	@ar cr lib/libclas.a build/products.o
 	@echo "ar cr lib/libclas.a build/products.o";
