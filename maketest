@@ -1,0 +1,20 @@
+CC := g++
+SRCDIR := tests
+BUILDDIR := bin
+TARGET := bin/blasvsclas.run
+SRCEXT := cc
+
+SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
+OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
+CFLAGS := -std=c++11 -O3 
+LIB := -pthread -lclas -L lib -L /opt/OpenBLAS/lib -lopenblas
+INC := -I include -I lib -I src -I/opt/OpenBLAS/include
+
+$(TARGET): $(OBJECTS)
+	@echo " Linking..."
+	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB)
+
+$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
+	@mkdir -p $(BUILDDIR)
+	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
