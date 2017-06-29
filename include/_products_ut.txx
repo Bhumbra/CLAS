@@ -77,7 +77,7 @@ static inline void outer_product_ut(T* Out,
 	register U u1 = set_unroll((U)sqrt(n), U1);
 
 	// Note for single-threads, U1=2 seems to outperform all others
-
+	
 	switch (u1) {
 		case 1: {
 			return outer_product_1(Out, In0, In1, m, n, Outs, In0s, In1s); 

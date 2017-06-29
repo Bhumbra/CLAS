@@ -112,7 +112,7 @@ static inline void outer_product_4 (T* _Out,
 	}	
 	if (mod) {
 		div = n - mod;
-		outer_product_2(_Out + div, _In0, _In1 + div, n, mod, Outs, In0s, In1s);
+		outer_product_2(_Out + div, _In0, _In1 + div, m, mod, Outs, In0s, In1s);
 	}
 }
 
