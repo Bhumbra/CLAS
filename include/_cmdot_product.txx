@@ -21,6 +21,7 @@ static inline void cmdot_product_1 (T* Out,
 																		volatile const U k,
 																		volatile const U n, 
 																		T* In2 = 0,
+																		volatile const bool In2Tr = false,
 																		volatile U UR = 0) { 
 
 	register U ur = set_unroll(k >> 2, UR);
@@ -82,6 +83,7 @@ static inline void cmdot_product_2 (T* Out,
 																		volatile const U k,
 																		volatile const U n,
 																		T* In2 = 0,
+																		volatile const bool In2Tr = false,
 																		volatile U UR = 0) { 
 
 	register U ur = set_unroll(k >> 2, UR);
@@ -180,6 +182,7 @@ static inline void cmdot_product_4 (T* Out,
 																		volatile const U k,
 																		volatile const U n, 
 																		T* In2 = 0,
+																		volatile const bool In2Tr = false,
 																		volatile U UR = 0) { 
 
 	register U ur = set_unroll(k >> 2, UR);

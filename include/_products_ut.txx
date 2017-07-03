@@ -173,17 +173,18 @@ static inline void rmdot_product_ut(T* Out,
 																		volatile const U k,
 																		volatile const U n, 
 																		T* In2 = 0,
+																		volatile const bool In2Tr = false,
 																		volatile U U0 = 0,
 																		volatile U U1 = 0) { 
 	switch (U0) {
 		case 1: {
-			return rmdot_product_1(Out, In0, In1, m, k, n, In2, U1);
+			return rmdot_product_1(Out, In0, In1, m, k, n, In2, In2Tr, U1);
 		}
 		case 2: {
-			return rmdot_product_2(Out, In0, In1, m, k, n, In2, U1);
+			return rmdot_product_2(Out, In0, In1, m, k, n, In2, In2Tr, U1);
 		}
 		default: {
-			return rmdot_product_4(Out, In0, In1, m, k, n, In2, U1);
+			return rmdot_product_4(Out, In0, In1, m, k, n, In2, In2Tr, U1);
 		}
 	}
 }
@@ -199,23 +200,24 @@ static inline void cmdot_product_ut(T* Out,
 																		volatile const U k,
 																		volatile const U n, 
 																		T* In2 = 0,
+																		volatile const bool In2Tr = false,
 																		volatile U U0 = 0,
 																		volatile U U1 = 0) { 
 	switch (U0) {
 		case 1: {
-			return cmdot_product_1(Out, In0, In1, m, k, n, In2, U1);
+			return cmdot_product_1(Out, In0, In1, m, k, n, In2, In2Tr, U1);
 		}
 		case 2: {
-			return cmdot_product_2(Out, In0, In1, m, k, n, In2, U1);
+			return cmdot_product_2(Out, In0, In1, m, k, n, In2, In2Tr, U1);
 		}
 		default: {
-			return cmdot_product_4(Out, In0, In1, m, k, n, In2, U1);
+			return cmdot_product_4(Out, In0, In1, m, k, n, In2, In2Tr, U1);
 		}
 	}
 }
 //------------------------------------------------------------------------------
-/* rmdot:
-  c   = a   * B
+/* mrdot:
+  c or c.t  = A   * b.T
 */
 template <class T, class U>
 static inline void mrdot_product_ut(T* Out, 
@@ -243,7 +245,7 @@ static inline void mrdot_product_ut(T* Out,
 
 //------------------------------------------------------------------------------
 /* mcdot:
-  c.T  = A   * b
+  c or c.t = A   * b
 */
 template <class T, class U>
 static inline void mcdot_product_ut(T* Out, 
@@ -297,7 +299,7 @@ static inline void mmdot_product_ut(T* Out,
 			return inner_product_ut(Out, In0, In1, m, k, (U)1, (U)0, (U)0, In2, U1);
 		}                 // otherwise out is a vector
 		else if (!In1Cm) { // untranposed multiple: vector = vector * matrix
-			return rmdot_product_ut(Out, In0, In1, m, k, n, In2, U0, U1);
+			return rmdot_product_ut(Out, In0, In1, m, k, n, In2, false, U0, U1);
 		}
 		else {            // transposed multiple:  inner product  		  
 			return inner_product_ut(Out, In0, In1, n, k, (U)1, (U)0, k, In2, U1);
@@ -309,7 +311,7 @@ static inline void mmdot_product_ut(T* Out,
 			return inner_product_ut(Out, In0, In1, m, k, n, k, (U)0, In2, U1);
 		}
 		else {            // tranposed multiplicand - inner product of swapped inputs
-			return mrdot_product_ut(Out, In0, In1, m, k, n, OutCm, In2, U0, U1);
+			return cmdot_product_ut(Out, In0, In1, m, k, n, In2, false, U0, U1);
 		}
 	}
 
@@ -338,13 +340,13 @@ static inline void mmdot_product_ut(T* Out,
 	if (!OutCm) {        // Untransposed product
 		if (!In0Cm) {      // Untransposed multiplicand
 			if (!In1Cm) {    // Untransposed multiple
-				return rmdot_product_ut(Out, In0, In1, m, k, n, In2, U0, U1);
+				return rmdot_product_ut(Out, In0, In1, m, k, n, In2, false, U0, U1);
 			}
-			else {          // Transposed multiple
+			else {           // Transposed multiple
 				return mrdot_product_ut(Out, In0, In1, m, k, n, OutCm, In2, U0, U1);
 			}
 		}
-		else {            // Transposed multiplicand
+		else {             // Transposed multiplicand
 			if (!In1Cm) {    // Untransposed multiple
 				return;
 			}

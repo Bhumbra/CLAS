@@ -75,7 +75,8 @@ static inline void rmdot_product_mt(T* Out,
 																		volatile const U m, 
 																		volatile const U k,
 																		volatile const U n, 
-																		T* In2 = 0,
+																		T* In2  = 0,
+																		volatile const bool In2Tr = false,
 																		volatile U U0 = 0,
 																		volatile U U1 = 0,
 																		volatile U NT = 0) { 
@@ -91,7 +92,7 @@ static inline void rmdot_product_mt(T* Out,
 	
 	for (g = 0, h = 0; g<f; g++, h += e) {
 		if (h + e > m) {e = m - h;}  
-		th[g] = std::thread(rmdot_product_ut<T,U>, Out+h*n, In0+h*k, In1, e, k, n, In2+In2s*h, U0, U1);
+		th[g] = std::thread(rmdot_product_ut<T,U>, Out+h*n, In0+h*k, In1, e, k, n, In2+In2s*h, In2Tr, U0, U1);
 	}
 	for (g = 0; g<f; g++) {
 		th[g].join();
@@ -106,13 +107,14 @@ static inline void cmdot_product_mt(T* Out,
 																		volatile const U k,
 																		volatile const U n, 
 																		T* In2 = 0,
+																		volatile const bool In2Tr = false,
 																		volatile U U0 = 0,
 																		volatile U U1 = 0,
 																		volatile U NT = 0) { 
 	if (NT == (U)-1) {
-		return cmdot_product_ut(Out, In0, In1, m, k, n, In2, U0, U1);
+		return cmdot_product_ut(Out, In0, In1, m, k, n, In2, In2Tr, U0, U1);
 	} 
-	return cmdot_product_ut(Out, In0, In1, m, k, n, In2, U0, U1);
+	return cmdot_product_ut(Out, In0, In1, m, k, n, In2, In2Tr, U0, U1);
 }
 
 //------------------------------------------------------------------------------
