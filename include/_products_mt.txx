@@ -223,39 +223,44 @@ static inline void mmdot_product_mt(T* Out,
 		}
 	}
 
+	//  matrix = matrix * matrix with 8 transposition permutations
+
 	if (!OutCm) {        // Untransposed product
 		if (!In0Cm) {      // Untransposed multiplicand
 			if (!In1Cm) {    // Untransposed multiple
-				return rmdot_product_mt(Out, In0, In1, m, k, n, In2, U0, U1, NT);
+				return rmdot_product_mt(Out, In0, In1, m, k, n, In2, false, U0, U1);
 			}
-			else {          // Tranposed multiple
-				return mrdot_product_mt(Out, In0, In1, m, k, n, OutCm, In2, U0, U1, NT);
+			else {           // Transposed multiple
+				return mrdot_product_mt(Out, In0, In1, m, k, n, OutCm, In2, U0, U1);
 			}
 		}
-		else {            // Transposed multiplicand
+		else {             // Transposed multiplicand
 			if (!In1Cm) {    // Untransposed multiple
-				return;
+				return cmdot_product_mt(Out, In0, In1, m, k, n, In2, false, U0, U1);
 			}
-			else {          // Transposed multiple
-				return;
+			else {           // Tranposed multiple
+				// C = A.T * B.T => C.T = B * A
+				return rmdot_product_mt(Out, In1, In0, n, k, m, In2, true, U0, U1);
 			}
 		}
 	}
-	else {              // Transposed product
+	else {               // Transposed product
 		if (!In0Cm) {      // Untransposed multiplicand
 			if (!In1Cm) {    // Untransposed multiple
-				return;
+				return mcdot_product_mt(Out, In0, In1, m, k, n, OutCm, In2, U0, U1);
 			}
-			else {          // Transposed multiple
-				return mrdot_product_mt(Out, In0, In1, m, k, n, OutCm, In2, U0, U1, NT);
+			else {           // Transposed multiple
+				return mrdot_product_mt(Out, In0, In1, m, k, n, OutCm, In2, U0, U1);
 			}
 		}
-	  else {            // Transposed multiplicand
+	  else {             // Transposed multiplicand
 			if (!In1Cm) {    // Untransposed multiple
-				return;
+				// C.T = A.T * B => C = B.T * A
+				return cmdot_product_mt(Out, In1, In0, n, k, m, In2, true, U0, U1);
 			}
-			else {          // Transposed multiple
-				return;
+			else {           // Transposed multiple
+				// C.T = A.T * B.T => C = B * A
+				return rmdot_product_mt(Out, In0, In1, n, k, m, In2, true, U0, U1);
 			}
 		}
 	}
