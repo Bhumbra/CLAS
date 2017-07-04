@@ -3,4 +3,5 @@ bin/*
 lib/*
 asm/*
 *ex*
+*.old
 sh*
