@@ -38,52 +38,53 @@ static inline void mcdot_product_1 (T* Out,
 		Outs = (U)1;
 	}
 
+
 	switch (ur) {
 		case 1: {
 			for (h = 0; h<n; h++) {
 				replicate_1x1 (Out, m, In2, Outs, (U)1);
-				mcdot_product_1x1 (Out, In0, In1+h*k, m, k, Outs, k, n); 
-				Outs += OutS;
+				mcdot_product_1x1 (Out, In0, In1+h, m, k, Outs, k, n); 
+				Out += OutS;
 			}
 			return;
 		}
 		case 2: {
 			for (h = 0; h<n; h++) {
 				replicate_1x2 (Out, m, In2, Outs, (U)1);
-				mcdot_product_1x2 (Out, In0, In1+h*k, m, k, Outs, k, n); 
-				Outs += OutS;
+				mcdot_product_1x2 (Out, In0, In1+h, m, k, Outs, k, n); 
+				Out += OutS;
 			}
 			return;
 		}
 		case 4: {
 			for (h = 0; h<n; h++) {
 				replicate_1x4 (Out, m, In2, Outs, (U)1);
-				mcdot_product_1x4 (Out, In0, In1+h*k, m, k, Outs, k, n); 
-				Outs += OutS;
+				mcdot_product_1x4 (Out, In0, In1+h, m, k, Outs, k, n); 
+				Out += OutS;
 			}
 			return;
 		}
 		case 8: {
 			for (h = 0; h<n; h++) {
 				replicate_1x8 (Out, m, In2, Outs, (U)1);
-				mcdot_product_1x8 (Out, In0, In1+h*k, m, k, Outs, k, n); 
-				Outs += OutS;
+				mcdot_product_1x8 (Out, In0, In1+h, m, k, Outs, k, n); 
+				Out += OutS;
 			}
 			return;
 		}
 		case 16: {
 			for (h = 0; h<n; h++) {
 				replicate_1x16(Out, m, In2, Outs, (U)1);
-				mcdot_product_1x16(Out, In0, In1+h*k, m, k, Outs, k, n); 
-				Outs += OutS;
+				mcdot_product_1x16(Out, In0, In1+h, m, k, Outs, k, n); 
+				Out += OutS;
 			}
 			return;
 		}
 		default: {
 			for (h = 0; h<n; h++) {
 				replicate_1x32(Out, m, In2, Outs, (U)1);
-				mcdot_product_1x32(Out, In0, In1+h*k, m, k, Outs, k, n); 
-				Outs += OutS;
+				mcdot_product_1x32(Out, In0, In1+h, m, k, Outs, k, n); 
+				Out += OutS;
 			}
 			return;
 		}
@@ -121,12 +122,12 @@ static inline void mcdot_product_2 (T* Out,
 			mod = n & 1;
 			for (g = n >> 1; g; g--, h += 2) {
 				replicate_2x1 (Out, m, In2, OutS, (U)0, Outs, (U)1);
-				mcdot_product_2x1 (Out, In0, In1+h*k, m, k, OutS, Outs, k, n);
+				mcdot_product_2x1 (Out, In0, In1+h, m, k, OutS, Outs, k, n);
 				Out += OutS * 2;
 			}
 			if (mod) {
 				replicate_1x1 (Out, m, In2, Outs, (U)1);
-				mcdot_product_1x1 (Out, In0, In1+h*k, m, k, Outs, k, n);
+				mcdot_product_1x1 (Out, In0, In1+h, m, k, Outs, k, n);
 				Out += OutS;
 			}
 			return;
@@ -136,12 +137,12 @@ static inline void mcdot_product_2 (T* Out,
 			mod = n & 1;
 			for (g = n >> 1; g; g--, h += 2) {
 				replicate_2x2 (Out, m, In2, OutS, (U)0, Outs, (U)1);
-				mcdot_product_2x2 (Out, In0, In1+h*k, m, k, OutS, Outs, k, n);
+				mcdot_product_2x2 (Out, In0, In1+h, m, k, OutS, Outs, k, n);
 				Out += OutS * 2;
 			}
 			if (mod) {
 				replicate_1x2 (Out, m, In2, Outs, (U)1);
-				mcdot_product_1x2 (Out, In0, In1+h*k, m, k, Outs, k, n);
+				mcdot_product_1x2 (Out, In0, In1+h, m, k, Outs, k, n);
 				Out += OutS;
 			}
 			return;
@@ -151,12 +152,12 @@ static inline void mcdot_product_2 (T* Out,
 			mod = n & 1;
 			for (g = n >> 1; g; g--, h += 2) {
 				replicate_2x4 (Out, m, In2, OutS, (U)0, Outs, (U)1);
-				mcdot_product_2x4 (Out, In0, In1+h*k, m, k, OutS, Outs, k, n);
+				mcdot_product_2x4 (Out, In0, In1+h, m, k, OutS, Outs, k, n);
 				Out += OutS * 2;
 			}
 			if (mod) {
 				replicate_1x4 (Out, m, In2, Outs, (U)1);
-				mcdot_product_1x4 (Out, In0, In1+h*k, m, k, Outs, k, n);
+				mcdot_product_1x4 (Out, In0, In1+h, m, k, Outs, k, n);
 				Out += OutS;
 			}
 			return;
@@ -166,12 +167,12 @@ static inline void mcdot_product_2 (T* Out,
 			mod = n & 1;
 			for (g = n >> 1; g; g--, h += 2) {
 				replicate_2x8 (Out, m, In2, OutS, (U)0, Outs, (U)1);
-				mcdot_product_2x8 (Out, In0, In1+h*k, m, k, OutS, Outs, k, n);
+				mcdot_product_2x8 (Out, In0, In1+h, m, k, OutS, Outs, k, n);
 				Out += OutS * 2;
 			}
 			if (mod) {
 				replicate_1x8 (Out, m, In2, Outs, (U)1);
-				mcdot_product_1x8 (Out, In0, In1+h*k, m, k, Outs, k, n);
+				mcdot_product_1x8 (Out, In0, In1+h, m, k, Outs, k, n);
 				Out += OutS;
 			}
 			return;
@@ -181,12 +182,12 @@ static inline void mcdot_product_2 (T* Out,
 			mod = n & 1;
 			for (g = n >> 1; g; g--, h += 2) {
 				replicate_2x16(Out, m, In2, OutS, (U)0, Outs, (U)1);
-				mcdot_product_2x16(Out, In0, In1+h*k, m, k, OutS, Outs, k, n);
+				mcdot_product_2x16(Out, In0, In1+h, m, k, OutS, Outs, k, n);
 				Out += OutS * 2;
 			}
 			if (mod) {
 				replicate_1x16(Out, m, In2, Outs, (U)1);
-				mcdot_product_1x16(Out, In0, In1+h*k, m, k, Outs, k, n);
+				mcdot_product_1x16(Out, In0, In1+h, m, k, Outs, k, n);
 				Out += OutS;
 			}
 			return;
@@ -196,12 +197,12 @@ static inline void mcdot_product_2 (T* Out,
 			mod = n & 1;
 			for (g = n >> 1; g; g--, h += 2) {
 				replicate_2x32(Out, m, In2, OutS, (U)0, Outs, (U)1);
-				mcdot_product_2x32(Out, In0, In1+h*k, m, k, OutS, Outs, k, n);
+				mcdot_product_2x32(Out, In0, In1+h, m, k, OutS, Outs, k, n);
 				Out += OutS * 2;
 			}
 			if (mod) {
 				replicate_1x32(Out, m, In2, Outs, (U)1);
-				mcdot_product_1x32(Out, In0, In1+h*k, m, k, Outs, k, n);
+				mcdot_product_1x32(Out, In0, In1+h, m, k, Outs, k, n);
 				Out += OutS;
 			}
 			return;
@@ -242,19 +243,19 @@ static inline void mcdot_product_4 (T* Out,
 			mod = n & 3;
 			for (g = n >> 2; g; g--, h += 4) {
 				replicate_4x1 (Out, m, In2, OutS, (U)0, Outs, (U)1);
-				mcdot_product_4x1 (Out, In0, In1+h*k, m, k, OutS, Outs, k, n);
+				mcdot_product_4x1 (Out, In0, In1+h, m, k, OutS, Outs, k, n);
 				Out += OutS * 4;
 			}
 			if (mod > 1) {
 				replicate_2x1 (Out, m, In2, OutS, (U)0, Outs, (U)1);
-				mcdot_product_2x1 (Out, In0, In1+h*k, m, k, OutS, Outs, k, n);
+				mcdot_product_2x1 (Out, In0, In1+h, m, k, OutS, Outs, k, n);
 				Out += OutS * 2;
 				h += 2;
 				mod &= 1;
 			}
 			if (mod) {
 				replicate_1x1 (Out, m, In2, Outs, (U)1);
-				mcdot_product_1x1 (Out, In0, In1+h*k, m, k, Outs, k, n);
+				mcdot_product_1x1 (Out, In0, In1+h, m, k, Outs, k, n);
 				Out += OutS;
 			}
 			return;
@@ -264,19 +265,19 @@ static inline void mcdot_product_4 (T* Out,
 			mod = n & 3;
 			for (g = n >> 2; g; g--, h += 4) {
 				replicate_4x2 (Out, m, In2, OutS, (U)0, Outs, (U)1);
-				mcdot_product_4x2 (Out, In0, In1+h*k, m, k, OutS, Outs, k, n);
+				mcdot_product_4x2 (Out, In0, In1+h, m, k, OutS, Outs, k, n);
 				Out += OutS * 4;
 			}
 			if (mod > 1) {
 				replicate_2x2 (Out, m, In2, OutS, (U)0, Outs, (U)1);
-				mcdot_product_2x2 (Out, In0, In1+h*k, m, k, OutS, Outs, k, n);
+				mcdot_product_2x2 (Out, In0, In1+h, m, k, OutS, Outs, k, n);
 				Out += OutS * 2;
 				h += 2;
 				mod &= 1;
 			}
 			if (mod) {
 				replicate_1x2 (Out, m, In2, n, (U)1);
-				mcdot_product_1x2 (Out, In0, In1+h*k, m, k, Outs, k, n);
+				mcdot_product_1x2 (Out, In0, In1+h, m, k, Outs, k, n);
 				Out += OutS;
 			}
 			return;
@@ -286,19 +287,19 @@ static inline void mcdot_product_4 (T* Out,
 			mod = n & 3;
 			for (g = n >> 2; g; g--, h += 4) {
 				replicate_4x4 (Out, m, In2, OutS, (U)0, Outs, (U)1);
-				mcdot_product_4x4 (Out, In0, In1+h*k, m, k, OutS, Outs, k, n);
+				mcdot_product_4x4 (Out, In0, In1+h, m, k, OutS, Outs, k, n);
 				Out += OutS * 4;
 			}
 			if (mod > 1) {
 				replicate_2x4 (Out, m, In2, OutS, (U)0, Outs, (U)1);
-				mcdot_product_2x4 (Out, In0, In1+h*k, m, k, OutS, Outs, k, n);
+				mcdot_product_2x4 (Out, In0, In1+h, m, k, OutS, Outs, k, n);
 				Out += OutS * 2;
 				h += 2;
 				mod &= 1;
 			}
 			if (mod) {
 				replicate_1x4 (Out, m, In2, n, (U)1);
-				mcdot_product_1x4 (Out, In0, In1+h*k, m, k, Outs, k, n);
+				mcdot_product_1x4 (Out, In0, In1+h, m, k, Outs, k, n);
 				Out += OutS;
 			}
 			return;
@@ -308,19 +309,19 @@ static inline void mcdot_product_4 (T* Out,
 			mod = n & 3;
 			for (g = n >> 2; g; g--, h += 4) {
 				replicate_4x8 (Out, m, In2, OutS, (U)0, Outs, (U)1);
-				mcdot_product_4x8 (Out, In0, In1+h*k, m, k, OutS, Outs, k, n);
+				mcdot_product_4x8 (Out, In0, In1+h, m, k, OutS, Outs, k, n);
 				Out += OutS * 4;
 			}
 			if (mod > 1) {
 				replicate_2x8 (Out, m, In2, OutS, (U)0, Outs, (U)1);
-				mcdot_product_2x8 (Out, In0, In1+h*k, m, k, OutS, Outs, k, n);
+				mcdot_product_2x8 (Out, In0, In1+h, m, k, OutS, Outs, k, n);
 				Out += OutS * 2;
 				h += 2;
 				mod &= 1;
 			}
 			if (mod) {
 				replicate_1x8 (Out, m, In2, n, (U)1);
-				mcdot_product_1x8 (Out, In0, In1+h*k, m, k, Outs, k, n);
+				mcdot_product_1x8 (Out, In0, In1+h, m, k, Outs, k, n);
 				Out += OutS;
 			}
 			return;
@@ -330,19 +331,19 @@ static inline void mcdot_product_4 (T* Out,
 			mod = n & 3;
 			for (g = n >> 2; g; g--, h += 4) {
 				replicate_4x16 (Out, m, In2, OutS, (U)0, Outs, (U)1);
-				mcdot_product_4x16(Out, In0, In1+h*k, m, k, OutS, Outs, k, n);
+				mcdot_product_4x16(Out, In0, In1+h, m, k, OutS, Outs, k, n);
 				Out += OutS * 4;
 			}
 			if (mod > 1) {
 				replicate_2x16(Out, m, In2, OutS, (U)0, Outs, (U)1);
-				mcdot_product_2x16(Out, In0, In1+h*k, m, k, OutS, Outs, k, n);
+				mcdot_product_2x16(Out, In0, In1+h, m, k, OutS, Outs, k, n);
 				Out += OutS * 2;
 				h += 2;
 				mod &= 1;
 			}
 			if (mod) {
 				replicate_1x16(Out, m, In2, n, (U)1);
-				mcdot_product_1x16(Out, In0, In1+h*k, m, k, Outs, k, n);
+				mcdot_product_1x16(Out, In0, In1+h, m, k, Outs, k, n);
 				Out += OutS;
 			}
 			return;
@@ -352,19 +353,19 @@ static inline void mcdot_product_4 (T* Out,
 			mod = n & 3;
 			for (g = n >> 2; g; g--, h += 4) {
 				replicate_4x32(Out, m, In2, OutS, (U)0, Outs, (U)1);
-				mcdot_product_4x32(Out, In0, In1+h*k, m, k, OutS, Outs, k, n);
+				mcdot_product_4x32(Out, In0, In1+h, m, k, OutS, Outs, k, n);
 				Out += OutS * 4;
 			}
 			if (mod > 1) {
 				replicate_2x32(Out, m, In2, OutS, (U)0, Outs, (U)1);
-				mcdot_product_2x32(Out, In0, In1+h*k, m, k, OutS, Outs, k, n);
+				mcdot_product_2x32(Out, In0, In1+h, m, k, OutS, Outs, k, n);
 				Out += OutS * 2;
 				h += 2;
 				mod &= 1;
 			}
 			if (mod) {
 				replicate_1x32(Out, m, In2, n, (U)1);
-				mcdot_product_1x32(Out, In0, In1+h*k, m, k, Outs, k, n);
+				mcdot_product_1x32(Out, In0, In1+h, m, k, Outs, k, n);
 				Out += OutS;
 			}
 			return;

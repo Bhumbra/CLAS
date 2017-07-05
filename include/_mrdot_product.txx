@@ -43,7 +43,7 @@ static inline void mrdot_product_1 (T* Out,
 			for (h = 0; h<n; h++) {
 				replicate_1x1 (Out, m, In2, Outs, (U)1);
 				mrdot_product_1x1 (Out, In0, In1+h*k, m, k, Outs, k); 
-				Outs += OutS;
+				Out += OutS;
 			}
 			return;
 		}
@@ -51,7 +51,7 @@ static inline void mrdot_product_1 (T* Out,
 			for (h = 0; h<n; h++) {
 				replicate_1x2 (Out, m, In2, Outs, (U)1);
 				mrdot_product_1x2 (Out, In0, In1+h*k, m, k, Outs, k); 
-				Outs += OutS;
+				Out += OutS;
 			}
 			return;
 		}
@@ -59,7 +59,7 @@ static inline void mrdot_product_1 (T* Out,
 			for (h = 0; h<n; h++) {
 				replicate_1x4 (Out, m, In2, Outs, (U)1);
 				mrdot_product_1x4 (Out, In0, In1+h*k, m, k, Outs, k); 
-				Outs += OutS;
+				Out += OutS;
 			}
 			return;
 		}
@@ -67,7 +67,7 @@ static inline void mrdot_product_1 (T* Out,
 			for (h = 0; h<n; h++) {
 				replicate_1x8 (Out, m, In2, Outs, (U)1);
 				mrdot_product_1x8 (Out, In0, In1+h*k, m, k, Outs, k); 
-				Outs += OutS;
+				Out += OutS;
 			}
 			return;
 		}
@@ -75,7 +75,7 @@ static inline void mrdot_product_1 (T* Out,
 			for (h = 0; h<n; h++) {
 				replicate_1x16(Out, m, In2, Outs, (U)1);
 				mrdot_product_1x16(Out, In0, In1+h*k, m, k, Outs, k); 
-				Outs += OutS;
+				Out += OutS;
 			}
 			return;
 		}
@@ -83,7 +83,7 @@ static inline void mrdot_product_1 (T* Out,
 			for (h = 0; h<n; h++) {
 				replicate_1x32(Out, m, In2, Outs, (U)1);
 				mrdot_product_1x32(Out, In0, In1+h*k, m, k, Outs, k); 
-				Outs += OutS;
+				Out += OutS;
 			}
 			return;
 		}
