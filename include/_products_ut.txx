@@ -294,42 +294,42 @@ static inline void mmdot_product_ut(T* Out,
 
   // Scalar/vector outputs fast-track
 
-	if (m == 1) {       // out can only be a scalar or vector
-		if (n == 1) {     // out is a scalar
+	if (m == 1) {        // out can only be a scalar or vector
+		if (n == 1) {      // out is a scalar
 			return inner_product_ut(Out, In0, In1, m, k, (U)1, (U)0, (U)0, In2, U1);
-		}                 // otherwise out is a vector
+		}                  // otherwise out is a vector
 		else if (!In1Cm) { // untranposed multiple: vector = vector * matrix
 			return rmdot_product_ut(Out, In0, In1, m, k, n, In2, false, U0, U1);
 		}
-		else {            // transposed multiple:  inner product  		  
+		else {             // transposed multiple:  inner product
 			return inner_product_ut(Out, In0, In1, n, k, (U)1, (U)0, k, In2, U1);
 		}      
 	}
 	
-	if (n == 1) {       // out can only be a vector
+	if (n == 1) {        // out can only be a vector
 		if (!In0Cm) {      // untranposed multiplicand: 
 			return inner_product_ut(Out, In0, In1, m, k, n, k, (U)0, In2, U1);
 		}
-		else {            // tranposed multiplicand - inner product of swapped inputs
+		else {             // tranposed multiplicand - inner product of swapped inputs
 			return cmdot_product_ut(Out, In0, In1, m, k, n, In2, false, U0, U1);
 		}
 	}
 
-	// Outer products without maxuend fast-track
+	// Outer products 
 	if (k == 1) {     
-		if (!In2) {       // No maxuend
+		if (!In2) {        // No maxuend
 			if (!OutCm) {    // untransposed product
 				return outer_product_ut(Out, In0, In1, m, n, n, (U)1, (U)0, U1);
 			}
-			else {          // transposed product - outer product of swapped inputs
+			else {           // transposed product - outer product of swapped inputs
 				return outer_product_ut(Out, In1, In0, n, m, m, (U)1, (U)0, U1);
 			}
 		}
-		else {            // Have maxuend
+		else {             // Have maxuend
 			if (!OutCm) {    // untransposed product
 				return mrdot_product_ut(Out, In0, In1, (U)m, (U)1, (U)1, OutCm, In2, U0, U1);
 			}
-			else {          // transposed outer product
+			else {           // transposed outer product
 				return mrdot_product_ut(Out, In0, In1, (U)m, (U)1, (U)1, OutCm, In2, U0, U1);
 			}
 		}
@@ -366,7 +366,7 @@ static inline void mmdot_product_ut(T* Out,
 				return mrdot_product_ut(Out, In0, In1, m, k, n, OutCm, In2, U0, U1);
 			}
 		}
-	  else {             // Transposed multiplicand
+		else {             // Transposed multiplicand
 			if (!In1Cm) {    // Untransposed multiple
 				// C.T = A.T * B => C = B.T * A
 				return cmdot_product_ut(Out, In1, In0, n, k, m, In2, true, U0, U1);
@@ -374,6 +374,7 @@ static inline void mmdot_product_ut(T* Out,
 			else {           // Transposed multiple
 				// C.T = A.T * B.T => C = B * A
 				return rmdot_product_ut(Out, In1, In0, n, k, m, In2, true, U0, U1);
+				//return mcdot_product_ut(Out, In1, In0, n, k, m, false, In2, U0, U1);
 			}
 		}
 	}

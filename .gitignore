@@ -3,5 +3,6 @@ bin/*
 lib/*
 asm/*
 *ex*
+scrap.*
 *.old
 sh*
