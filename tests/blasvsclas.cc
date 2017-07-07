@@ -26,8 +26,8 @@ int main(int argc, char* argv[])
 	std::cout << std::endl << "Start" << std::endl;
 	uint64_t h, i, j;
 
-  uint64_t m = 30;   // maxuend rows -                    (1 for vmdot)
-  uint64_t k = 784; // maxuend cols (and multiple rows)  (1 for outer)
+	uint64_t m = 30;   // maxuend rows -                    (1 for vmdot)
+	uint64_t k = 784; // maxuend cols (and multiple rows)  (1 for outer)
 	uint64_t n = 1024; // multiple cols  - for ewise, m = n (1 for inner and mvdot)
 	uint64_t N = 200; // repeats
 	bool transpose[] = {false, false, false};
@@ -42,17 +42,20 @@ int main(int argc, char* argv[])
 	uint64_t nt = 0; // number of threads (-1 - force unithread, 0 - all threads) 
 	uint64_t u0 = 0; // maximum outer unroll (0 - optimal)
 	uint64_t u1 = 0; // maximum inner unroll (0 - optimal)
+	
+	double c0 = 0.;  // coefficient to multiply with multiplicand
+	double c1 = 0.;  // coefficient to multiply with multiple
 
 
 	uint64_t zr, zc;
 	double* d = 0;
-  double* a = new double[m * k];
-  double* b = new double[n * k];
+	double* a = new double[m * k];
+	double* b = new double[n * k];
 	double* c = new double[m * n]; 
 	double* _d = new double[m];
 	double** C = new double*[m];
-  double* x = new double[m * k];
-  double* y = new double[n * k];
+	double* x = new double[m * k];
+	double* y = new double[n * k];
 
 	bool colmajor[3];
 	if (ColMajor) {
@@ -66,7 +69,7 @@ int main(int argc, char* argv[])
 		colmajor[2] = transpose[2];
 	}
 
-  zr = m; 
+	zr = m; 
 	zc = n;
 	if (colmajor[0]) {
 		zr = n; 
@@ -77,27 +80,27 @@ int main(int argc, char* argv[])
 	double** Z = new double*[zr];
 
 
-  struct timeb t;
+	struct timeb t;
 
 	for (i = 0; i < m*k; i++) {
-    a[i] = (double)((int)(i+1));
-    x[i] = (double)((int)(i+1));
+		a[i] = (double)((int)(i+1)) * c0;
+		x[i] = (double)((int)(i+1)) * c0;
 	}
 	for (i = 0; i < n*k; i++) {
-    b[i] = (double)((int)(-i-1));
-    y[i] = (double)((int)(-i-1));
+		b[i] = (double)((int)(-i-1)) * c1;
+		y[i] = (double)((int)(-i-1)) * c1;
 	}
 	for (i = 0; i < m*n; i++) {
-    c[i] = 0.;
+		c[i] = 0.;
 	}
 	for (i = 0; i < m; i++) {
 		_d[i] = (double)(maxuend * (1+(int)i)); 
 	}
 	for (i = 0; i < m; i++) {
-    C[i] = c + int(i*n);
+		C[i] = c + int(i*n);
 	}
 	for (i = 0; i < zr*zc; i++) {
-    z[i] = 0.;
+		z[i] = 0.;
 	}
 	for (i = 0; i < zr; i++) {
 		Z[i] = z + int(i*zc);
@@ -108,8 +111,8 @@ int main(int argc, char* argv[])
 	auto aT = colmajor[1] ? CblasTrans : CblasNoTrans;
 	auto bT = colmajor[2] ? CblasTrans : CblasNoTrans;
 	if (colmajor[0]) {
-	  aT = colmajor[1] ? CblasTrans : CblasNoTrans;
-	  bT = colmajor[2] ? CblasTrans : CblasNoTrans;
+		aT = colmajor[1] ? CblasTrans : CblasNoTrans;
+		bT = colmajor[2] ? CblasTrans : CblasNoTrans;
 	}
 
 	int lda = colmajor[1] ? m :  k;
@@ -122,9 +125,9 @@ int main(int argc, char* argv[])
 
 	if (showInputs) {
 		std::cout << std::endl;
-    Cout(x, m, k);
+		Cout(x, m, k);
 		std::cout << std::endl;
-    Cout(y, k, n);
+		Cout(y, k, n);
 		std::cout << std::endl;
 		if (maxuend) {
 			Cout(d, 1, m);
@@ -135,8 +138,8 @@ int main(int argc, char* argv[])
 	// RESULTS
 
 	h = 0; 
-  cblas_dgemm(CblasRowMajor, aT, bT,
-			        m, n, k, 1.,
+	cblas_dgemm(CblasRowMajor, aT, bT,
+							m, n, k, 1.,
 							a, lda, b, ldb, 1., 
 							c, n);
 	/* in-place - for outer products
@@ -144,18 +147,18 @@ int main(int argc, char* argv[])
 			       a, k, b, k, c, n);
 	*/
 	if (showResult[h++]) {
-	  std::cout << std::endl;
+		std::cout << std::endl;
 		Cout(c, m, n, colmajor[0]);
-	  std::cout << std::endl;
+		std::cout << std::endl;
 	}
 	for (i = 0; i < m*n; i++) {
 		c[i] = 0.;
 	}
 	if (showResult[h++]) {
 		clas::mmdot_product_double(z, x, y, m, k, n, transpose[0], transpose[1], transpose[2], ColMajor, d, -1, u0, u1);
-	  std::cout << std::endl;
+		std::cout << std::endl;
 		Cout(z, zr, zc);
-	  std::cout << std::endl;
+		std::cout << std::endl;
 	}
 	for (i = 0; i < zr*zc; i++) {
 		z[i] = 0.;
@@ -163,9 +166,9 @@ int main(int argc, char* argv[])
 
 	if (showResult[h++]) {
 		clas::mmdot_product_double(z, x, y, m, k, n, transpose[0], transpose[1], transpose[2], ColMajor, d, nt, u0, u1);
-	  std::cout << std::endl;
+		std::cout << std::endl;
 		Cout(z, zr, zc);
-	  std::cout << std::endl;
+		std::cout << std::endl;
 	}
 	for (i = 0; i < zr*zc; i++) {
 		z[i] = 0.;
@@ -176,30 +179,30 @@ int main(int argc, char* argv[])
 	std::cout << std::endl;
 	h = 0;
 	if (benchMark[h++]) {
-	  tic(t);
-	  for (i = 0; i<N; i++) {
+		tic(t);
+		for (i = 0; i<N; i++) {
 			cblas_dgemm(CblasRowMajor, aT, bT,
 									m, n, k, 1.,
 									a, lda, b, ldb, 1., 
 									c, n);
 		}
-    std::cout << "cblas_dgemm: elapsed time = " << toc(t) << " seconds" << std::endl;
+		std::cout << "cblas_dgemm: elapsed time = " << toc(t) << " seconds" << std::endl;
 	}
 
 	if (benchMark[h++]) {
 		tic(t);
-	  for (i = 0; i<N; i++) {
+		for (i = 0; i<N; i++) {
 			clas::mmdot_product_double(z, x, y, m, k, n, transpose[0], transpose[1], transpose[2], ColMajor, d, -1, u0, u1);
 		}
-	  std::cout << "clas::mmdot_product_double (single thread): elapsed time = " << toc(t) << " seconds" << std::endl;
+		std::cout << "clas::mmdot_product_double (single thread): elapsed time = " << toc(t) << " seconds" << std::endl;
 	}
 
 	if (benchMark[h++]) {
 		tic(t);
-	  for (i = 0; i<N; i++) {
+		for (i = 0; i<N; i++) {
 			clas::mmdot_product_double(z, x, y, m, k, n, transpose[0], transpose[1], transpose[2], ColMajor, d, nt, u0, u1);
 		}
-	  std::cout << "clas::mmdot_product_double (multithreaded): elapsed time = " << toc(t) << " seconds" << std::endl;
+		std::cout << "clas::mmdot_product_double (multithreaded): elapsed time = " << toc(t) << " seconds" << std::endl;
 	}
 
 
