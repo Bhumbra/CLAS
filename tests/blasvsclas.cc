@@ -26,14 +26,13 @@ int main(int argc, char* argv[])
 	std::cout << std::endl << "Start" << std::endl;
 	uint64_t h, i, j;
 
-	uint64_t m = 30;   // maxuend rows -                    (1 for vmdot)
-	uint64_t k = 784; // maxuend cols (and multiple rows)  (1 for outer)
-	uint64_t n = 1024; // multiple cols  - for ewise, m = n (1 for inner and mvdot)
+	uint64_t m = 30;   // maxuend rows -                  (1 for inner/rmdot)
+	uint64_t k = 784; // maxuend cols (and multiple rows)  (1 for outer/mrdot)
+	uint64_t n = 1024; // multiple cols  - for ewise, m = n (1 for inner/cmdot)
 	uint64_t N = 200; // repeats
 	bool transpose[] = {false, false, false};
 	bool ColMajor = false;
 	
-	int maxuend = 0;  // 0 means not used - non-zero is casted to double
 	bool showInputs = false;
 	bool showResult[] = {0, 0, 0};
 	//bool benchMark[] =  {0, 0, 0}; 
@@ -45,6 +44,7 @@ int main(int argc, char* argv[])
 	
 	double c0 = 1.;  // coefficient to multiply with multiplicand
 	double c1 = 1.;  // coefficient to multiply with multiple
+	int maxuend = 0;  // 0 means not used - non-zero is casted to double
 
 
 	uint64_t zr, zc;
