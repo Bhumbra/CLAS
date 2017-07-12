@@ -38,8 +38,8 @@ int main(int argc, char* argv[])
 	bool benchMark[] =  {true, true, true}; 
 
 	uint64_t nt = 0; // number of threads (-1 - force unithread, 0 - all threads) 
-	uint64_t u0 = 1; // maximum outer unroll (0 - optimal)
-	uint64_t u1 = 1; // maximum inner unroll (0 - optimal)
+	uint64_t u0 = 0; // maximum outer unroll (0 - optimal)
+	uint64_t u1 = 0; // maximum inner unroll (0 - optimal)
 	
 	double c0 = 1.;  // coefficient to multiply with multiplicand
 	double c1 = 1.;  // coefficient to multiply with multiple
