@@ -2,14 +2,16 @@
 #define _cmdot_product_4_txx
 
 //------------------------------------------------------------------------------
+// Note In1s is also the output stride
+//------------------------------------------------------------------------------
 template <class T, class U>
 static inline void cmdot_product_4x1 (T* Out, 
 																			T* In0, 
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
-																			volatile const U OIs = 0,
-																			volatile const U In0s = 0) { 
+																			volatile const U In0s = 0,
+																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1, in0_2, in0_3;
 	register T in1_0;
@@ -25,10 +27,10 @@ static inline void cmdot_product_4x1 (T* Out,
 	In0_2 = In0 + 2;
 	In0_3 = In0 + 3;
 	In1 = _In1;
-	Out0 = Out + OIs * 0;
-	Out1 = Out + OIs * 1;
-	Out2 = Out + OIs * 2;
-	Out3 = Out + OIs * 3;
+	Out0 = Out + In1s * 0;
+	Out1 = Out + In1s * 1;
+	Out2 = Out + In1s * 2;
+	Out3 = Out + In1s * 3;
 
 	for (i = k; i; i--) {
 		out0 = Out0;
@@ -44,7 +46,7 @@ static inline void cmdot_product_4x1 (T* Out,
 		In0_2 += In0s;
 		In0_3 += In0s;
 		in1 = In1;
-		In1 += OIs;
+		In1 += In1s;
 		for (j = n; j; j--) {
 			in1_0 = *(in1 +  0);
 			*(out0 +  0) += in0_0 * in1_0; 
@@ -67,8 +69,8 @@ static inline void cmdot_product_4x2 (T* Out,
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
-																			volatile const U OIs = 0,
-																			volatile const U In0s = 0) { 
+																			volatile const U In0s = 0,
+																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1, in0_2, in0_3;
 	register T in1_0, in1_1;
@@ -85,10 +87,10 @@ static inline void cmdot_product_4x2 (T* Out,
 	In0_2 = In0 + 2;
 	In0_3 = In0 + 3;
 	In1 = _In1;
-  Out0 = Out + OIs * 0;
-	Out1 = Out + OIs * 1;
-	Out2 = Out + OIs * 2;
-	Out3 = Out + OIs * 3;
+  Out0 = Out + In1s * 0;
+	Out1 = Out + In1s * 1;
+	Out2 = Out + In1s * 2;
+	Out3 = Out + In1s * 3;
 
 	div = n >> 1;
 	mod = n & 1;
@@ -107,7 +109,7 @@ static inline void cmdot_product_4x2 (T* Out,
 		In0_2 += In0s;
 		In0_3 += In0s;
 		in1 = In1;
-		In1 += OIs;
+		In1 += In1s;
 		for (j = div; j; j--) {
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
@@ -129,7 +131,7 @@ static inline void cmdot_product_4x2 (T* Out,
 
 	if (mod) {
 		div = n - mod;
-		cmdot_product_4x1(Out + div, In0, _In1 + div, k, mod, OIs, In0s);
+		cmdot_product_4x1(Out + div, In0, _In1 + div, k, mod, In1s, In0s);
 	}
 }
 
@@ -140,8 +142,8 @@ static inline void cmdot_product_4x4 (T* Out,
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
-																			volatile const U OIs = 0,
-																			volatile const U In0s = 0) { 
+																			volatile const U In0s = 0,
+																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1, in0_2, in0_3;
 	register T in1_0, in1_1, in1_2, in1_3;
@@ -158,10 +160,10 @@ static inline void cmdot_product_4x4 (T* Out,
 	In0_2 = In0 + 2;
 	In0_3 = In0 + 3;
 	In1 = _In1;
-	Out0 = Out + OIs * 0;
-	Out1 = Out + OIs * 1;
-	Out2 = Out + OIs * 2;
-	Out3 = Out + OIs * 3;
+	Out0 = Out + In1s * 0;
+	Out1 = Out + In1s * 1;
+	Out2 = Out + In1s * 2;
+	Out3 = Out + In1s * 3;
 
 	div = n >> 2;
 	mod = n & 3;
@@ -180,7 +182,7 @@ static inline void cmdot_product_4x4 (T* Out,
 		In0_2 += In0s;
 		In0_3 += In0s;
 		in1 = In1;
-		In1 += OIs;
+		In1 += In1s;
 		for (j = div; j; j--) {
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
@@ -212,7 +214,7 @@ static inline void cmdot_product_4x4 (T* Out,
 
 	if (mod) {
 		div = n - mod;
-		cmdot_product_4x2(Out + div, In0, _In1 + div, k, mod, OIs, In0s);
+		cmdot_product_4x2(Out + div, In0, _In1 + div, k, mod, In1s, In0s);
 	}
 }
 
@@ -223,8 +225,8 @@ static inline void cmdot_product_4x8 (T* Out,
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
-																			volatile const U OIs = 0,
-																			volatile const U In0s = 0) { 
+																			volatile const U In0s = 0,
+																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1, in0_2, in0_3;
 	register T in1_0, in1_1, in1_2, in1_3;
@@ -241,10 +243,10 @@ static inline void cmdot_product_4x8 (T* Out,
 	In0_2 = In0 + 2;
 	In0_3 = In0 + 3;
 	In1 = _In1;
-	Out0 = Out + OIs * 0;
-	Out1 = Out + OIs * 1;
-	Out2 = Out + OIs * 2;
-	Out3 = Out + OIs * 3;
+	Out0 = Out + In1s * 0;
+	Out1 = Out + In1s * 1;
+	Out2 = Out + In1s * 2;
+	Out3 = Out + In1s * 3;
 
 	div = n >> 3;
 	mod = n & 7;
@@ -263,7 +265,7 @@ static inline void cmdot_product_4x8 (T* Out,
 		In0_2 += In0s;
 		In0_3 += In0s;
 		in1 = In1;
-		In1 += OIs;
+		In1 += In1s;
 		for (j = div; j; j--) {
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
@@ -320,7 +322,7 @@ static inline void cmdot_product_4x8 (T* Out,
 
 	if (mod) {
 		div = n - mod;
-		cmdot_product_4x4(Out + div, In0, _In1 + div, k, mod, OIs, In0s);
+		cmdot_product_4x4(Out + div, In0, _In1 + div, k, mod, In1s, In0s);
 	}
 }
 
@@ -331,8 +333,8 @@ static inline void cmdot_product_4x16(T* Out,
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
-																			volatile const U OIs = 0,
-																			volatile const U In0s = 0) { 
+																			volatile const U In0s = 0,
+																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1, in0_2, in0_3;
 	register T in1_0, in1_1, in1_2, in1_3;
@@ -349,10 +351,10 @@ static inline void cmdot_product_4x16(T* Out,
 	In0_2 = In0 + 2;
 	In0_3 = In0 + 3;
 	In1 = _In1;
-	Out0 = Out + OIs * 0;
-	Out1 = Out + OIs * 1;
-	Out2 = Out + OIs * 2;
-	Out3 = Out + OIs * 3;
+	Out0 = Out + In1s * 0;
+	Out1 = Out + In1s * 1;
+	Out2 = Out + In1s * 2;
+	Out3 = Out + In1s * 3;
 
 	div = n >> 4;
 	mod = n & 15;
@@ -371,7 +373,7 @@ static inline void cmdot_product_4x16(T* Out,
 		In0_2 += In0s;
 		In0_3 += In0s;
 		in1 = In1;
-		In1 += OIs;
+		In1 += In1s;
 		for (j = div; j; j--) {
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
@@ -478,7 +480,7 @@ static inline void cmdot_product_4x16(T* Out,
 
 	if (mod) {
 		div = n - mod;
-		cmdot_product_4x8(Out + div, In0, _In1 + div, k, mod, OIs, In0s);
+		cmdot_product_4x8(Out + div, In0, _In1 + div, k, mod, In1s, In0s);
 	}
 }
 
@@ -489,8 +491,8 @@ static inline void cmdot_product_4x32(T* Out,
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
-																			volatile const U OIs = 0,
-																			volatile const U In0s = 0) { 
+																			volatile const U In0s = 0,
+																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1, in0_2, in0_3;
 	register T in1_0, in1_1, in1_2, in1_3;
@@ -507,10 +509,10 @@ static inline void cmdot_product_4x32(T* Out,
 	In0_2 = In0 + 2;
 	In0_3 = In0 + 3;
 	In1 = _In1;
-	Out0 = Out + OIs * 0;
-	Out1 = Out + OIs * 1;
-	Out2 = Out + OIs * 2;
-	Out3 = Out + OIs * 3;
+	Out0 = Out + In1s * 0;
+	Out1 = Out + In1s * 1;
+	Out2 = Out + In1s * 2;
+	Out3 = Out + In1s * 3;
 
 	div = n >> 5;
 	mod = n & 31;
@@ -529,7 +531,7 @@ static inline void cmdot_product_4x32(T* Out,
 		In0_2 += In0s;
 		In0_3 += In0s;
 		in1 = In1;
-		In1 += OIs;
+		In1 += In1s;
 		for (j = div; j; j--) {
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
@@ -736,7 +738,7 @@ static inline void cmdot_product_4x32(T* Out,
 
 	if (mod) {
 		div = n - mod;
-		cmdot_product_4x16(Out + div, In0, _In1 + div, k, mod, OIs, In0s);
+		cmdot_product_4x16(Out + div, In0, _In1 + div, k, mod, In1s, In0s);
 	}
 }
 
@@ -747,8 +749,8 @@ static inline void cmdot_product_4x64(T* Out,
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
-																			volatile const U OIs = 0,
-																			volatile const U In0s = 0) { 
+																			volatile const U In0s = 0,
+																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1, in0_2, in0_3;
 	register T in1_0, in1_1, in1_2, in1_3;
@@ -765,10 +767,10 @@ static inline void cmdot_product_4x64(T* Out,
 	In0_2 = In0 + 2;
 	In0_3 = In0 + 3;
 	In1 = _In1;
-	Out0 = Out + OIs * 0;
-	Out1 = Out + OIs * 1;
-	Out2 = Out + OIs * 2;
-	Out3 = Out + OIs * 3;
+	Out0 = Out + In1s * 0;
+	Out1 = Out + In1s * 1;
+	Out2 = Out + In1s * 2;
+	Out3 = Out + In1s * 3;
 
 	div = n >> 6;
 	mod = n & 63;
@@ -787,7 +789,7 @@ static inline void cmdot_product_4x64(T* Out,
 		In0_2 += In0s;
 		In0_3 += In0s;
 		in1 = In1;
-		In1 += OIs;
+		In1 += In1s;
 		for (j = div; j; j--) {
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
@@ -1194,7 +1196,7 @@ static inline void cmdot_product_4x64(T* Out,
 
 	if (mod) {
 		div = n - mod;
-		cmdot_product_4x32(Out + div, In0, _In1 + div, k, mod, OIs, In0s);
+		cmdot_product_4x32(Out + div, In0, _In1 + div, k, mod, In1s, In0s);
 	}
 }
 

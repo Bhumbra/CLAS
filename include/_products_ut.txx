@@ -201,17 +201,18 @@ static inline void cmdot_product_ut(T* Out,
 																		volatile const U n, 
 																		T* In2 = 0,
 																		volatile const bool In2Tr = false,
+																		volatile U In0s = 0,
 																		volatile U U0 = 0,
 																		volatile U U1 = 0) { 
 	switch (U0) {
 		case 1: {
-			return cmdot_product_1(Out, In0, In1, m, k, n, In2, In2Tr, U1);
+			return cmdot_product_1(Out, In0, In1, m, k, n, In2, In2Tr, In0s, U1);
 		}
 		case 2: {
-			return cmdot_product_2(Out, In0, In1, m, k, n, In2, In2Tr, U1);
+			return cmdot_product_2(Out, In0, In1, m, k, n, In2, In2Tr, In0s, U1);
 		}
 		default: {
-			return cmdot_product_4(Out, In0, In1, m, k, n, In2, In2Tr, U1);
+			return cmdot_product_4(Out, In0, In1, m, k, n, In2, In2Tr, In0s, U1);
 		}
 	}
 }
@@ -313,7 +314,7 @@ static inline void mmdot_product_ut(T* Out,
 			return inner_product_ut(Out, In0, In1, m, k, n, k, (U)0, In2, U1);
 		}
 		else {             // tranposed multiplicand - inner product of swapped inputs
-			return cmdot_product_ut(Out, In0, In1, m, k, n, In2, false, U0, U1);
+			return cmdot_product_ut(Out, In0, In1, m, k, n, In2, false, m, U0, U1);
 		}
 	}
 
@@ -346,7 +347,7 @@ static inline void mmdot_product_ut(T* Out,
 		}
 		else {             // Transposed multiplicand
 			if (!In1Cm) {    // Untransposed multiple
-				return cmdot_product_ut(Out, In0, In1, m, k, n, In2, false, U0, U1);
+				return cmdot_product_ut(Out, In0, In1, m, k, n, In2, false, m, U0, U1);
 			}
 			else {           // Tranposed multiple
 				// C = A.T * B.T => C.T = B * A
@@ -366,7 +367,7 @@ static inline void mmdot_product_ut(T* Out,
 		else {             // Transposed multiplicand
 			if (!In1Cm) {    // Untransposed multiple
 				// C.T = A.T * B => C = B.T * A
-				return cmdot_product_ut(Out, In1, In0, n, k, m, In2, true, U0, U1);
+				return cmdot_product_ut(Out, In1, In0, n, k, m, In2, true, n, U0, U1);
 			}
 			else {           // Transposed multiple
 				// C.T = A.T * B.T => C = B * A
