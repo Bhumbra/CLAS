@@ -221,28 +221,76 @@ static inline void cmdot_product_ut(T* Out,
   c or c.t  = A   * b.T
 */
 template <class T, class U>
+static inline void _mrdot_product_ut (T* Out, 
+																			T* In0, 
+																			T* In1, 
+																			volatile const U m,
+																			volatile const U k,
+																			volatile const U n, 
+																			volatile const U OutS,
+																			volatile const U Outs,
+																			T* In2 = 0,
+																			volatile const U In2S = 0,
+																			volatile const U In2s = 0,
+																			volatile U U0 = 0,
+																			volatile U U1 = 0) { 
+	switch (U0) {
+		case 1: {
+			return mrdot_product_1(Out, In0, In1, m, k, n, OutS, Outs, In2, In2S, In2s, U1);
+		}
+		case 2: {
+			return mrdot_product_2(Out, In0, In1, m, k, n, OutS, Outs, In2, In2S, In2s, U1);
+		}
+		default: {
+			return mrdot_product_4(Out, In0, In1, m, k, n, OutS, Outs, In2, In2S, In2s, U1);
+		}
+	}
+}
+//------------------------------------------------------------------------------
+// Convenience function to accommodate tranposed output and swapped inputs
+template <class T, class U>
 static inline void mrdot_product_ut(T* Out, 
-																		T* In0, 
-																		T* In1, 
-																		volatile const U m,
+																		T* _In0, 
+																		T* _In1, 
+																		volatile const U _m,
 																		volatile const U k,
-																		volatile const U n, 
+																		volatile const U _n, 
 																		volatile const bool OutCm = false,
 																		volatile const bool InpSw = false,
 																		T* In2 = 0,
 																		volatile U U0 = 0,
 																		volatile U U1 = 0) { 
-	switch (U0) {
-		case 1: {
-			return mrdot_product_1(Out, In0, In1, m, k, n, OutCm, InpSw, In2, U1);
-		}
-		case 2: {
-			return mrdot_product_2(Out, In0, In1, m, k, n, OutCm, InpSw, In2, U1);
-		}
-		default: {
-			return mrdot_product_4(Out, In0, In1, m, k, n, OutCm, InpSw, In2, U1);
-		}
+	T *In0, *In1;
+	U m, n;
+	volatile U OutS, Outs;
+	volatile U In2S, In2s;
+
+	In2S = (U)0;
+	In2s = (U)0;
+
+	if (!InpSw) {
+		In0 = _In0;
+		In1 = _In1;
+		m = _m;
+		n = _n;
+		if (In2) {In2s = (U)1;}
 	}
+	else {
+		In0 = _In1;
+		In1 = _In0;
+		m = _n;
+		n = _m;
+		if (In2) {In2S = (U)1;}
+	}
+	if (!OutCm) {
+		OutS = (U)1;
+		Outs = _n;
+	}
+	else {
+		OutS = m;
+		Outs = (U)1;
+	}
+	return _mrdot_product_ut(Out, In0, In1, m, k, n, OutS, Outs, In2, In2S, In2s, U0, U1);
 }
 
 //------------------------------------------------------------------------------
@@ -250,28 +298,80 @@ static inline void mrdot_product_ut(T* Out,
   c or c.t = A   * b
 */
 template <class T, class U>
+static inline void _mcdot_product_ut (T* Out, 
+																			T* In0, 
+																			T* In1, 
+																			volatile const U m,
+																			volatile const U k,
+																			volatile const U n, 
+																			volatile const U OutS,
+																			volatile const U Outs,
+																			volatile U In1s = 0, 
+																			T* In2 = 0,
+																			volatile const U In2S = 0,
+																			volatile const U In2s = 0,
+																			volatile U U0 = 0,
+																			volatile U U1 = 0) { 
+	switch (U0) {
+		case 1: {
+			return mcdot_product_1(Out, In0, In1, m, k, n, OutS, Outs, In1s, In2, In2S, In2s, U1);
+		}
+		case 2: {
+			return mcdot_product_2(Out, In0, In1, m, k, n, OutS, Outs, In1s, In2, In2S, In2s, U1);
+		}
+		default: {
+			return mcdot_product_4(Out, In0, In1, m, k, n, OutS, Outs, In1s, In2, In2S, In2s, U1);
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+// Convenience function to accommodate tranposed output and swapped inputs
+template <class T, class U>
 static inline void mcdot_product_ut(T* Out, 
-																		T* In0, 
-																		T* In1, 
-																		volatile const U m,
+																		T* _In0, 
+																		T* _In1, 
+																		volatile const U _m,
 																		volatile const U k,
-																		volatile const U n, 
+																		volatile const U _n, 
 																		volatile const bool OutCm = false,
 																		volatile const bool InpSw = false,
 																		T* In2 = 0,
 																		volatile U U0 = 0,
 																		volatile U U1 = 0) { 
-	switch (U0) {
-		case 1: {
-			return mcdot_product_1(Out, In0, In1, m, k, n, OutCm, InpSw, In2, U1);
-		}
-		case 2: {
-			return mcdot_product_2(Out, In0, In1, m, k, n, OutCm, InpSw, In2, U1);
-		}
-		default: {
-			return mcdot_product_4(Out, In0, In1, m, k, n, OutCm, InpSw, In2, U1);
-		}
+	T *In0, *In1;
+	U m, n;
+	volatile U OutS, Outs, In1s;
+	volatile U In2S, In2s;
+
+	In2S = (U)0;
+	In2s = (U)0;
+
+	if (!InpSw) {
+		In0 = _In0;
+		In1 = _In1;
+		m = _m;
+		n = _n;
+		In1s = _n;
+		if (In2) {In2s = (U)1;}
 	}
+	else {
+		In0 = _In1;
+		In1 = _In0;
+		m = _n;
+		n = _m;
+		In1s = _m;
+		if (In2) {In2S = (U)1;}
+	}
+	if (!OutCm) {
+		OutS = (U)1;
+		Outs = _n;
+	}
+	else {
+		OutS = m;
+		Outs = (U)1;
+	}
+	return _mcdot_product_ut(Out, In0, In1, m, k, n, OutS, Outs, In1s, In2, In2S, In2s, U0, U1);
 }
 
 //------------------------------------------------------------------------------

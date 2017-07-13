@@ -84,7 +84,7 @@ static inline void rmdot_product_mt(T* Out,
 	if (NT == (U)-1) {
 		return rmdot_product_ut(Out, In0, In1, m, k, n, In2, In2Tr, U0, U1);
 	} 
-	U In2s = In2 ? (U)1 : (U)0;
+	U In2S = (In2 && !In2Tr) ? (U)1 : (U)0;
 	U nt = set_num_threads(NT);
 	U* td = new U[nt];
 	U Nt = set_thread_load(td, m, nt);
@@ -92,7 +92,7 @@ static inline void rmdot_product_mt(T* Out,
 	
 	for (f = 0, h = 0; f<Nt; f++, h += g) {
 		g = td[f];
-		th[f] = std::thread(rmdot_product_ut<T,U>, Out+h*n, In0+h*k, In1, g, k, n, In2+In2s*h, In2Tr, U0, U1);
+		th[f] = std::thread(rmdot_product_ut<T,U>, Out+h*n, In0+h*k, In1, g, k, n, In2+h*In2S, In2Tr, U0, U1);
 	}
 	for (f = 0; f<Nt; f++) {
 		th[f].join();
@@ -118,7 +118,7 @@ static inline void cmdot_product_mt(T* Out,
 		return cmdot_product_ut(Out, In0, In1, m, k, n, In2, In2Tr, In0s, U0, U1);
 	} 
 	if (!In0s) {In0s = m;}
-	U In2s = In2 ? (U)1 : (U)0;
+	U In2S = (In2 && !In2Tr) ? (U)1 : (U)0;
 	U nt = set_num_threads(NT);
 	U* td = new U[nt];
 	U Nt = set_thread_load(td, m, nt);
@@ -126,7 +126,7 @@ static inline void cmdot_product_mt(T* Out,
 	
 	for (f = 0, h = 0; f<Nt; f++, h += g) {
 		g = td[f];
-		th[f] = std::thread(cmdot_product_ut<T,U>, Out+h*n, In0+h, In1, g, k, n, In2+In2s*h, In2Tr, In0s, U0, U1);
+		th[f] = std::thread(cmdot_product_ut<T,U>, Out+h*n, In0+h, In1, g, k, n, In2+h*In2S, In2Tr, In0s, U0, U1);
 	}
 	for (f = 0; f<Nt; f++) {
 		th[f].join();
@@ -137,11 +137,11 @@ static inline void cmdot_product_mt(T* Out,
 //------------------------------------------------------------------------------
 template <class T, class U>
 static inline void mrdot_product_mt(T* Out, 
-																		T* In0, 
-																		T* In1, 
-																		volatile const U m, 
+																		T* _In0, 
+																		T* _In1, 
+																		volatile const U _m, 
 																		volatile const U k,
-																		volatile const U n, 
+																		volatile const U _n, 
 																		volatile const bool OutCm = false,
 																		volatile const bool InpSw = false,
 																		T* In2 = 0,
@@ -149,18 +149,62 @@ static inline void mrdot_product_mt(T* Out,
 																		volatile U U1 = 0,
 																		volatile U NT = 0) { 
 	if (NT == (U)-1) {
-		return mrdot_product_ut(Out, In0, In1, m, k, n, OutCm, InpSw, In2, U0, U1);
+		return mrdot_product_ut(Out, _In0, _In1, _m, k, _n, OutCm, InpSw, In2, U0, U1);
 	} 
-	return mrdot_product_ut(Out, In0, In1, m, k, n, OutCm, InpSw, In2, U0, U1);
+
+	T *In0, *In1;
+	U m, n;
+	volatile U OutS, Outs;
+	volatile U In2S, In2s;
+
+	In2S = (U)0;
+	In2s = (U)0;
+
+	if (!InpSw) {
+		In0 = _In0;
+		In1 = _In1;
+		m = _m;
+		n = _n;
+		if (In2) {In2s = (U)1;}
+	}
+	else {
+		In0 = _In1;
+		In1 = _In0;
+		m = _n;
+		n = _m;
+		if (In2) {In2S = (U)1;}
+	}
+	if (!OutCm) {
+		OutS = (U)1;
+		Outs = _n;
+	}
+	else {
+		OutS = m;
+		Outs = (U)1;
+	}
+
+	U f, g, h;
+	U nt = set_num_threads(NT);
+	U* td = new U[nt];
+	U Nt = set_thread_load(td, n, nt);
+	std::thread th[Nt];
+	for (f = 0, h = 0; f<Nt; f++, h += g) {
+		g = td[f];
+		th[f] = std::thread(_mrdot_product_ut<T,U>, Out+h*OutS, In0, In1+h*k, m, k, g, OutS, Outs, In2+h*In2S, In2S, In2s, U0, U1);
+	}
+	for (f = 0; f<Nt; f++) {
+		th[f].join();
+	}
+	delete (td);
 }
 //------------------------------------------------------------------------------
 template <class T, class U>
 static inline void mcdot_product_mt(T* Out, 
-																		T* In0, 
-																		T* In1, 
-																		volatile const U m, 
+																		T* _In0, 
+																		T* _In1, 
+																		volatile const U _m, 
 																		volatile const U k,
-																		volatile const U n, 
+																		volatile const U _n, 
 																		volatile const bool OutCm = false,
 																		volatile const bool InpSw = false,
 																		T* In2 = 0,
@@ -168,9 +212,54 @@ static inline void mcdot_product_mt(T* Out,
 																		volatile U U1 = 0,
 																		volatile U NT = 0) { 
 	if (NT == (U)-1) {
-		return mcdot_product_ut(Out, In0, In1, m, k, n, OutCm, InpSw, In2, U0, U1);
+		return mcdot_product_ut(Out, _In0, _In1, _m, k, _n, OutCm, InpSw, In2, U0, U1);
 	} 
-	return mcdot_product_ut(Out, In0, In1, m, k, n, OutCm, InpSw, In2, U0, U1);
+	T *In0, *In1;
+	U m, n;
+	volatile U OutS, Outs, In1s;
+	volatile U In2S, In2s;
+
+	In2S = (U)0;
+	In2s = (U)0;
+
+	if (!InpSw) {
+		In0 = _In0;
+		In1 = _In1;
+		m = _m;
+		n = _n;
+		In1s = _n;
+		if (In2) {In2s = (U)1;}
+	}
+	else {
+		In0 = _In1;
+		In1 = _In0;
+		m = _n;
+		n = _m;
+		In1s = _m;
+		if (In2) {In2S = (U)1;}
+	}
+	if (!OutCm) {
+		OutS = (U)1;
+		Outs = _n;
+	}
+	else {
+		OutS = m;
+		Outs = (U)1;
+	}
+	U f, g, h;
+	U nt = set_num_threads(NT);
+	U* td = new U[nt];
+	U Nt = set_thread_load(td, n, nt);
+	std::thread th[Nt];
+	
+	for (f = 0, h = 0; f<Nt; f++, h += g) {
+		g = td[f];
+		th[f] = std::thread(_mcdot_product_ut<T,U>, Out+h*OutS, In0, In1+h, m, k, g, OutS, Outs, In1s, In2+h*In2S, In2S, In2s, U0, U1);
+	}
+	for (f = 0; f<Nt; f++) {
+		th[f].join();
+	}
+	delete (td);
 }
 
 //------------------------------------------------------------------------------
