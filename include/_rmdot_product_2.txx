@@ -10,29 +10,29 @@ static inline void rmdot_product_2x1 (T* Out,
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
+																			volatile const U In0S = 0,
 																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1;
 	register T in1_0;
 	register T *out0, *out1;
-	register T *in1;
+	register T *in0, *in1;
 	T *Out0, *Out1;
-	T *In0_0, *In0_1;
 	T *In1;
 
 	register U i, j;
 
 	Out0 = Out;
 	Out1 = Out + In1s;
-	In0_0 = In0;
-	In0_1 = In0 + k;
 	In1 = _In1;
 
 	for (i = k; i; i--) {
 		out0 = Out0;
 		out1 = Out1;
-		in0_0 = *In0_0 ++;
-		in0_1 = *In0_1 ++;
+		in0_0 = *(In0 + 0);
+		j = In0S;
+		in0_1 = *(In0 + j);
+		In0 ++;
 		in1 = In1;
 		In1 += In1s;
 		for (j = n; j; j--) {
@@ -53,6 +53,7 @@ static inline void rmdot_product_2x2 (T* Out,
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
+																			volatile const U In0S = 0,
 																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1;
@@ -60,7 +61,6 @@ static inline void rmdot_product_2x2 (T* Out,
 	register T *out0, *out1;
 	register T *in1;
 	T *Out0, *Out1;
-	T *In0_0, *In0_1;
 	T *In1;
 
 	register U i, j;
@@ -68,8 +68,6 @@ static inline void rmdot_product_2x2 (T* Out,
 
 	Out0 = Out;
 	Out1 = Out + In1s;
-	In0_0 = In0;
-	In0_1 = In0 + k;
 	In1 = _In1;
 
 	div = n >> 1;
@@ -78,8 +76,10 @@ static inline void rmdot_product_2x2 (T* Out,
 	for (i = k; i; i--) {
 		out0 = Out0;
 		out1 = Out1;
-		in0_0 = *In0_0 ++;
-		in0_1 = *In0_1 ++;
+		in0_0 = *(In0 + 0);
+		j = In0S;
+		in0_1 = *(In0 + j);
+		In0 ++;
 		in1 = In1;
 		In1 += In1s;
 		for (j = div; j; j--) {
@@ -97,7 +97,7 @@ static inline void rmdot_product_2x2 (T* Out,
 
 	if (mod) {
 		div = n - mod;
-		rmdot_product_2x1(Out + div, In0, _In1 + div, k, mod, In1s);
+		rmdot_product_2x1(Out + div, In0, _In1 + div, k, mod, In0S, In1s);
 	}
 }
 
@@ -108,6 +108,7 @@ static inline void rmdot_product_2x4 (T* Out,
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
+																			volatile const U In0S = 0,
 																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1;
@@ -115,7 +116,6 @@ static inline void rmdot_product_2x4 (T* Out,
 	register T *out0, *out1;
 	register T *in1;
 	T *Out0, *Out1;
-	T *In0_0, *In0_1;
 	T *In1;
 
 	register U i, j;
@@ -123,8 +123,6 @@ static inline void rmdot_product_2x4 (T* Out,
 
 	Out0 = Out;
 	Out1 = Out + In1s;
-	In0_0 = In0;
-	In0_1 = In0 + k;
 	In1 = _In1;
 
 	div = n >> 2;
@@ -133,8 +131,10 @@ static inline void rmdot_product_2x4 (T* Out,
 	for (i = k; i; i--) {
 		out0 = Out0;
 		out1 = Out1;
-		in0_0 = *In0_0 ++;
-		in0_1 = *In0_1 ++;
+		in0_0 = *(In0 + 0);
+		j = In0S;
+		in0_1 = *(In0 + j);
+		In0 ++;
 		in1 = In1;
 		In1 += In1s;
 		for (j = div; j; j--) {
@@ -158,7 +158,7 @@ static inline void rmdot_product_2x4 (T* Out,
 
 	if (mod) {
 		div = n - mod;
-		rmdot_product_2x2(Out + div, In0, _In1 + div, k, mod, In1s);
+		rmdot_product_2x2(Out + div, In0, _In1 + div, k, mod, In0S, In1s);
 	}
 }
 
@@ -169,6 +169,7 @@ static inline void rmdot_product_2x8 (T* Out,
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
+																			volatile const U In0S = 0,
 																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1;
@@ -176,7 +177,6 @@ static inline void rmdot_product_2x8 (T* Out,
 	register T *out0, *out1;
 	register T *in1;
 	T *Out0, *Out1;
-	T *In0_0, *In0_1;
 	T *In1;
 
 	register U i, j;
@@ -184,8 +184,6 @@ static inline void rmdot_product_2x8 (T* Out,
 
 	Out0 = Out;
 	Out1 = Out + In1s;
-	In0_0 = In0;
-	In0_1 = In0 + k;
 	In1 = _In1;
 
 	div = n >> 3;
@@ -194,8 +192,10 @@ static inline void rmdot_product_2x8 (T* Out,
 	for (i = k; i; i--) {
 		out0 = Out0;
 		out1 = Out1;
-		in0_0 = *In0_0 ++;
-		in0_1 = *In0_1 ++;
+		in0_0 = *(In0 + 0);
+		j = In0S;
+		in0_1 = *(In0 + j);
+		In0 ++;
 		in1 = In1;
 		In1 += In1s;
 		for (j = div; j; j--) {
@@ -234,7 +234,7 @@ static inline void rmdot_product_2x8 (T* Out,
 
 	if (mod) {
 		div = n - mod;
-		rmdot_product_2x4(Out + div, In0, _In1 + div, k, mod, In1s);
+		rmdot_product_2x4(Out + div, In0, _In1 + div, k, mod, In0S, In1s);
 	}
 }
 
@@ -245,6 +245,7 @@ static inline void rmdot_product_2x16(T* Out,
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
+																			volatile const U In0S = 0,
 																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1;
@@ -252,7 +253,6 @@ static inline void rmdot_product_2x16(T* Out,
 	register T *out0, *out1;
 	register T *in1;
 	T *Out0, *Out1;
-	T *In0_0, *In0_1;
 	T *In1;
 
 	register U i, j;
@@ -260,8 +260,6 @@ static inline void rmdot_product_2x16(T* Out,
 
 	Out0 = Out;
 	Out1 = Out + In1s;
-	In0_0 = In0;
-	In0_1 = In0 + k;
 	In1 = _In1;
 
 	div = n >> 4;
@@ -270,8 +268,10 @@ static inline void rmdot_product_2x16(T* Out,
 	for (i = k; i; i--) {
 		out0 = Out0;
 		out1 = Out1;
-		in0_0 = *In0_0 ++;
-		in0_1 = *In0_1 ++;
+		in0_0 = *(In0 + 0);
+		j = In0S;
+		in0_1 = *(In0 + j);
+		In0 ++;
 		in1 = In1;
 		In1 += In1s;
 		for (j = div; j; j--) {
@@ -340,7 +340,7 @@ static inline void rmdot_product_2x16(T* Out,
 
 	if (mod) {
 		div = n - mod;
-		rmdot_product_2x8(Out + div, In0, _In1 + div, k, mod, In1s);
+		rmdot_product_2x8(Out + div, In0, _In1 + div, k, mod, In0S, In1s);
 	}
 }
 
@@ -351,6 +351,7 @@ static inline void rmdot_product_2x32(T* Out,
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
+																			volatile const U In0S = 0,
 																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1;
@@ -358,7 +359,6 @@ static inline void rmdot_product_2x32(T* Out,
 	register T *out0, *out1;
 	register T *in1;
 	T *Out0, *Out1;
-	T *In0_0, *In0_1;
 	T *In1;
 
 	register U i, j;
@@ -366,8 +366,6 @@ static inline void rmdot_product_2x32(T* Out,
 
 	Out0 = Out;
 	Out1 = Out + In1s;
-	In0_0 = In0;
-	In0_1 = In0 + k;
 	In1 = _In1;
 
 	div = n >> 5;
@@ -376,8 +374,10 @@ static inline void rmdot_product_2x32(T* Out,
 	for (i = k; i; i--) {
 		out0 = Out0;
 		out1 = Out1;
-		in0_0 = *In0_0 ++;
-		in0_1 = *In0_1 ++;
+		in0_0 = *(In0 + 0);
+		j = In0S;
+		in0_1 = *(In0 + j);
+		In0 ++;
 		in1 = In1;
 		In1 += In1s;
 		for (j = div; j; j--) {
@@ -506,295 +506,9 @@ static inline void rmdot_product_2x32(T* Out,
 
 	if (mod) {
 		div = n - mod;
-		rmdot_product_2x16(Out + div, In0, _In1 + div, k, mod, In1s);
+		rmdot_product_2x16(Out + div, In0, _In1 + div, k, mod, In0S, In1s);
 	}
 }
-//------------------------------------------------------------------------------
-template <class T, class U>
-static inline void rmdot_product_2x64(T* Out, 
-																			T* In0, 
-																			T* _In1, 
-																			volatile const U k, 
-																			volatile const U n = 1,
-																			volatile const U In1s = 0) { 
-
-	register T in0_0, in0_1;
-	register T in1_0, in1_1, in1_2, in1_3;
-	register T *out0, *out1;
-	register T *in1;
-	T *Out0, *Out1;
-	T *In0_0, *In0_1;
-	T *In1;
-
-	register U i, j;
-	volatile U div, mod;
-
-	Out0 = Out;
-	Out1 = Out + In1s;
-	In0_0 = In0;
-	In0_1 = In0 + k;
-	In1 = _In1;
-
-	div = n >> 6;
-	mod = n & 63;
-
-	for (i = k; i; i--) {
-		out0 = Out0;
-		out1 = Out1;
-		in0_0 = *In0_0 ++;
-		in0_1 = *In0_1 ++;
-		in1 = In1;
-		In1 += In1s;
-		for (j = div; j; j--) {
-			in1_0 = *(in1 + 0);
-			in1_1 = *(in1 + 1);
-			in1_2 = *(in1 + 2);
-			in1_3 = *(in1 + 3);
-			*(out0 +  0) += in0_0 * in1_0; 
-			*(out0 +  1) += in0_0 * in1_1; 
-			*(out0 +  2) += in0_0 * in1_2; 
-			*(out0 +  3) += in0_0 * in1_3; 
-			*(out1 +  0) += in0_1 * in1_0; 
-			*(out1 +  1) += in0_1 * in1_1; 
-			*(out1 +  2) += in0_1 * in1_2; 
-			*(out1 +  3) += in0_1 * in1_3; 
-			in1 += 4;
-			out0 += 4;
-			out1 += 4;
-			in1_0 = *(in1 + 0);
-			in1_1 = *(in1 + 1);
-			in1_2 = *(in1 + 2);
-			in1_3 = *(in1 + 3);
-			*(out0 +  0) += in0_0 * in1_0; 
-			*(out0 +  1) += in0_0 * in1_1; 
-			*(out0 +  2) += in0_0 * in1_2; 
-			*(out0 +  3) += in0_0 * in1_3; 
-			*(out1 +  0) += in0_1 * in1_0; 
-			*(out1 +  1) += in0_1 * in1_1; 
-			*(out1 +  2) += in0_1 * in1_2; 
-			*(out1 +  3) += in0_1 * in1_3; 
-			in1 += 4;
-			out0 += 4;
-			out1 += 4;
-			in1_0 = *(in1 + 0);
-			in1_1 = *(in1 + 1);
-			in1_2 = *(in1 + 2);
-			in1_3 = *(in1 + 3);
-			*(out0 +  0) += in0_0 * in1_0; 
-			*(out0 +  1) += in0_0 * in1_1; 
-			*(out0 +  2) += in0_0 * in1_2; 
-			*(out0 +  3) += in0_0 * in1_3; 
-			*(out1 +  0) += in0_1 * in1_0; 
-			*(out1 +  1) += in0_1 * in1_1; 
-			*(out1 +  2) += in0_1 * in1_2; 
-			*(out1 +  3) += in0_1 * in1_3; 
-			in1 += 4;
-			out0 += 4;
-			out1 += 4;
-			in1_0 = *(in1 + 0);
-			in1_1 = *(in1 + 1);
-			in1_2 = *(in1 + 2);
-			in1_3 = *(in1 + 3);
-			*(out0 +  0) += in0_0 * in1_0; 
-			*(out0 +  1) += in0_0 * in1_1; 
-			*(out0 +  2) += in0_0 * in1_2; 
-			*(out0 +  3) += in0_0 * in1_3; 
-			*(out1 +  0) += in0_1 * in1_0; 
-			*(out1 +  1) += in0_1 * in1_1; 
-			*(out1 +  2) += in0_1 * in1_2; 
-			*(out1 +  3) += in0_1 * in1_3; 
-			in1 += 4;
-			out0 += 4;
-			out1 += 4;
-			in1_0 = *(in1 + 0);
-			in1_1 = *(in1 + 1);
-			in1_2 = *(in1 + 2);
-			in1_3 = *(in1 + 3);
-			*(out0 +  0) += in0_0 * in1_0; 
-			*(out0 +  1) += in0_0 * in1_1; 
-			*(out0 +  2) += in0_0 * in1_2; 
-			*(out0 +  3) += in0_0 * in1_3; 
-			*(out1 +  0) += in0_1 * in1_0; 
-			*(out1 +  1) += in0_1 * in1_1; 
-			*(out1 +  2) += in0_1 * in1_2; 
-			*(out1 +  3) += in0_1 * in1_3; 
-			in1 += 4;
-			out0 += 4;
-			out1 += 4;
-			in1_0 = *(in1 + 0);
-			in1_1 = *(in1 + 1);
-			in1_2 = *(in1 + 2);
-			in1_3 = *(in1 + 3);
-			*(out0 +  0) += in0_0 * in1_0; 
-			*(out0 +  1) += in0_0 * in1_1; 
-			*(out0 +  2) += in0_0 * in1_2; 
-			*(out0 +  3) += in0_0 * in1_3; 
-			*(out1 +  0) += in0_1 * in1_0; 
-			*(out1 +  1) += in0_1 * in1_1; 
-			*(out1 +  2) += in0_1 * in1_2; 
-			*(out1 +  3) += in0_1 * in1_3; 
-			in1 += 4;
-			out0 += 4;
-			out1 += 4;
-			in1_0 = *(in1 + 0);
-			in1_1 = *(in1 + 1);
-			in1_2 = *(in1 + 2);
-			in1_3 = *(in1 + 3);
-			*(out0 +  0) += in0_0 * in1_0; 
-			*(out0 +  1) += in0_0 * in1_1; 
-			*(out0 +  2) += in0_0 * in1_2; 
-			*(out0 +  3) += in0_0 * in1_3; 
-			*(out1 +  0) += in0_1 * in1_0; 
-			*(out1 +  1) += in0_1 * in1_1; 
-			*(out1 +  2) += in0_1 * in1_2; 
-			*(out1 +  3) += in0_1 * in1_3; 
-			in1 += 4;
-			out0 += 4;
-			out1 += 4;
-			in1_0 = *(in1 + 0);
-			in1_1 = *(in1 + 1);
-			in1_2 = *(in1 + 2);
-			in1_3 = *(in1 + 3);
-			*(out0 +  0) += in0_0 * in1_0; 
-			*(out0 +  1) += in0_0 * in1_1; 
-			*(out0 +  2) += in0_0 * in1_2; 
-			*(out0 +  3) += in0_0 * in1_3; 
-			*(out1 +  0) += in0_1 * in1_0; 
-			*(out1 +  1) += in0_1 * in1_1; 
-			*(out1 +  2) += in0_1 * in1_2; 
-			*(out1 +  3) += in0_1 * in1_3; 
-			in1 += 4;
-			out0 += 4;
-			out1 += 4;
-			in1_0 = *(in1 + 0);
-			in1_1 = *(in1 + 1);
-			in1_2 = *(in1 + 2);
-			in1_3 = *(in1 + 3);
-			*(out0 +  0) += in0_0 * in1_0; 
-			*(out0 +  1) += in0_0 * in1_1; 
-			*(out0 +  2) += in0_0 * in1_2; 
-			*(out0 +  3) += in0_0 * in1_3; 
-			*(out1 +  0) += in0_1 * in1_0; 
-			*(out1 +  1) += in0_1 * in1_1; 
-			*(out1 +  2) += in0_1 * in1_2; 
-			*(out1 +  3) += in0_1 * in1_3; 
-			in1 += 4;
-			out0 += 4;
-			out1 += 4;
-			in1_0 = *(in1 + 0);
-			in1_1 = *(in1 + 1);
-			in1_2 = *(in1 + 2);
-			in1_3 = *(in1 + 3);
-			*(out0 +  0) += in0_0 * in1_0; 
-			*(out0 +  1) += in0_0 * in1_1; 
-			*(out0 +  2) += in0_0 * in1_2; 
-			*(out0 +  3) += in0_0 * in1_3; 
-			*(out1 +  0) += in0_1 * in1_0; 
-			*(out1 +  1) += in0_1 * in1_1; 
-			*(out1 +  2) += in0_1 * in1_2; 
-			*(out1 +  3) += in0_1 * in1_3; 
-			in1 += 4;
-			out0 += 4;
-			out1 += 4;
-			in1_0 = *(in1 + 0);
-			in1_1 = *(in1 + 1);
-			in1_2 = *(in1 + 2);
-			in1_3 = *(in1 + 3);
-			*(out0 +  0) += in0_0 * in1_0; 
-			*(out0 +  1) += in0_0 * in1_1; 
-			*(out0 +  2) += in0_0 * in1_2; 
-			*(out0 +  3) += in0_0 * in1_3; 
-			*(out1 +  0) += in0_1 * in1_0; 
-			*(out1 +  1) += in0_1 * in1_1; 
-			*(out1 +  2) += in0_1 * in1_2; 
-			*(out1 +  3) += in0_1 * in1_3; 
-			in1 += 4;
-			out0 += 4;
-			out1 += 4;
-			in1_0 = *(in1 + 0);
-			in1_1 = *(in1 + 1);
-			in1_2 = *(in1 + 2);
-			in1_3 = *(in1 + 3);
-			*(out0 +  0) += in0_0 * in1_0; 
-			*(out0 +  1) += in0_0 * in1_1; 
-			*(out0 +  2) += in0_0 * in1_2; 
-			*(out0 +  3) += in0_0 * in1_3; 
-			*(out1 +  0) += in0_1 * in1_0; 
-			*(out1 +  1) += in0_1 * in1_1; 
-			*(out1 +  2) += in0_1 * in1_2; 
-			*(out1 +  3) += in0_1 * in1_3; 
-			in1 += 4;
-			out0 += 4;
-			out1 += 4;
-			in1_0 = *(in1 + 0);
-			in1_1 = *(in1 + 1);
-			in1_2 = *(in1 + 2);
-			in1_3 = *(in1 + 3);
-			*(out0 +  0) += in0_0 * in1_0; 
-			*(out0 +  1) += in0_0 * in1_1; 
-			*(out0 +  2) += in0_0 * in1_2; 
-			*(out0 +  3) += in0_0 * in1_3; 
-			*(out1 +  0) += in0_1 * in1_0; 
-			*(out1 +  1) += in0_1 * in1_1; 
-			*(out1 +  2) += in0_1 * in1_2; 
-			*(out1 +  3) += in0_1 * in1_3; 
-			in1 += 4;
-			out0 += 4;
-			out1 += 4;
-			in1_0 = *(in1 + 0);
-			in1_1 = *(in1 + 1);
-			in1_2 = *(in1 + 2);
-			in1_3 = *(in1 + 3);
-			*(out0 +  0) += in0_0 * in1_0; 
-			*(out0 +  1) += in0_0 * in1_1; 
-			*(out0 +  2) += in0_0 * in1_2; 
-			*(out0 +  3) += in0_0 * in1_3; 
-			*(out1 +  0) += in0_1 * in1_0; 
-			*(out1 +  1) += in0_1 * in1_1; 
-			*(out1 +  2) += in0_1 * in1_2; 
-			*(out1 +  3) += in0_1 * in1_3; 
-			in1 += 4;
-			out0 += 4;
-			out1 += 4;
-			in1_0 = *(in1 + 0);
-			in1_1 = *(in1 + 1);
-			in1_2 = *(in1 + 2);
-			in1_3 = *(in1 + 3);
-			*(out0 +  0) += in0_0 * in1_0; 
-			*(out0 +  1) += in0_0 * in1_1; 
-			*(out0 +  2) += in0_0 * in1_2; 
-			*(out0 +  3) += in0_0 * in1_3; 
-			*(out1 +  0) += in0_1 * in1_0; 
-			*(out1 +  1) += in0_1 * in1_1; 
-			*(out1 +  2) += in0_1 * in1_2; 
-			*(out1 +  3) += in0_1 * in1_3; 
-			in1 += 4;
-			out0 += 4;
-			out1 += 4;
-			in1_0 = *(in1 + 0);
-			in1_1 = *(in1 + 1);
-			in1_2 = *(in1 + 2);
-			in1_3 = *(in1 + 3);
-			*(out0 +  0) += in0_0 * in1_0; 
-			*(out0 +  1) += in0_0 * in1_1; 
-			*(out0 +  2) += in0_0 * in1_2; 
-			*(out0 +  3) += in0_0 * in1_3; 
-			*(out1 +  0) += in0_1 * in1_0; 
-			*(out1 +  1) += in0_1 * in1_1; 
-			*(out1 +  2) += in0_1 * in1_2; 
-			*(out1 +  3) += in0_1 * in1_3; 
-			in1 += 4;
-			out0 += 4;
-			out1 += 4;
-		}
-	}
-
-	if (mod) {
-		div = n - mod;
-		rmdot_product_2x32(Out + div, In0, _In1 + div, k, mod, In1s);
-	}
-}
-
 
 //------------------------------------------------------------------------------
 #endif

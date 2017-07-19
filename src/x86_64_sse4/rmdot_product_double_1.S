@@ -5,7 +5,7 @@
 # RBX	out1
 # RCX	out2
 # RDX	out3
-# RSI	in0
+# RSI	in0 or In0
 # RDI	in1
 # R08	In1
 # R09	In1s

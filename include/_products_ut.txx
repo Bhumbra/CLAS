@@ -160,6 +160,27 @@ static inline void inner_product_ut(T* Out,
 		}
 	}
 }
+//------------------------------------------------------------------------------
+/* rmdot:
+  c   = a   * B
+*/
+template <class T, class U>
+static inline void _rmdot_product_ut (T* Out, 
+																			T* In0, 
+																			T* In1, 
+																			volatile const U m,
+																			volatile const U k,
+																			volatile const U n, 
+																			volatile U OutS = 0, 
+																			volatile U In0S = 0, 
+																			volatile U In1s = 0, 
+																			T* In2 = 0,
+																			volatile U In2S = 0, 
+																			volatile U In2s = 0, 
+																			volatile U U0 = 0,
+																			volatile U U1 = 0) { 
+	rmdot_product_0(Out, In0, In1, m, k, n, OutS, In0S, In1s, In2, In2S, In2s, U0, U1);
+}
 
 //------------------------------------------------------------------------------
 /* rmdot:
@@ -176,17 +197,24 @@ static inline void rmdot_product_ut(T* Out,
 																		volatile const bool In2Tr = false,
 																		volatile U U0 = 0,
 																		volatile U U1 = 0) { 
-	switch (U0) {
-		case 1: {
-			return rmdot_product_1(Out, In0, In1, m, k, n, In2, In2Tr, U1);
+
+	volatile U In2S = (U)0;
+	volatile U In2s = (U)0;
+	volatile U OutS, In0S, In1s;
+
+	if (In2) {
+		if (!In2Tr) {
+			In2S = (U)1;
 		}
-		case 2: {
-			return rmdot_product_2(Out, In0, In1, m, k, n, In2, In2Tr, U1);
-		}
-		default: {
-			return rmdot_product_4(Out, In0, In1, m, k, n, In2, In2Tr, U1);
+		else {
+			In2s = (U)1;
 		}
 	}
+	OutS = n;
+	In0S = k;
+	In1s = n;
+
+	return _rmdot_product_ut(Out, In0, In1, m, k, n, OutS, In0S, In1s, In2, In2S, In2s, U0, U1);
 }
 //------------------------------------------------------------------------------
 /* cmdot:

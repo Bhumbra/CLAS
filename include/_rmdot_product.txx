@@ -20,69 +20,57 @@ static inline void rmdot_product_1 (T* Out,
 																		volatile const U m,
 																		volatile const U k,
 																		volatile const U n, 
-																		T* In2 = 0,
-																		volatile const bool In2Tr = false,
-																		volatile U UR = 0) { 
-
-	register U ur = set_unroll(k >> 2, UR);
-	register U h;
-	volatile U In2S = (U)0;
-	volatile U In2s = (U)0;
-
-	if (In2) {
-		if (!In2Tr) {
-			In2S = (U)1;
-		}
-		else {
-			In2s = (U)1;
-		}
-	}
-	switch (ur) {
+																		volatile U OutS = 0, 
+																		volatile U In0S = 0, 
+																		volatile U In1s = 0, 
+																		volatile U U1 = 0) { 
+	U h = n;
+	switch (U1) {
 		case 1: {
-			for (h = 0; h<m; h++) {
-				replicate_1x1(Out+h*n, n, In2, (U)1, In2s);
-				rmdot_product_1x1(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
+			for (; h; h--) {
+				rmdot_product_1x1 (Out, In0, In1, k, n, In1s); 
+				Out += OutS;
+				In0 += In0S;
 			}
 			return;
 		}
 		case 2: {
-			for (h = 0; h<m; h++) {
-				replicate_1x2(Out+h*n, n, In2, (U)1, In2s);
-				rmdot_product_1x2(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
+			for (; h; h--) {
+				rmdot_product_1x2 (Out, In0, In1, k, n, In1s); 
+				Out += OutS;
+				In0 += In0S;
 			}
 			return;
 		}
 		case 4: {
-			for (h = 0; h<m; h++) {
-				replicate_1x4(Out+h*n, n, In2, (U)1, In2s);
-				rmdot_product_1x4(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
+			for (; h; h--) {
+				rmdot_product_1x4 (Out, In0, In1, k, n, In1s); 
+				Out += OutS;
+				In0 += In0S;
 			}
 			return;
 		}
 		case 8: {
-			for (h = 0; h<m; h++) {
-				replicate_1x8(Out+h*n, n, In2, (U)1, In2s);
-				rmdot_product_1x8(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
+			for (; h; h--) {
+				rmdot_product_1x8 (Out, In0, In1, k, n, In1s); 
+				Out += OutS;
+				In0 += In0S;
 			}
 			return;
 		}
 		case 16: {
-			for (h = 0; h<m; h++) {
-				replicate_1x16(Out+h*n, n, In2, (U)1, In2s);
-				rmdot_product_1x16(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
+			for (; h; h--) {
+				rmdot_product_1x16(Out, In0, In1, k, n, In1s); 
+				Out += OutS;
+				In0 += In0S;
 			}
 			return;
 		}
 		default: {
-			for (h = 0; h<m; h++) {
-				replicate_1x32(Out+h*n, n, In2, (U)1, In2s);
-				rmdot_product_1x32(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
+			for (; h; h--) {
+				rmdot_product_1x32(Out, In0, In1, k, n, In1s); 
+				Out += OutS;
+				In0 += In0S;
 			}
 			return;
 		}
@@ -97,112 +85,88 @@ static inline void rmdot_product_2 (T* Out,
 																		volatile const U m, 
 																		volatile const U k,
 																		volatile const U n,
-																		T* In2 = 0,
-																		volatile const bool In2Tr = false,
-																		volatile U UR = 0) { 
-
-	register U ur = set_unroll(k >> 2, UR);
-	register U h;
-	U mod, g;
-	volatile U In2S = (U)0;
-	volatile U In2s = (U)0;
-
-	if (In2) {
-		if (!In2Tr) {
-			In2S = (U)1;
-		}
-		else {
-			In2s = (U)1;
-		}
-	}
-	switch (ur) {
+																		volatile U OutS = 0, 
+																		volatile U In0S = 0, 
+																		volatile U In1s = 0, 
+																		volatile U U1 = 0) { 
+	U h = m >> 1;
+	U mod = m & 1;
+	switch (U1) {
 		case 1: {
-			h = 0;
-			mod = m & 1;
-			for (g = m >> 1; g; g--, h += 2) {
-				replicate_2x1(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_2x1(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 2;
+			for (; h; h--) {
+				rmdot_product_2x1 (Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS * 2;
+				In0 += In0S * 2;
 			}
 			if (mod) {
-				replicate_1x1(Out+h*n, n, In2, (U)1, In2s);
-				rmdot_product_1x1(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
+				rmdot_product_1x1 (Out, In0, In1, k, n, In1s); 
+				Out += OutS;
+				In0 += In0S;
 			}
 			return;
 		}
 		case 2: {
-			h = 0;
-			mod = m & 1;
-			for (g = m >> 1; g; g--, h += 2) {
-				replicate_2x2(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_2x2(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 2;
+			for (; h; h--) {
+				rmdot_product_2x2 (Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS * 2;
+				In0 += In0S * 2;
 			}
 			if (mod) {
-				replicate_1x2(Out+h*n, n, In2, (U)1, In2s);
-				rmdot_product_1x2(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
+				rmdot_product_1x2 (Out, In0, In1, k, n, In1s); 
+				Out += OutS;
+				In0 += In0S;
 			}
 			return;
 		}
 		case 4: {
-			h = 0;
-			mod = m & 1;
-			for (g = m >> 1; g; g--, h += 2) {
-				replicate_2x4(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_2x4(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 2;
+			for (; h; h--) {
+				rmdot_product_2x4 (Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS * 2;
+				In0 += In0S * 2;
 			}
 			if (mod) {
-				replicate_1x4(Out+h*n, n, In2, (U)1, In2s);
-				rmdot_product_1x4(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
+				rmdot_product_1x4 (Out, In0, In1, k, n, In1s); 
+				Out += OutS;
+				In0 += In0S;
 			}
 			return;
 		}
 		case 8: {
-			h = 0;
-			mod = m & 1;
-			for (g = m >> 1; g; g--, h += 2) {
-				replicate_2x8(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_2x8(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 2;
+			for (; h; h--) {
+				rmdot_product_2x8 (Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS * 2;
+				In0 += In0S * 2;
 			}
 			if (mod) {
-				replicate_1x8(Out+h*n, n, In2, (U)1, In2s);
-				rmdot_product_1x8(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
+				rmdot_product_1x8 (Out, In0, In1, k, n, In1s); 
+				Out += OutS;
+				In0 += In0S;
 			}
 			return;
 		}
 		case 16: {
-			h = 0;
-			mod = m & 1;
-			for (g = m >> 1; g; g--, h += 2) {
-				replicate_2x16(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_2x16(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 2;
+			for (; h; h--) {
+				rmdot_product_2x16(Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS * 2;
+				In0 += In0S * 2;
 			}
 			if (mod) {
-				replicate_1x16(Out+h*n, n, In2, (U)1, In2s);
-				rmdot_product_1x16(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
+				rmdot_product_1x16(Out, In0, In1, k, n, In1s); 
+				Out += OutS;
+				In0 += In0S;
 			}
 			return;
 		}
 		default: {
-			h = 0;
-			mod = m & 1;
-			for (g = m >> 1; g; g--, h += 2) {
-				replicate_2x32(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_2x32(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 2;
+			for (; h; h--) {
+				rmdot_product_2x32(Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS * 2;
+				In0 += In0S * 2;
 			}
 			if (mod) {
-				replicate_1x32(Out+h*n, n, In2, (U)1, In2s);
-				rmdot_product_1x32(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
+				rmdot_product_1x32(Out, In0, In1, k, n, In1s); 
+				Out += OutS;
+				In0 += In0S;
 			}
 			return;
 		}
@@ -216,179 +180,159 @@ static inline void rmdot_product_4 (T* Out,
 																		T* In1, 
 																		volatile const U m, 
 																		volatile const U k,
-																		volatile const U n, 
-																		T* In2 = 0,
-																		volatile const bool In2Tr = false,
-																		volatile U UR = 0) { 
-
-	register U ur = set_unroll(k >> 2, UR);
-	register U h;
-	U mod, g;
-	volatile U In2S = (U)0;
-	volatile U In2s = (U)0;
-
-	if (In2) {
-		if (!In2Tr) {
-			In2S = (U)1;
-		}
-		else {
-			In2s = (U)1;
-		}
-	}
-	switch (ur) {
+																		volatile const U n,
+																		volatile U OutS = 0, 
+																		volatile U In0S = 0, 
+																		volatile U In1s = 0, 
+																		volatile U U1 = 0) { 
+	U h = m >> 2;
+	U mod = m & 3;
+	switch (U1) {
 		case 1: {
-			h = 0;
-			mod = m & 3;
-			for (g = m >> 2; g; g--, h += 4) {
-				replicate_4x1(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_4x1(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 4;
+			for (; h; h--) {
+				rmdot_product_4x1 (Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS * 4;
+				In0 += In0S * 4;
 			}
 			if (mod > 1) {
-				replicate_2x1(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_2x1(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 2;
+				rmdot_product_2x1 (Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS * 2;
+				In0 += In0S * 2;
 				mod &= 1;
-				h += 2;
 			}
 			if (mod) {
-				replicate_1x1(Out+h*n, n, In2, (U)1, In2s);
-				rmdot_product_1x1(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
+				rmdot_product_1x1 (Out, In0, In1, k, n, In1s); 
+				Out += OutS;
+				In0 += In0S;
 			}
 			return;
 		}
 		case 2: {
-			h = 0;
-			mod = m & 3;
-			for (g = m >> 2; g; g--, h += 4) {
-				replicate_4x2(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_4x2(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 4;
+			for (; h; h--) {
+				rmdot_product_4x2 (Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS * 4;
+				In0 += In0S * 4;
 			}
 			if (mod > 1) {
-				replicate_2x2(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_2x2(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 2;
+				rmdot_product_2x2 (Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS * 2;
+				In0 += In0S * 2;
 				mod &= 1;
-				h += 2;
 			}
 			if (mod) {
-				replicate_1x2(Out+h*n, n, In2, (U)1, In2s);
-				rmdot_product_1x2(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
+				rmdot_product_1x2 (Out, In0, In1, k, n, In1s); 
+				Out += OutS;
+				In0 += In0S;
 			}
 			return;
 		}
 		case 4: {
-			h = 0;
-			mod = m & 3;
-			for (g = m >> 2; g; g--, h += 4) {
-				replicate_4x4(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_4x4(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 4;
+			for (; h; h--) {
+				rmdot_product_4x4 (Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS * 4;
+				In0 += In0S * 4;
 			}
 			if (mod > 1) {
-				replicate_2x4(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_2x4(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 2;
+				rmdot_product_2x4 (Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS * 2;
+				In0 += In0S * 2;
 				mod &= 1;
-				h += 2;
 			}
 			if (mod) {
-				replicate_1x4(Out+h*n, n, In2, (U)1, In2s);
-				rmdot_product_1x4(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
+				rmdot_product_1x4 (Out, In0, In1, k, n, In1s); 
+				Out += OutS;
+				In0 += In0S;
 			}
 			return;
 		}
 		case 8: {
-			h = 0;
-			mod = m & 3;
-			for (g = m >> 2; g; g--, h += 4) {
-				replicate_4x8(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_4x8(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 4;
+			for (; h; h--) {
+				rmdot_product_4x8 (Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS * 4;
+				In0 += In0S * 4;
 			}
 			if (mod > 1) {
-				replicate_2x8(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_2x8(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 2;
+				rmdot_product_2x8 (Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS * 2;
+				In0 += In0S * 2;
 				mod &= 1;
-				h += 2;
 			}
 			if (mod) {
-				replicate_1x8(Out+h*n, n, In2, (U)1, In2s);
-				rmdot_product_1x8(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
+				rmdot_product_1x8 (Out, In0, In1, k, n, In1s); 
+				Out += OutS;
+				In0 += In0S;
 			}
 			return;
 		}
 		case 16: {
-			h = 0;
-			mod = m & 3;
-			for (g = m >> 2; g; g--, h += 4) {
-				replicate_4x16(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_4x16(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 4;
+			for (; h; h--) {
+				rmdot_product_4x16(Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS * 4;
+				In0 += In0S * 4;
 			}
 			if (mod > 1) {
-				replicate_2x16(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_2x16(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 2;
+				rmdot_product_2x16(Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS * 2;
+				In0 += In0S * 2;
 				mod &= 1;
-				h += 2;
 			}
 			if (mod) {
-				replicate_1x16(Out+h*n, n, In2, (U)1, In2s);
-				rmdot_product_1x16(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
-			}
-			return;
-		}
-		case 32: {
-			h = 0;
-			mod = m & 3;
-			for (g = m >> 2; g; g--, h += 4) {
-				replicate_4x32(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_4x32(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 4;
-			}
-			if (mod > 1) {
-				replicate_2x32(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_2x32(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 2;
-				mod &= 1;
-				h += 2;
-			}
-			if (mod) {
-				replicate_1x32(Out+h*n, n, In2, (U)1, In2s);
-				rmdot_product_1x32(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
+				rmdot_product_1x16(Out, In0, In1, k, n, In1s); 
+				Out += OutS;
+				In0 += In0S;
 			}
 			return;
 		}
 		default: {
-			h = 0;
-			mod = m & 3;
-			for (g = m >> 2; g; g--, h += 4) {
-				replicate_4x64(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_4x64(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 4;
+			for (; h; h--) {
+				rmdot_product_4x32(Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS * 4;
+				In0 += In0S * 4;
 			}
 			if (mod > 1) {
-				replicate_2x64(Out+h*n, n, In2, n, In2S, (U)1, In2s);
-				rmdot_product_2x64(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S * 2;
+				rmdot_product_2x32(Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS * 2;
+				In0 += In0S * 2;
 				mod &= 1;
-				h += 2;
 			}
 			if (mod) {
-				replicate_1x64(Out+h*n, n, In2, (U)1, (U)0);
-				rmdot_product_1x64(Out+h*n, In0+h*k, In1, k, n, n); 
-				In2 += In2S;
+				rmdot_product_1x32(Out, In0, In1, k, n, In1s); 
+				Out += OutS;
+				In0 += In0S;
 			}
 			return;
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+template <class T, class U>
+static inline void rmdot_product_0 (T* Out, 
+																		T* In0, 
+																		T* In1, 
+																		volatile const U m,
+																		volatile const U k,
+																		volatile const U n, 
+																		volatile U OutS = 0, 
+																		volatile U In0S = 0, 
+																		volatile U In1s = 0, 
+																		T* In2 = 0,
+																		volatile U In2S = 0, 
+																		volatile U In2s = 0, 
+																		volatile U U0 = 0,
+																		volatile U U1 = 0) { 
+	if (In2 != Out) {
+		replicate_0(Out, m, n, In2, OutS, In2S, (U)1, In2s, U0, U1);
+	}
+	switch (U0) {
+		case 1: {
+			return rmdot_product_1(Out, In0, In1, m, k, n, OutS, In0S, In1s, U1);
+		}
+		case 2: {
+			return rmdot_product_2(Out, In0, In1, m, k, n, OutS, In0S, In1s, U1);
+		}
+		default: {
+			return rmdot_product_4(Out, In0, In1, m, k, n, OutS, In0S, In1s, U1);
 		}
 	}
 }
