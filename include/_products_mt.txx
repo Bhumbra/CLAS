@@ -216,9 +216,10 @@ static inline void mcdot_product_mt(T* Out,
 	} 
 	T *In0, *In1;
 	U m, n;
-	volatile U OutS, Outs, In1s;
+	volatile U OutS, Outs, In0s, In1s;
 	volatile U In2S, In2s;
 
+	In0s = k;
 	In2S = (U)0;
 	In2s = (U)0;
 
@@ -254,7 +255,7 @@ static inline void mcdot_product_mt(T* Out,
 	
 	for (f = 0, h = 0; f<Nt; f++, h += g) {
 		g = td[f];
-		th[f] = std::thread(_mcdot_product_ut<T,U>, Out+h*OutS, In0, In1+h, m, k, g, OutS, Outs, In1s, In2+h*In2S, In2S, In2s, U0, U1);
+		th[f] = std::thread(_mcdot_product_ut<T,U>, Out+h*OutS, In0, In1+h, m, k, g, OutS, Outs, In0s, In1s, In2+h*In2S, In2S, In2s, U0, U1);
 	}
 	for (f = 0; f<Nt; f++) {
 		th[f].join();

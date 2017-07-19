@@ -6,3 +6,6 @@ asm/*
 scrap.*
 *.old
 sh*
+*.o
+*.ii
+cachegrind*

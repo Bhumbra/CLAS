@@ -1,9 +1,9 @@
-# ifndef _mcdot_product_4_txx
-# define _mcdot_product_4_txx
+# ifndef _mcdot_product_8_txx
+# define _mcdot_product_8_txx
 
 //------------------------------------------------------------------------------
 template <class T, class U>
-static inline void mcdot_product_4x1 (T* Out, 
+static inline void mcdot_product_8x1 (T* Out, 
 																			T* _In0, 
 																			T* In1, 
 																			volatile const U m, 
@@ -12,11 +12,11 @@ static inline void mcdot_product_4x1 (T* Out,
 																			volatile const U Outs1 = 1,
 																			volatile const U In0s = 1,
 																			volatile const U In1s = 1) { 
-	register T out0, out1, out2, out3; 
+	register T out0, out1, out2, out3, out4, out5, out6, out7; 
 	register T in0_0;
-	register T in1_0, in1_1, in1_2, in1_3;
+	register T in1_0, in1_1, in1_2, in1_3, in1_4, in1_5, in1_6, in1_7;
+	register T *Out0, *Out1, *Out2, *Out3, *Out4, *Out5, *Out6, *Out7; 
 	register T *in0, *in1;
-	register T *Out0, *Out1, *Out2, *Out3; 
 	T *In0;
 	register U i, j;
 
@@ -24,6 +24,10 @@ static inline void mcdot_product_4x1 (T* Out,
 	Out1 = Out + Outs0 * 1;
 	Out2 = Out + Outs0 * 2;
 	Out3 = Out + Outs0 * 3;
+	Out4 = Out + Outs0 * 4;
+	Out5 = Out + Outs0 * 5;
+	Out6 = Out + Outs0 * 6;
+	Out7 = Out + Outs0 * 7;
 	In0 = _In0;
 
 	for (i = m; i; i--) {
@@ -34,6 +38,10 @@ static inline void mcdot_product_4x1 (T* Out,
 		out1 = 0.;
 		out2 = 0.;
 		out3 = 0.;
+		out4 = 0.;
+		out5 = 0.;
+		out6 = 0.;
+		out7 = 0.;
 		for (j = k; j; j--) {
 			in0_0 = *(in0 + 0);
 			in0 ++;
@@ -41,26 +49,42 @@ static inline void mcdot_product_4x1 (T* Out,
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_0 * in1_0; 
 			out1 += in0_0 * in1_1; 
 			out2 += in0_0 * in1_2; 
 			out3 += in0_0 * in1_3; 
+			out4 += in0_0 * in1_4; 
+			out5 += in0_0 * in1_5; 
+			out6 += in0_0 * in1_6; 
+			out7 += in0_0 * in1_7; 
 		}
 		* Out0 += out0;
 		* Out1 += out1;
 		* Out2 += out2;
 		* Out3 += out3;
+		* Out4 += out4;
+		* Out5 += out5;
+		* Out6 += out6;
+		* Out7 += out7;
 		Out0 += Outs1;
 		Out1 += Outs1;
 		Out2 += Outs1;
 		Out3 += Outs1;
+		Out4 += Outs1;
+		Out5 += Outs1;
+		Out6 += Outs1;
+		Out7 += Outs1;
 	}
 }
 
 //------------------------------------------------------------------------------
 template <class T, class U>
-static inline void mcdot_product_4x2 (T* Out, 
+static inline void mcdot_product_8x2 (T* Out, 
 																			T* _In0, 
 																			T* In1, 
 																			volatile const U m, 
@@ -70,11 +94,11 @@ static inline void mcdot_product_4x2 (T* Out,
 																			volatile const U In0s = 1,
 																			volatile const U In1s = 1) { 
 
-	register T out0, out1, out2, out3; 
+	register T out0, out1, out2, out3, out4, out5, out6, out7; 
 	register T in0_0, in0_1;
-	register T in1_0, in1_1, in1_2, in1_3;
+	register T in1_0, in1_1, in1_2, in1_3, in1_4, in1_5, in1_6, in1_7;
+	register T *Out0, *Out1, *Out2, *Out3, *Out4, *Out5, *Out6, *Out7; 
 	register T *in0, *in1;
-	register T *Out0, *Out1, *Out2, *Out3; 
 	T *In0;
 	volatile U div, mod;
 	register U i, j;
@@ -86,6 +110,10 @@ static inline void mcdot_product_4x2 (T* Out,
 	Out1 = Out + Outs0 * 1;
 	Out2 = Out + Outs0 * 2;
 	Out3 = Out + Outs0 * 3;
+	Out4 = Out + Outs0 * 4;
+	Out5 = Out + Outs0 * 5;
+	Out6 = Out + Outs0 * 6;
+	Out7 = Out + Outs0 * 7;
 	In0 = _In0;
 
 	for (i = m; i; i--) {
@@ -96,6 +124,10 @@ static inline void mcdot_product_4x2 (T* Out,
 		out1 = 0.;
 		out2 = 0.;
 		out3 = 0.;
+		out4 = 0.;
+		out5 = 0.;
+		out6 = 0.;
+		out7 = 0.;
 		for (j = div; j; j--) {
 			in0_0 = *(in0 + 0);
 			in0_1 = *(in0 + 1);
@@ -104,40 +136,64 @@ static inline void mcdot_product_4x2 (T* Out,
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_0 * in1_0; 
 			out1 += in0_0 * in1_1; 
 			out2 += in0_0 * in1_2; 
 			out3 += in0_0 * in1_3; 
+			out4 += in0_0 * in1_4; 
+			out5 += in0_0 * in1_5; 
+			out6 += in0_0 * in1_6; 
+			out7 += in0_0 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_1 * in1_0; 
 			out1 += in0_1 * in1_1; 
 			out2 += in0_1 * in1_2; 
 			out3 += in0_1 * in1_3; 
+			out4 += in0_1 * in1_4; 
+			out5 += in0_1 * in1_5; 
+			out6 += in0_1 * in1_6; 
+			out7 += in0_1 * in1_7; 
 		}
 		* Out0 += out0;
 		* Out1 += out1;
 		* Out2 += out2;
 		* Out3 += out3;
+		* Out4 += out4;
+		* Out5 += out5;
+		* Out6 += out6;
+		* Out7 += out7;
 		Out0 += Outs1;
 		Out1 += Outs1;
 		Out2 += Outs1;
 		Out3 += Outs1;
+		Out4 += Outs1;
+		Out5 += Outs1;
+		Out6 += Outs1;
+		Out7 += Outs1;
 	}
 
 	if (mod) {
 		div = k - mod;
-		mcdot_product_4x1(Out, _In0 + div, In1 + div*In1s, m, mod, Outs0, Outs1, In0s, In1s);
+		mcdot_product_8x1(Out, _In0 + div, In1 + div*In1s, m, mod, Outs0, Outs1, In0s, In1s);
 	}
 }
 
 //------------------------------------------------------------------------------
 template <class T, class U>
-static inline void mcdot_product_4x4 (T* Out, 
+static inline void mcdot_product_8x4 (T* Out, 
 																			T* _In0, 
 																			T* In1, 
 																			volatile const U m, 
@@ -147,11 +203,11 @@ static inline void mcdot_product_4x4 (T* Out,
 																			volatile const U In0s = 1,
 																			volatile const U In1s = 1) { 
 
-	register T out0, out1, out2, out3; 
+	register T out0, out1, out2, out3, out4, out5, out6, out7; 
 	register T in0_0, in0_1, in0_2, in0_3;
-	register T in1_0, in1_1, in1_2, in1_3;
+	register T in1_0, in1_1, in1_2, in1_3, in1_4, in1_5, in1_6, in1_7;
+	register T *Out0, *Out1, *Out2, *Out3, *Out4, *Out5, *Out6, *Out7; 
 	register T *in0, *in1;
-	register T *Out0, *Out1, *Out2, *Out3;
 	T *In0;
 	volatile U div, mod;
 	register U i, j;
@@ -163,6 +219,10 @@ static inline void mcdot_product_4x4 (T* Out,
 	Out1 = Out + Outs0 * 1;
 	Out2 = Out + Outs0 * 2;
 	Out3 = Out + Outs0 * 3;
+	Out4 = Out + Outs0 * 4;
+	Out5 = Out + Outs0 * 5;
+	Out6 = Out + Outs0 * 6;
+	Out7 = Out + Outs0 * 7;
 	In0 = _In0;
 
 	for (i = m; i; i--) {
@@ -173,6 +233,10 @@ static inline void mcdot_product_4x4 (T* Out,
 		out1 = 0.;
 		out2 = 0.;
 		out3 = 0.;
+		out4 = 0.;
+		out5 = 0.;
+		out6 = 0.;
+		out7 = 0.;
 		for (j = div; j; j--) {
 			in0_0 = *(in0 + 0);
 			in0_1 = *(in0 + 1);
@@ -183,58 +247,98 @@ static inline void mcdot_product_4x4 (T* Out,
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_0 * in1_0; 
 			out1 += in0_0 * in1_1; 
 			out2 += in0_0 * in1_2; 
 			out3 += in0_0 * in1_3; 
+			out4 += in0_0 * in1_4; 
+			out5 += in0_0 * in1_5; 
+			out6 += in0_0 * in1_6; 
+			out7 += in0_0 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_1 * in1_0; 
 			out1 += in0_1 * in1_1; 
 			out2 += in0_1 * in1_2; 
 			out3 += in0_1 * in1_3; 
+			out4 += in0_1 * in1_4; 
+			out5 += in0_1 * in1_5; 
+			out6 += in0_1 * in1_6; 
+			out7 += in0_1 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_2 * in1_0; 
 			out1 += in0_2 * in1_1; 
 			out2 += in0_2 * in1_2; 
 			out3 += in0_2 * in1_3; 
+			out4 += in0_2 * in1_4; 
+			out5 += in0_2 * in1_5; 
+			out6 += in0_2 * in1_6; 
+			out7 += in0_2 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_3 * in1_0; 
 			out1 += in0_3 * in1_1; 
 			out2 += in0_3 * in1_2; 
 			out3 += in0_3 * in1_3; 
+			out4 += in0_3 * in1_4; 
+			out5 += in0_3 * in1_5; 
+			out6 += in0_3 * in1_6; 
+			out7 += in0_3 * in1_7; 
 		}
 		* Out0 += out0;
 		* Out1 += out1;
 		* Out2 += out2;
 		* Out3 += out3;
+		* Out4 += out4;
+		* Out5 += out5;
+		* Out6 += out6;
+		* Out7 += out7;
 		Out0 += Outs1;
 		Out1 += Outs1;
 		Out2 += Outs1;
 		Out3 += Outs1;
+		Out4 += Outs1;
+		Out5 += Outs1;
+		Out6 += Outs1;
+		Out7 += Outs1;
 	}
 
 	if (mod) {
 		div = k - mod;
-		mcdot_product_4x2 (Out, _In0 + div, In1 + div*In1s, m, mod, Outs0, Outs1, In0s, In1s);
+		mcdot_product_8x2 (Out, _In0 + div, In1 + div*In1s, m, mod, Outs0, Outs1, In0s, In1s);
 	}
 }
 
 //------------------------------------------------------------------------------
 template <class T, class U>
-static inline void mcdot_product_4x8 (T* Out, 
+static inline void mcdot_product_8x8 (T* Out, 
 																			T* _In0, 
 																			T* In1, 
 																			volatile const U m, 
@@ -244,11 +348,11 @@ static inline void mcdot_product_4x8 (T* Out,
 																			volatile const U In0s = 1,
 																			volatile const U In1s = 1) { 
 
-	register T out0, out1, out2, out3; 
+	register T out0, out1, out2, out3, out4, out5, out6, out7; 
 	register T in0_0, in0_1, in0_2, in0_3;
-	register T in1_0, in1_1, in1_2, in1_3;
+	register T in1_0, in1_1, in1_2, in1_3, in1_4, in1_5, in1_6, in1_7;
+	register T *Out0, *Out1, *Out2, *Out3, *Out4, *Out5, *Out6, *Out7; 
 	register T *in0, *in1;
-	register T *Out0, *Out1, *Out2, *Out3;
 	T *In0;
 	volatile U div, mod;
 	register U i, j;
@@ -260,6 +364,10 @@ static inline void mcdot_product_4x8 (T* Out,
 	Out1 = Out + Outs0 * 1;
 	Out2 = Out + Outs0 * 2;
 	Out3 = Out + Outs0 * 3;
+	Out4 = Out + Outs0 * 4;
+	Out5 = Out + Outs0 * 5;
+	Out6 = Out + Outs0 * 6;
+	Out7 = Out + Outs0 * 7;
 	In0 = _In0;
 
 	for (i = m; i; i--) {
@@ -270,6 +378,10 @@ static inline void mcdot_product_4x8 (T* Out,
 		out1 = 0.;
 		out2 = 0.;
 		out3 = 0.;
+		out4 = 0.;
+		out5 = 0.;
+		out6 = 0.;
+		out7 = 0.;
 		for (j = div; j; j--) {
 			in0_0 = *(in0 + 0);
 			in0_1 = *(in0 + 1);
@@ -280,38 +392,70 @@ static inline void mcdot_product_4x8 (T* Out,
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_0 * in1_0; 
 			out1 += in0_0 * in1_1; 
 			out2 += in0_0 * in1_2; 
 			out3 += in0_0 * in1_3; 
+			out4 += in0_0 * in1_4; 
+			out5 += in0_0 * in1_5; 
+			out6 += in0_0 * in1_6; 
+			out7 += in0_0 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_1 * in1_0; 
 			out1 += in0_1 * in1_1; 
 			out2 += in0_1 * in1_2; 
 			out3 += in0_1 * in1_3; 
+			out4 += in0_1 * in1_4; 
+			out5 += in0_1 * in1_5; 
+			out6 += in0_1 * in1_6; 
+			out7 += in0_1 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_2 * in1_0; 
 			out1 += in0_2 * in1_1; 
 			out2 += in0_2 * in1_2; 
 			out3 += in0_2 * in1_3; 
+			out4 += in0_2 * in1_4; 
+			out5 += in0_2 * in1_5; 
+			out6 += in0_2 * in1_6; 
+			out7 += in0_2 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_3 * in1_0; 
 			out1 += in0_3 * in1_1; 
 			out2 += in0_3 * in1_2; 
 			out3 += in0_3 * in1_3; 
+			out4 += in0_3 * in1_4; 
+			out5 += in0_3 * in1_5; 
+			out6 += in0_3 * in1_6; 
+			out7 += in0_3 * in1_7; 
 			in0_0 = *(in0 + 0);
 			in0_1 = *(in0 + 1);
 			in0_2 = *(in0 + 2);
@@ -321,58 +465,98 @@ static inline void mcdot_product_4x8 (T* Out,
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_0 * in1_0; 
 			out1 += in0_0 * in1_1; 
 			out2 += in0_0 * in1_2; 
 			out3 += in0_0 * in1_3; 
+			out4 += in0_0 * in1_4; 
+			out5 += in0_0 * in1_5; 
+			out6 += in0_0 * in1_6; 
+			out7 += in0_0 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_1 * in1_0; 
 			out1 += in0_1 * in1_1; 
 			out2 += in0_1 * in1_2; 
 			out3 += in0_1 * in1_3; 
+			out4 += in0_1 * in1_4; 
+			out5 += in0_1 * in1_5; 
+			out6 += in0_1 * in1_6; 
+			out7 += in0_1 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_2 * in1_0; 
 			out1 += in0_2 * in1_1; 
 			out2 += in0_2 * in1_2; 
 			out3 += in0_2 * in1_3; 
+			out4 += in0_2 * in1_4; 
+			out5 += in0_2 * in1_5; 
+			out6 += in0_2 * in1_6; 
+			out7 += in0_2 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_3 * in1_0; 
 			out1 += in0_3 * in1_1; 
 			out2 += in0_3 * in1_2; 
 			out3 += in0_3 * in1_3; 
+			out4 += in0_3 * in1_4; 
+			out5 += in0_3 * in1_5; 
+			out6 += in0_3 * in1_6; 
+			out7 += in0_3 * in1_7; 
 		}
 		* Out0 += out0;
 		* Out1 += out1;
 		* Out2 += out2;
 		* Out3 += out3;
+		* Out4 += out4;
+		* Out5 += out5;
+		* Out6 += out6;
+		* Out7 += out7;
 		Out0 += Outs1;
 		Out1 += Outs1;
 		Out2 += Outs1;
 		Out3 += Outs1;
+		Out4 += Outs1;
+		Out5 += Outs1;
+		Out6 += Outs1;
+		Out7 += Outs1;
 	}
 
 	if (mod) {
 		div = k - mod;
-		mcdot_product_4x4 (Out, _In0 + div, In1 + div*In1s, m, mod, Outs0, Outs1, In0s, In1s);
+		mcdot_product_8x4 (Out, _In0 + div, In1 + div*In1s, m, mod, Outs0, Outs1, In0s, In1s);
 	}
 }
 
 //------------------------------------------------------------------------------
 template <class T, class U>
-static inline void mcdot_product_4x16(T* Out, 
+static inline void mcdot_product_8x16(T* Out, 
 																			T* _In0, 
 																			T* In1, 
 																			volatile const U m, 
@@ -382,11 +566,11 @@ static inline void mcdot_product_4x16(T* Out,
 																			volatile const U In0s = 1,
 																			volatile const U In1s = 1) { 
 
-	register T out0, out1, out2, out3; 
+	register T out0, out1, out2, out3, out4, out5, out6, out7; 
 	register T in0_0, in0_1, in0_2, in0_3;
-	register T in1_0, in1_1, in1_2, in1_3;
+	register T in1_0, in1_1, in1_2, in1_3, in1_4, in1_5, in1_6, in1_7;
+	register T *Out0, *Out1, *Out2, *Out3, *Out4, *Out5, *Out6, *Out7; 
 	register T *in0, *in1;
-	register T *Out0, *Out1, *Out2, *Out3;
 	T *In0;
 	volatile U div, mod;
 	register U i, j;
@@ -398,6 +582,10 @@ static inline void mcdot_product_4x16(T* Out,
 	Out1 = Out + Outs0 * 1;
 	Out2 = Out + Outs0 * 2;
 	Out3 = Out + Outs0 * 3;
+	Out4 = Out + Outs0 * 4;
+	Out5 = Out + Outs0 * 5;
+	Out6 = Out + Outs0 * 6;
+	Out7 = Out + Outs0 * 7;
 	In0 = _In0;
 
 	for (i = m; i; i--) {
@@ -408,6 +596,10 @@ static inline void mcdot_product_4x16(T* Out,
 		out1 = 0.;
 		out2 = 0.;
 		out3 = 0.;
+		out4 = 0.;
+		out5 = 0.;
+		out6 = 0.;
+		out7 = 0.;
 		for (j = div; j; j--) {
 			in0_0 = *(in0 + 0);
 			in0_1 = *(in0 + 1);
@@ -418,38 +610,70 @@ static inline void mcdot_product_4x16(T* Out,
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_0 * in1_0; 
 			out1 += in0_0 * in1_1; 
 			out2 += in0_0 * in1_2; 
 			out3 += in0_0 * in1_3; 
+			out4 += in0_0 * in1_4; 
+			out5 += in0_0 * in1_5; 
+			out6 += in0_0 * in1_6; 
+			out7 += in0_0 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_1 * in1_0; 
 			out1 += in0_1 * in1_1; 
 			out2 += in0_1 * in1_2; 
 			out3 += in0_1 * in1_3; 
+			out4 += in0_1 * in1_4; 
+			out5 += in0_1 * in1_5; 
+			out6 += in0_1 * in1_6; 
+			out7 += in0_1 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_2 * in1_0; 
 			out1 += in0_2 * in1_1; 
 			out2 += in0_2 * in1_2; 
 			out3 += in0_2 * in1_3; 
+			out4 += in0_2 * in1_4; 
+			out5 += in0_2 * in1_5; 
+			out6 += in0_2 * in1_6; 
+			out7 += in0_2 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_3 * in1_0; 
 			out1 += in0_3 * in1_1; 
 			out2 += in0_3 * in1_2; 
 			out3 += in0_3 * in1_3; 
+			out4 += in0_3 * in1_4; 
+			out5 += in0_3 * in1_5; 
+			out6 += in0_3 * in1_6; 
+			out7 += in0_3 * in1_7; 
 			in0_0 = *(in0 + 0);
 			in0_1 = *(in0 + 1);
 			in0_2 = *(in0 + 2);
@@ -459,38 +683,70 @@ static inline void mcdot_product_4x16(T* Out,
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_0 * in1_0; 
 			out1 += in0_0 * in1_1; 
 			out2 += in0_0 * in1_2; 
 			out3 += in0_0 * in1_3; 
+			out4 += in0_0 * in1_4; 
+			out5 += in0_0 * in1_5; 
+			out6 += in0_0 * in1_6; 
+			out7 += in0_0 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_1 * in1_0; 
 			out1 += in0_1 * in1_1; 
 			out2 += in0_1 * in1_2; 
 			out3 += in0_1 * in1_3; 
+			out4 += in0_1 * in1_4; 
+			out5 += in0_1 * in1_5; 
+			out6 += in0_1 * in1_6; 
+			out7 += in0_1 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_2 * in1_0; 
 			out1 += in0_2 * in1_1; 
 			out2 += in0_2 * in1_2; 
 			out3 += in0_2 * in1_3; 
+			out4 += in0_2 * in1_4; 
+			out5 += in0_2 * in1_5; 
+			out6 += in0_2 * in1_6; 
+			out7 += in0_2 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_3 * in1_0; 
 			out1 += in0_3 * in1_1; 
 			out2 += in0_3 * in1_2; 
 			out3 += in0_3 * in1_3; 
+			out4 += in0_3 * in1_4; 
+			out5 += in0_3 * in1_5; 
+			out6 += in0_3 * in1_6; 
+			out7 += in0_3 * in1_7; 
 			in0_0 = *(in0 + 0);
 			in0_1 = *(in0 + 1);
 			in0_2 = *(in0 + 2);
@@ -500,38 +756,70 @@ static inline void mcdot_product_4x16(T* Out,
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_0 * in1_0; 
 			out1 += in0_0 * in1_1; 
 			out2 += in0_0 * in1_2; 
 			out3 += in0_0 * in1_3; 
+			out4 += in0_0 * in1_4; 
+			out5 += in0_0 * in1_5; 
+			out6 += in0_0 * in1_6; 
+			out7 += in0_0 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_1 * in1_0; 
 			out1 += in0_1 * in1_1; 
 			out2 += in0_1 * in1_2; 
 			out3 += in0_1 * in1_3; 
+			out4 += in0_1 * in1_4; 
+			out5 += in0_1 * in1_5; 
+			out6 += in0_1 * in1_6; 
+			out7 += in0_1 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_2 * in1_0; 
 			out1 += in0_2 * in1_1; 
 			out2 += in0_2 * in1_2; 
 			out3 += in0_2 * in1_3; 
+			out4 += in0_2 * in1_4; 
+			out5 += in0_2 * in1_5; 
+			out6 += in0_2 * in1_6; 
+			out7 += in0_2 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_3 * in1_0; 
 			out1 += in0_3 * in1_1; 
 			out2 += in0_3 * in1_2; 
 			out3 += in0_3 * in1_3; 
+			out4 += in0_3 * in1_4; 
+			out5 += in0_3 * in1_5; 
+			out6 += in0_3 * in1_6; 
+			out7 += in0_3 * in1_7; 
 			in0_0 = *(in0 + 0);
 			in0_1 = *(in0 + 1);
 			in0_2 = *(in0 + 2);
@@ -541,58 +829,98 @@ static inline void mcdot_product_4x16(T* Out,
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_0 * in1_0; 
 			out1 += in0_0 * in1_1; 
 			out2 += in0_0 * in1_2; 
 			out3 += in0_0 * in1_3; 
+			out4 += in0_0 * in1_4; 
+			out5 += in0_0 * in1_5; 
+			out6 += in0_0 * in1_6; 
+			out7 += in0_0 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_1 * in1_0; 
 			out1 += in0_1 * in1_1; 
 			out2 += in0_1 * in1_2; 
 			out3 += in0_1 * in1_3; 
+			out4 += in0_1 * in1_4; 
+			out5 += in0_1 * in1_5; 
+			out6 += in0_1 * in1_6; 
+			out7 += in0_1 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_2 * in1_0; 
 			out1 += in0_2 * in1_1; 
 			out2 += in0_2 * in1_2; 
 			out3 += in0_2 * in1_3; 
+			out4 += in0_2 * in1_4; 
+			out5 += in0_2 * in1_5; 
+			out6 += in0_2 * in1_6; 
+			out7 += in0_2 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_3 * in1_0; 
 			out1 += in0_3 * in1_1; 
 			out2 += in0_3 * in1_2; 
 			out3 += in0_3 * in1_3; 
+			out4 += in0_3 * in1_4; 
+			out5 += in0_3 * in1_5; 
+			out6 += in0_3 * in1_6; 
+			out7 += in0_3 * in1_7; 
 		}
 		* Out0 += out0;
 		* Out1 += out1;
 		* Out2 += out2;
 		* Out3 += out3;
+		* Out4 += out4;
+		* Out5 += out5;
+		* Out6 += out6;
+		* Out7 += out7;
 		Out0 += Outs1;
 		Out1 += Outs1;
 		Out2 += Outs1;
 		Out3 += Outs1;
+		Out4 += Outs1;
+		Out5 += Outs1;
+		Out6 += Outs1;
+		Out7 += Outs1;
 	}
 
 	if (mod) {
 		div = k - mod;
-		mcdot_product_4x8 (Out, _In0 + div, In1 + div*In1s, m, mod, Outs0, Outs1, In0s, In1s);
+		mcdot_product_8x8 (Out, _In0 + div, In1 + div*In1s, m, mod, Outs0, Outs1, In0s, In1s);
 	}
 }
 
 //------------------------------------------------------------------------------
 template <class T, class U>
-static inline void mcdot_product_4x32(T* Out, 
+static inline void mcdot_product_8x32(T* Out, 
 																			T* _In0, 
 																			T* In1, 
 																			volatile const U m, 
@@ -602,11 +930,11 @@ static inline void mcdot_product_4x32(T* Out,
 																			volatile const U In0s = 1,
 																			volatile const U In1s = 1) { 
 
-	register T out0, out1, out2, out3; 
+	register T out0, out1, out2, out3, out4, out5, out6, out7; 
 	register T in0_0, in0_1, in0_2, in0_3;
-	register T in1_0, in1_1, in1_2, in1_3;
+	register T in1_0, in1_1, in1_2, in1_3, in1_4, in1_5, in1_6, in1_7;
+	register T *Out0, *Out1, *Out2, *Out3, *Out4, *Out5, *Out6, *Out7; 
 	register T *in0, *in1;
-	register T *Out0, *Out1, *Out2, *Out3;
 	T *In0;
 	volatile U div, mod;
 	register U i, j;
@@ -618,6 +946,10 @@ static inline void mcdot_product_4x32(T* Out,
 	Out1 = Out + Outs0 * 1;
 	Out2 = Out + Outs0 * 2;
 	Out3 = Out + Outs0 * 3;
+	Out4 = Out + Outs0 * 4;
+	Out5 = Out + Outs0 * 5;
+	Out6 = Out + Outs0 * 6;
+	Out7 = Out + Outs0 * 7;
 	In0 = _In0;
 
 	for (i = m; i; i--) {
@@ -628,6 +960,10 @@ static inline void mcdot_product_4x32(T* Out,
 		out1 = 0.;
 		out2 = 0.;
 		out3 = 0.;
+		out4 = 0.;
+		out5 = 0.;
+		out6 = 0.;
+		out7 = 0.;
 		for (j = div; j; j--) {
 			in0_0 = *(in0 + 0);
 			in0_1 = *(in0 + 1);
@@ -638,38 +974,70 @@ static inline void mcdot_product_4x32(T* Out,
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_0 * in1_0; 
 			out1 += in0_0 * in1_1; 
 			out2 += in0_0 * in1_2; 
 			out3 += in0_0 * in1_3; 
+			out4 += in0_0 * in1_4; 
+			out5 += in0_0 * in1_5; 
+			out6 += in0_0 * in1_6; 
+			out7 += in0_0 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_1 * in1_0; 
 			out1 += in0_1 * in1_1; 
 			out2 += in0_1 * in1_2; 
 			out3 += in0_1 * in1_3; 
+			out4 += in0_1 * in1_4; 
+			out5 += in0_1 * in1_5; 
+			out6 += in0_1 * in1_6; 
+			out7 += in0_1 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_2 * in1_0; 
 			out1 += in0_2 * in1_1; 
 			out2 += in0_2 * in1_2; 
 			out3 += in0_2 * in1_3; 
+			out4 += in0_2 * in1_4; 
+			out5 += in0_2 * in1_5; 
+			out6 += in0_2 * in1_6; 
+			out7 += in0_2 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_3 * in1_0; 
 			out1 += in0_3 * in1_1; 
 			out2 += in0_3 * in1_2; 
 			out3 += in0_3 * in1_3; 
+			out4 += in0_3 * in1_4; 
+			out5 += in0_3 * in1_5; 
+			out6 += in0_3 * in1_6; 
+			out7 += in0_3 * in1_7; 
 			in0_0 = *(in0 + 0);
 			in0_1 = *(in0 + 1);
 			in0_2 = *(in0 + 2);
@@ -679,38 +1047,70 @@ static inline void mcdot_product_4x32(T* Out,
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_0 * in1_0; 
 			out1 += in0_0 * in1_1; 
 			out2 += in0_0 * in1_2; 
 			out3 += in0_0 * in1_3; 
+			out4 += in0_0 * in1_4; 
+			out5 += in0_0 * in1_5; 
+			out6 += in0_0 * in1_6; 
+			out7 += in0_0 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_1 * in1_0; 
 			out1 += in0_1 * in1_1; 
 			out2 += in0_1 * in1_2; 
 			out3 += in0_1 * in1_3; 
+			out4 += in0_1 * in1_4; 
+			out5 += in0_1 * in1_5; 
+			out6 += in0_1 * in1_6; 
+			out7 += in0_1 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_2 * in1_0; 
 			out1 += in0_2 * in1_1; 
 			out2 += in0_2 * in1_2; 
 			out3 += in0_2 * in1_3; 
+			out4 += in0_2 * in1_4; 
+			out5 += in0_2 * in1_5; 
+			out6 += in0_2 * in1_6; 
+			out7 += in0_2 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_3 * in1_0; 
 			out1 += in0_3 * in1_1; 
 			out2 += in0_3 * in1_2; 
 			out3 += in0_3 * in1_3; 
+			out4 += in0_3 * in1_4; 
+			out5 += in0_3 * in1_5; 
+			out6 += in0_3 * in1_6; 
+			out7 += in0_3 * in1_7; 
 			in0_0 = *(in0 + 0);
 			in0_1 = *(in0 + 1);
 			in0_2 = *(in0 + 2);
@@ -720,38 +1120,70 @@ static inline void mcdot_product_4x32(T* Out,
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_0 * in1_0; 
 			out1 += in0_0 * in1_1; 
 			out2 += in0_0 * in1_2; 
 			out3 += in0_0 * in1_3; 
+			out4 += in0_0 * in1_4; 
+			out5 += in0_0 * in1_5; 
+			out6 += in0_0 * in1_6; 
+			out7 += in0_0 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_1 * in1_0; 
 			out1 += in0_1 * in1_1; 
 			out2 += in0_1 * in1_2; 
 			out3 += in0_1 * in1_3; 
+			out4 += in0_1 * in1_4; 
+			out5 += in0_1 * in1_5; 
+			out6 += in0_1 * in1_6; 
+			out7 += in0_1 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_2 * in1_0; 
 			out1 += in0_2 * in1_1; 
 			out2 += in0_2 * in1_2; 
 			out3 += in0_2 * in1_3; 
+			out4 += in0_2 * in1_4; 
+			out5 += in0_2 * in1_5; 
+			out6 += in0_2 * in1_6; 
+			out7 += in0_2 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_3 * in1_0; 
 			out1 += in0_3 * in1_1; 
 			out2 += in0_3 * in1_2; 
 			out3 += in0_3 * in1_3; 
+			out4 += in0_3 * in1_4; 
+			out5 += in0_3 * in1_5; 
+			out6 += in0_3 * in1_6; 
+			out7 += in0_3 * in1_7; 
 			in0_0 = *(in0 + 0);
 			in0_1 = *(in0 + 1);
 			in0_2 = *(in0 + 2);
@@ -761,38 +1193,70 @@ static inline void mcdot_product_4x32(T* Out,
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_0 * in1_0; 
 			out1 += in0_0 * in1_1; 
 			out2 += in0_0 * in1_2; 
 			out3 += in0_0 * in1_3; 
+			out4 += in0_0 * in1_4; 
+			out5 += in0_0 * in1_5; 
+			out6 += in0_0 * in1_6; 
+			out7 += in0_0 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_1 * in1_0; 
 			out1 += in0_1 * in1_1; 
 			out2 += in0_1 * in1_2; 
 			out3 += in0_1 * in1_3; 
+			out4 += in0_1 * in1_4; 
+			out5 += in0_1 * in1_5; 
+			out6 += in0_1 * in1_6; 
+			out7 += in0_1 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_2 * in1_0; 
 			out1 += in0_2 * in1_1; 
 			out2 += in0_2 * in1_2; 
 			out3 += in0_2 * in1_3; 
+			out4 += in0_2 * in1_4; 
+			out5 += in0_2 * in1_5; 
+			out6 += in0_2 * in1_6; 
+			out7 += in0_2 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_3 * in1_0; 
 			out1 += in0_3 * in1_1; 
 			out2 += in0_3 * in1_2; 
 			out3 += in0_3 * in1_3; 
+			out4 += in0_3 * in1_4; 
+			out5 += in0_3 * in1_5; 
+			out6 += in0_3 * in1_6; 
+			out7 += in0_3 * in1_7; 
 			in0_0 = *(in0 + 0);
 			in0_1 = *(in0 + 1);
 			in0_2 = *(in0 + 2);
@@ -802,38 +1266,70 @@ static inline void mcdot_product_4x32(T* Out,
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_0 * in1_0; 
 			out1 += in0_0 * in1_1; 
 			out2 += in0_0 * in1_2; 
 			out3 += in0_0 * in1_3; 
+			out4 += in0_0 * in1_4; 
+			out5 += in0_0 * in1_5; 
+			out6 += in0_0 * in1_6; 
+			out7 += in0_0 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_1 * in1_0; 
 			out1 += in0_1 * in1_1; 
 			out2 += in0_1 * in1_2; 
 			out3 += in0_1 * in1_3; 
+			out4 += in0_1 * in1_4; 
+			out5 += in0_1 * in1_5; 
+			out6 += in0_1 * in1_6; 
+			out7 += in0_1 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_2 * in1_0; 
 			out1 += in0_2 * in1_1; 
 			out2 += in0_2 * in1_2; 
 			out3 += in0_2 * in1_3; 
+			out4 += in0_2 * in1_4; 
+			out5 += in0_2 * in1_5; 
+			out6 += in0_2 * in1_6; 
+			out7 += in0_2 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_3 * in1_0; 
 			out1 += in0_3 * in1_1; 
 			out2 += in0_3 * in1_2; 
 			out3 += in0_3 * in1_3; 
+			out4 += in0_3 * in1_4; 
+			out5 += in0_3 * in1_5; 
+			out6 += in0_3 * in1_6; 
+			out7 += in0_3 * in1_7; 
 			in0_0 = *(in0 + 0);
 			in0_1 = *(in0 + 1);
 			in0_2 = *(in0 + 2);
@@ -843,38 +1339,70 @@ static inline void mcdot_product_4x32(T* Out,
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_0 * in1_0; 
 			out1 += in0_0 * in1_1; 
 			out2 += in0_0 * in1_2; 
 			out3 += in0_0 * in1_3; 
+			out4 += in0_0 * in1_4; 
+			out5 += in0_0 * in1_5; 
+			out6 += in0_0 * in1_6; 
+			out7 += in0_0 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_1 * in1_0; 
 			out1 += in0_1 * in1_1; 
 			out2 += in0_1 * in1_2; 
 			out3 += in0_1 * in1_3; 
+			out4 += in0_1 * in1_4; 
+			out5 += in0_1 * in1_5; 
+			out6 += in0_1 * in1_6; 
+			out7 += in0_1 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_2 * in1_0; 
 			out1 += in0_2 * in1_1; 
 			out2 += in0_2 * in1_2; 
 			out3 += in0_2 * in1_3; 
+			out4 += in0_2 * in1_4; 
+			out5 += in0_2 * in1_5; 
+			out6 += in0_2 * in1_6; 
+			out7 += in0_2 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_3 * in1_0; 
 			out1 += in0_3 * in1_1; 
 			out2 += in0_3 * in1_2; 
 			out3 += in0_3 * in1_3; 
+			out4 += in0_3 * in1_4; 
+			out5 += in0_3 * in1_5; 
+			out6 += in0_3 * in1_6; 
+			out7 += in0_3 * in1_7; 
 			in0_0 = *(in0 + 0);
 			in0_1 = *(in0 + 1);
 			in0_2 = *(in0 + 2);
@@ -884,38 +1412,70 @@ static inline void mcdot_product_4x32(T* Out,
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_0 * in1_0; 
 			out1 += in0_0 * in1_1; 
 			out2 += in0_0 * in1_2; 
 			out3 += in0_0 * in1_3; 
+			out4 += in0_0 * in1_4; 
+			out5 += in0_0 * in1_5; 
+			out6 += in0_0 * in1_6; 
+			out7 += in0_0 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_1 * in1_0; 
 			out1 += in0_1 * in1_1; 
 			out2 += in0_1 * in1_2; 
 			out3 += in0_1 * in1_3; 
+			out4 += in0_1 * in1_4; 
+			out5 += in0_1 * in1_5; 
+			out6 += in0_1 * in1_6; 
+			out7 += in0_1 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_2 * in1_0; 
 			out1 += in0_2 * in1_1; 
 			out2 += in0_2 * in1_2; 
 			out3 += in0_2 * in1_3; 
+			out4 += in0_2 * in1_4; 
+			out5 += in0_2 * in1_5; 
+			out6 += in0_2 * in1_6; 
+			out7 += in0_2 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_3 * in1_0; 
 			out1 += in0_3 * in1_1; 
 			out2 += in0_3 * in1_2; 
 			out3 += in0_3 * in1_3; 
+			out4 += in0_3 * in1_4; 
+			out5 += in0_3 * in1_5; 
+			out6 += in0_3 * in1_6; 
+			out7 += in0_3 * in1_7; 
 			in0_0 = *(in0 + 0);
 			in0_1 = *(in0 + 1);
 			in0_2 = *(in0 + 2);
@@ -925,52 +1485,92 @@ static inline void mcdot_product_4x32(T* Out,
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_0 * in1_0; 
 			out1 += in0_0 * in1_1; 
 			out2 += in0_0 * in1_2; 
 			out3 += in0_0 * in1_3; 
+			out4 += in0_0 * in1_4; 
+			out5 += in0_0 * in1_5; 
+			out6 += in0_0 * in1_6; 
+			out7 += in0_0 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_1 * in1_0; 
 			out1 += in0_1 * in1_1; 
 			out2 += in0_1 * in1_2; 
 			out3 += in0_1 * in1_3; 
+			out4 += in0_1 * in1_4; 
+			out5 += in0_1 * in1_5; 
+			out6 += in0_1 * in1_6; 
+			out7 += in0_1 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_2 * in1_0; 
 			out1 += in0_2 * in1_1; 
 			out2 += in0_2 * in1_2; 
 			out3 += in0_2 * in1_3; 
+			out4 += in0_2 * in1_4; 
+			out5 += in0_2 * in1_5; 
+			out6 += in0_2 * in1_6; 
+			out7 += in0_2 * in1_7; 
 			in1_0 = *(in1 + 0);
 			in1_1 = *(in1 + 1);
 			in1_2 = *(in1 + 2);
 			in1_3 = *(in1 + 3);
+			in1_4 = *(in1 + 4);
+			in1_5 = *(in1 + 5);
+			in1_6 = *(in1 + 6);
+			in1_7 = *(in1 + 7);
 			in1 += In1s;
 			out0 += in0_3 * in1_0; 
 			out1 += in0_3 * in1_1; 
 			out2 += in0_3 * in1_2; 
 			out3 += in0_3 * in1_3; 
+			out4 += in0_3 * in1_4; 
+			out5 += in0_3 * in1_5; 
+			out6 += in0_3 * in1_6; 
+			out7 += in0_3 * in1_7; 
 		}
 		* Out0 += out0;
 		* Out1 += out1;
 		* Out2 += out2;
 		* Out3 += out3;
+		* Out4 += out4;
+		* Out5 += out5;
+		* Out6 += out6;
+		* Out7 += out7;
 		Out0 += Outs1;
 		Out1 += Outs1;
 		Out2 += Outs1;
 		Out3 += Outs1;
+		Out4 += Outs1;
+		Out5 += Outs1;
+		Out6 += Outs1;
+		Out7 += Outs1;
 	}
 
 	if (mod) {
 		div = k - mod;
-		mcdot_product_4x16(Out, _In0 + div, In1 + div*In1s, m, mod, Outs0, Outs1, In0s, In1s);
+		mcdot_product_8x16(Out, _In0 + div, In1 + div*In1s, m, mod, Outs0, Outs1, In0s, In1s);
 	}
 }
 
