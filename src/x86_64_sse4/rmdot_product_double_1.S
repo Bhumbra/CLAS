@@ -16,6 +16,12 @@
 # R14	out6
 # R15	out7
 
+# SIMD register plan
+
+# xmm0-4:	out_0-8
+# xmm4-7:	in1_0-8
+# xmm8-15:	in0_0-8
+
 # Stack allocation (no red zone)
 
 # 0x08(%rsp)	Out

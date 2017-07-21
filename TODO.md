@@ -21,5 +21,8 @@ mcdot
 mrdot
 
 The template code mcdot has been modified according the above changes but the gcc-compiled assembler is poorly optimised
-with absolutely refusal to implement SIMD instructions (in contrast to e.g. rmdot). There will be no getting around
-having to write SSE2/AVX2 assembler.
+with absolutely refusal to implement SIMD instructions (in contrast to e.g. rmdot_4). Also rmdot_8 gcc-compiled
+assembler comprises single-data floating point instructions, so there will be no getting around having to write
+SSE4/AVX2 assembler.
+
+First: to complete template 8x32 coding for rmdot (done), cmdot (todo), mrdot (todo), and mcdot (done).

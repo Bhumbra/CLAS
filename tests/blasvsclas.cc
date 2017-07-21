@@ -34,8 +34,8 @@ int main(int argc, char* argv[])
 	bool ColMajor = false;
 	
 	bool showInputs = false;
-	bool showResult[] = {false, false, false};
-	bool benchMark[] =  {true, true, true}; 
+	bool showResult[] = {0, 0, 0};
+	bool benchMark[] =  {1, 1, 1}; 
 
 	uint64_t nt = 0; // number of threads (-1 - force unithread, 0 - all threads) 
 	uint64_t u0 = 0; // maximum outer unroll (0 - optimal)

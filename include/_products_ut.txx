@@ -10,6 +10,17 @@
 using namespace std;
 
 # include "clas_unroll.txx"
+/*
+# define DEF_MCDOT_OUTER_UNROLL_MAX DEF_OUTER_UNROLL_MAX
+# define DEF_MCDOT_INNER_UNROLL_MAX DEF_INNER_UNROLL_MAX
+# define DEF_RMDOT_OUTER_UNROLL_MAX DEF_OUTER_UNROLL_MAX
+# define DEF_RMDOT_INNER_UNROLL_MAX DEF_INNER_UNROLL_MAX
+*/
+# define DEF_MCDOT_OUTER_UNROLL_MAX DEF_OUTER_UNROLL_MAX
+# define DEF_MCDOT_INNER_UNROLL_MAX DEF_INNER_UNROLL_MAX
+# define DEF_RMDOT_OUTER_UNROLL_MAX 4 // 8 doesn't compile to SSE2
+# define DEF_RMDOT_INNER_UNROLL_MAX DEF_INNER_UNROLL_MAX
+
 //------------------------------------------------------------------------------
 # include "_ewise_product.txx"
 # include "_outer_product.txx"
@@ -179,6 +190,12 @@ static inline void _rmdot_product_ut (T* Out,
 																			volatile U In2s = 0, 
 																			volatile U U0 = 0,
 																			volatile U U1 = 0) { 
+	if (!U0) {
+		U0 = DEF_RMDOT_OUTER_UNROLL_MAX;
+	}
+	if (!U1) {
+		U1 = DEF_RMDOT_INNER_UNROLL_MAX;
+	}
 	rmdot_product_0(Out, In0, In1, m, k, n, OutS, In0S, In1s, In2, In2S, In2s, U0, U1);
 }
 
@@ -346,8 +363,8 @@ static inline void _mcdot_product_ut (T* _Out,
 		return mcdot_product_0(_Out, _In0, _In1, m, k, n, OutS, Outs, In0s, In1s, _In2, In2S, In2s, _U0, _U1);
 	}
 
-	U N = next_aligned_index(_In1, (U)DEF_OUTER_UNROLL_MAX, n);
-	U K = next_aligned_index(_In0, (U)DEF_INNER_UNROLL_MAX, k);
+	U N = next_aligned_index(_In1, (U)DEF_MCDOT_OUTER_UNROLL_MAX, n);
+	U K = next_aligned_index(_In0, (U)DEF_MCDOT_INNER_UNROLL_MAX, k);
 
 	if (!N && !K) {
 		return mcdot_product_0(_Out, _In0, _In1, m, k, n, OutS, Outs, In0s, In1s, _In2, In2S, In2s, _U0, _U1);
@@ -364,13 +381,13 @@ static inline void _mcdot_product_ut (T* _Out,
 		U0 = _U0;
 	}
 	else {
-		U0 = n % DEF_OUTER_UNROLL_MAX  ? (U)(DEF_OUTER_UNROLL_MAX/2) : (U)(DEF_OUTER_UNROLL_MAX);
+		U0 = n % DEF_MCDOT_OUTER_UNROLL_MAX  ? (U)(DEF_MCDOT_OUTER_UNROLL_MAX/2) : (U)(DEF_MCDOT_OUTER_UNROLL_MAX);
 	}
 	if (_U1) {
 		U1 = _U1;
 	}
 	else {
-		U1 = k % DEF_INNER_UNROLL_MAX  ? (U)(DEF_INNER_UNROLL_MAX/2) : (U)(DEF_INNER_UNROLL_MAX);
+		U1 = k % DEF_MCDOT_INNER_UNROLL_MAX  ? (U)(DEF_MCDOT_INNER_UNROLL_MAX/2) : (U)(DEF_MCDOT_INNER_UNROLL_MAX);
 	}
 	if (_U0 || !N) {
 		if (!K) {
