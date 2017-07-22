@@ -14,7 +14,7 @@ static inline void rmdot_product_4x1 (T* Out,
 																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1, in0_2, in0_3;
-	register T in1_0;
+	T in1_0;
 	T *In1;
 	T *Out0, *Out1, *Out2, *Out3;
 	register T *out0, *out1, *out2, *out3;
@@ -69,7 +69,7 @@ static inline void rmdot_product_4x2 (T* Out,
 																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1, in0_2, in0_3;
-	register T in1_0, in1_1;
+	T in1_0, in1_1;
 	T *In1;
 	T *Out0, *Out1, *Out2, *Out3;
 	register T *out0, *out1, *out2, *out3;
@@ -137,7 +137,7 @@ static inline void rmdot_product_4x4 (T* Out,
 																			volatile const U In0S = 0,
 																			volatile const U In1s = 0) { 
 
-	register T in1_0, in1_1, in1_2, in1_3;
+	T in1_0, in1_1, in1_2, in1_3;
 	register T in0_0, in0_1, in0_2, in0_3;
 	T *In1;
 	T *Out0, *Out1, *Out2, *Out3;
@@ -216,7 +216,7 @@ static inline void rmdot_product_4x8 (T* Out,
 																			volatile const U In0S = 0,
 																			volatile const U In1s = 0) { 
 
-	register T in1_0, in1_1, in1_2, in1_3, in1_4, in1_5, in1_6, in1_7;
+	T in1_0, in1_1, in1_2, in1_3, in1_4, in1_5, in1_6, in1_7;
 	register T in0_0, in0_1, in0_2, in0_3;
 	T *In1;
 	T *Out0, *Out1, *Out2, *Out3;
@@ -315,7 +315,7 @@ static inline void rmdot_product_4x16(T* Out,
 																			volatile const U In0S = 0,
 																			volatile const U In1s = 0) { 
 
-	register T in1_0, in1_1, in1_2, in1_3, in1_4, in1_5, in1_6, in1_7;
+	T in1_0, in1_1, in1_2, in1_3, in1_4, in1_5, in1_6, in1_7;
 	register T in0_0, in0_1, in0_2, in0_3;
 	T *In1;
 	T *Out0, *Out1, *Out2, *Out3;
@@ -459,7 +459,7 @@ static inline void rmdot_product_4x32(T* Out,
 																			volatile const U In0S = 0,
 																			volatile const U In1s = 0) { 
 
-	register T in1_0, in1_1, in1_2, in1_3, in1_4, in1_5, in1_6, in1_7;
+	T in1_0, in1_1, in1_2, in1_3, in1_4, in1_5, in1_6, in1_7;
 	register T in0_0, in0_1, in0_2, in0_3;
 	T *In1;
 	T *Out0, *Out1, *Out2, *Out3;
