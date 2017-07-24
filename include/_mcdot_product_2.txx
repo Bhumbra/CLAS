@@ -18,7 +18,6 @@ static inline void mcdot_product_2x1 (T* Out,
 	register T *in0, *in1;
 	T *Out0, *Out1; 
 	T *In0;
-	T* In1_0, *In1_1; 
 	register U i, j;
 
 	Out0 = Out;
@@ -64,7 +63,6 @@ static inline void mcdot_product_2x2 (T* Out,
 	register T *in0, *in1;
 	T *Out0, *Out1; 
 	T *In0;
-	T* In1_0, *In1_1; 
 	volatile U div, mod;
 	register U i, j;
 

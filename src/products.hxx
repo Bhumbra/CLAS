@@ -55,7 +55,6 @@ void cmdot_product_double_ut (double* Out,
 															volatile const uint64_t n,
 															double* In2 = 0,
 															volatile const bool In2Tr = false,
-															volatile uint64_t In0s = 0,
 															volatile uint64_t U0 = 0,
 															volatile uint64_t U1 = 0);
 //------------------------------------------------------------------------------
@@ -149,7 +148,6 @@ void cmdot_product_double_mt (double* Out,
 															volatile const uint64_t n,
 															double* In2 = 0,
 															volatile const bool In2Tr = false,
-															volatile uint64_t In0s = 0,
 															volatile uint64_t U0 = 0,
 															volatile uint64_t U1 = 0,
 															volatile uint64_t NT = 0);

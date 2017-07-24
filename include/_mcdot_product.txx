@@ -1,17 +1,21 @@
 # ifndef _mcdot_product_txx
 # define _mcdot_product_txx
 //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-# include <iostream>
-using namespace std;
-
 # include "clas_unroll.txx"
+# include "clas_cache.txx"
+
 //------------------------------------------------------------------------------
 # include "_replicate.txx"
 # include "_mcdot_product_1.txx"
 # include "_mcdot_product_2.txx"
 # include "_mcdot_product_4.txx"
 # include "_mcdot_product_8.txx"
+
+//------------------------------------------------------------------------------
+# define DEF_MCDOT_OUTER_UNROLL_MAX DEF_OUTER_UNROLL_MAX
+# define DEF_MCDOT_INNER_UNROLL_MAX DEF_INNER_UNROLL_MAX
+# define DEF_MCDOT_OUTER_UNROLL DEF_OUTER_UNROLL
+# define DEF_MCDOT_INNER_UNROLL DEF_INNER_UNROLL 
 
 //------------------------------------------------------------------------------
 template <class T, class U>
@@ -516,6 +520,117 @@ static inline void mcdot_product_0 (T* Out,
 		default: {
 			return mcdot_product_8(Out, In0, In1, m, k, n, OutS, Outs, In0s, In1s, U1);
 		}
+	}
+}
+
+//------------------------------------------------------------------------------
+template <class T, class U>
+static inline void mcdot_product (T* _Out, 
+																	T* _In0, 
+																	T* _In1, 
+																	volatile const U m,
+																	volatile const U k,
+																	volatile const U n, 
+																	volatile const U OutS,
+																	volatile const U Outs,
+																	volatile U In0s, 
+																	volatile U In1s, 
+																	T* _In2 = 0,
+																	volatile const U In2S = 0,
+																	volatile const U In2s = 0,
+																	volatile U _U0 = 0,
+																	volatile U _U1 = 0) { 
+
+	if (_U0 && _U1) {
+		return mcdot_product_0(_Out, _In0, _In1, m, k, n, OutS, Outs, In0s, In1s, _In2, In2S, In2s, _U0, _U1);
+	}
+
+	U L = (U)DEF_CACHE_LINE_SIZE/sizeof(T);
+	U N = next_aligned_index(_In1, L, n);
+	U K = next_aligned_index(_In0, L, k);
+
+	if (!N && !K) {
+		return mcdot_product_0(_Out, _In0, _In1, m, k, n, OutS, Outs, In0s, In1s, _In2, In2S, In2s, _U0, _U1);
+	}
+
+	U U0 = _U0;
+	U U1 = _U1;
+	T* Out = _Out;
+	T* In0 = _In0;
+	T* In1 = _In1;
+	T* In2 = _In2;
+
+	if (_U0) {
+		U0 = _U0;
+	}
+	else {
+		U0 = n % DEF_MCDOT_OUTER_UNROLL  ? (U)(DEF_MCDOT_OUTER_UNROLL/2) : (U)(DEF_MCDOT_OUTER_UNROLL);
+		while (U0 > n) {
+			U0 >>= 1;
+		}
+	}
+	if (U0 > DEF_MCDOT_OUTER_UNROLL_MAX) {U0 = DEF_MCDOT_OUTER_UNROLL_MAX;}
+	if (_U1) {
+		U1 = _U1;
+	}
+	else {
+		U1 = k % DEF_MCDOT_INNER_UNROLL  ? (U)(DEF_MCDOT_INNER_UNROLL/2) : (U)(DEF_MCDOT_INNER_UNROLL);
+		while (U1 > k) {
+			U1 >>= 1;
+		}
+	}
+	if (U1 > DEF_MCDOT_OUTER_UNROLL_MAX) {U1 = DEF_MCDOT_OUTER_UNROLL_MAX;}
+	if (_U0 || !N) {
+		if (!K) {
+			mcdot_product_0(_Out, _In0, _In1, m, k, n, OutS, Outs, In0s, In1s, In2, In2S, In2s, U0, U1);
+			return;
+		}
+		else {
+			mcdot_product_0(Out, In0, In1, m, K, n, OutS, Outs, In0s, In1s, In2, In2S, In2s, U0, U1);
+			In0 += K;
+			In1 += K * In1s;
+			mcdot_product_0(Out, In0, In1, m, k-K, n, OutS, Outs, In0s, In1s, Out, In2S, In2s, U0, U1);
+			return;
+		}
+	}
+	if (_U1 || !K) {
+		if (!N) {
+			mcdot_product_0(_Out, _In0, _In1, m, k, n, OutS, Outs, In0s, In1s, In2, In2S, In2s, U0, U1);
+			return;
+		}
+		else {
+			mcdot_product_0(Out, In0, In1, m, k, N, OutS, Outs, In0s, In1s, In2, In2S, In2s, U0, U1);
+			Out += N * OutS;
+			In1 += N;
+			In2 += N * In2S;
+			mcdot_product_0(Out, In0, In1, m, k, n-N, OutS, Outs, In0s, In1s, In2, In2S, In2s, U0, U1);
+			return;
+		}
+	}
+
+	if (N) {
+		if (K) {
+			mcdot_product_0(Out, In0, In1, m, K, N, OutS, Outs, In0s, In1s, In2, In2S, In2s, U0, U1);
+			In0 += K;
+			In1 += K * In1s;
+			mcdot_product_0(Out, In0, In1, m, k-K, N, OutS, Outs, In0s, In1s, Out, In2S, In2s, U0, U1);
+		}
+		else {
+			mcdot_product_0(Out, In0, In1, m, k, N, OutS, Outs, In0s, In1s, In2, In2S, In2s, U0, U1);
+		}
+		Out = _Out + N * OutS;
+		In0 = _In0;
+		In1 = _In1 + N;
+		In2 = _In2 + N * In2S;
+	}
+	if (K) {
+		mcdot_product_0(Out, In0, In1, m, K, n-N, OutS, Outs, In0s, In1s, In2, In2S, In2s, U0, U1);
+		In0 += K;
+		In1 += K * In1s;
+		mcdot_product_0(Out, In0, In1, m, k-K, n-N, OutS, Outs, In0s, In1s, Out, In2S, In2s, U0, U1);
+	}
+	else {
+		mcdot_product_0(Out, In0, In1, m, k-K, n-N, OutS, Outs, In0s, In1s, In2, In2S, In2s, U0, U1);
 	}
 }
 

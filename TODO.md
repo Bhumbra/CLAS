@@ -12,7 +12,7 @@ rate without comprising multi-threaded optimisation. This necessitates slight ch
 - outer and inner unroll regimens must be sensitive to 64-byte boundaries in the input/output arrays.
 - optimal choice between (matrix x many columns) and (many rows x matrix) is dependent on data dimensions and alignment.
 
-So before writing assembler functions for all tranposes, pre-replication of maxuend and cache alignment-sensitive
+So before writing assembler functions for all transposes, pre-replication of maxuend and cache alignment-sensitive
 unrolling must be applied to:
 
 rmdot
@@ -25,4 +25,3 @@ with absolutely refusal to implement SIMD instructions (in contrast to e.g. rmdo
 assembler comprises single-data floating point instructions, so there will be no getting around having to write
 SSE4/AVX2 assembler.
 
-First: to complete template 8x32 coding for rmdot (done), cmdot (todo), mrdot (todo), and mcdot (done).

@@ -80,11 +80,29 @@ static inline void rmdot_product_mt(T* Out,
 																		volatile U U0 = 0,
 																		volatile U U1 = 0,
 																		volatile U NT = 0) { 
-	U f, g, h;
 	if (NT == (U)-1) {
 		return rmdot_product_ut(Out, In0, In1, m, k, n, In2, In2Tr, U0, U1);
 	} 
-	U In2S = (In2 && !In2Tr) ? (U)1 : (U)0;
+
+	U f, g, h;
+	volatile U In2S = (U)0;
+	volatile U In2s = (U)0;
+	volatile U OutS, In0S, In0s, In1s;
+
+	if (In2) {
+		if (!In2Tr) {
+			In2S = (U)1;
+		}
+		else {
+			In2s = (U)1;
+		}
+	}
+
+	OutS = n;
+	In0S = k;
+	In0s = (U)1;
+	In1s = n;
+
 	U nt = set_num_threads(NT);
 	U* td = new U[nt];
 	U Nt = set_thread_load(td, m, nt);
@@ -92,11 +110,12 @@ static inline void rmdot_product_mt(T* Out,
 	
 	for (f = 0, h = 0; f<Nt; f++, h += g) {
 		g = td[f];
-		th[f] = std::thread(rmdot_product_ut<T,U>, Out+h*n, In0+h*k, In1, g, k, n, In2+h*In2S, In2Tr, U0, U1);
+		th[f] = std::thread(vmdot_product<T,U>, Out+h*n, In0+h*In0S, In1, g, k, n, OutS, In0S, In0s, In1s, In2+h*In2S, In2S, In2s, U0, U1);
 	}
 	for (f = 0; f<Nt; f++) {
 		th[f].join();
 	}
+
 	delete (td);
 }
 //------------------------------------------------------------------------------
@@ -109,16 +128,32 @@ static inline void cmdot_product_mt(T* Out,
 																		volatile const U n, 
 																		T* In2 = 0,
 																		volatile const bool In2Tr = false,
-																		volatile U In0s = 0,
 																		volatile U U0 = 0,
 																		volatile U U1 = 0,
 																		volatile U NT = 0) { 
-	U f, g, h;
 	if (NT == (U)-1) {
-		return cmdot_product_ut(Out, In0, In1, m, k, n, In2, In2Tr, In0s, U0, U1);
+		return cmdot_product_ut(Out, In0, In1, m, k, n, In2, In2Tr, U0, U1);
 	} 
-	if (!In0s) {In0s = m;}
-	U In2S = (In2 && !In2Tr) ? (U)1 : (U)0;
+
+	U f, g, h;
+	volatile U In2S = (U)0;
+	volatile U In2s = (U)0;
+	volatile U OutS, In0S, In0s, In1s;
+
+	if (In2) {
+		if (!In2Tr) {
+			In2S = (U)1;
+		}
+		else {
+			In2s = (U)1;
+		}
+	}
+
+	OutS = n;
+	In0S = (U)1;
+	In0s = k;
+	In1s = n;
+
 	U nt = set_num_threads(NT);
 	U* td = new U[nt];
 	U Nt = set_thread_load(td, m, nt);
@@ -126,11 +161,12 @@ static inline void cmdot_product_mt(T* Out,
 	
 	for (f = 0, h = 0; f<Nt; f++, h += g) {
 		g = td[f];
-		th[f] = std::thread(cmdot_product_ut<T,U>, Out+h*n, In0+h, In1, g, k, n, In2+h*In2S, In2Tr, In0s, U0, U1);
+		th[f] = std::thread(vmdot_product<T,U>, Out+h*n, In0+h*In0S, In1, g, k, n, OutS, In0S, In0s, In1s, In2+h*In2S, In2S, In2s, U0, U1);
 	}
 	for (f = 0; f<Nt; f++) {
 		th[f].join();
 	}
+
 	delete (td);
 }
 
@@ -154,9 +190,11 @@ static inline void mrdot_product_mt(T* Out,
 
 	T *In0, *In1;
 	U m, n;
-	volatile U OutS, Outs;
+	volatile U OutS, Outs, In0s, In1s;
 	volatile U In2S, In2s;
 
+	In0s = k;
+	In1s = k;
 	In2S = (U)0;
 	In2s = (U)0;
 
@@ -190,13 +228,14 @@ static inline void mrdot_product_mt(T* Out,
 	std::thread th[Nt];
 	for (f = 0, h = 0; f<Nt; f++, h += g) {
 		g = td[f];
-		th[f] = std::thread(_mrdot_product_ut<T,U>, Out+h*OutS, In0, In1+h*k, m, k, g, OutS, Outs, In2+h*In2S, In2S, In2s, U0, U1);
+		th[f] = std::thread(mrdot_product<T,U>, Out+h*OutS, In0, In1+h*k, m, k, g, OutS, Outs, In0s, In1s, In2+h*In2S, In2S, In2s, U0, U1);
 	}
 	for (f = 0; f<Nt; f++) {
 		th[f].join();
 	}
 	delete (td);
 }
+
 //------------------------------------------------------------------------------
 template <class T, class U>
 static inline void mcdot_product_mt(T* Out, 
@@ -255,7 +294,7 @@ static inline void mcdot_product_mt(T* Out,
 	
 	for (f = 0, h = 0; f<Nt; f++, h += g) {
 		g = td[f];
-		th[f] = std::thread(_mcdot_product_ut<T,U>, Out+h*OutS, In0, In1+h, m, k, g, OutS, Outs, In0s, In1s, In2+h*In2S, In2S, In2s, U0, U1);
+		th[f] = std::thread(mcdot_product<T,U>, Out+h*OutS, In0, In1+h, m, k, g, OutS, Outs, In0s, In1s, In2+h*In2S, In2S, In2s, U0, U1);
 	}
 	for (f = 0; f<Nt; f++) {
 		th[f].join();
@@ -307,7 +346,7 @@ static inline void mmdot_product_mt(T* Out,
 			return inner_product_mt(Out, In0, In1, m, k, n, k, (U)0, In2, U1);
 		}
 		else {             // tranposed multiplicand - inner product of swapped inputs
-			return cmdot_product_mt(Out, In0, In1, m, k, n, In2, false, m, U0, U1);
+			return cmdot_product_mt(Out, In0, In1, m, k, n, In2, false, U0, U1);
 		}
 	}
 
@@ -340,7 +379,7 @@ static inline void mmdot_product_mt(T* Out,
 		}
 		else {             // Transposed multiplicand
 			if (!In1Cm) {    // Untransposed multiple
-				return cmdot_product_mt(Out, In0, In1, m, k, n, In2, false, m, U0, U1, NT);
+				return cmdot_product_mt(Out, In0, In1, m, k, n, In2, false, U0, U1, NT);
 			}
 			else {           // Tranposed multiple
 				// C = A.T * B.T => C.T = B * A
@@ -360,7 +399,7 @@ static inline void mmdot_product_mt(T* Out,
 		else {             // Transposed multiplicand
 			if (!In1Cm) {    // Untransposed multiple
 				// C.T = A.T * B => C = B.T * A
-				return cmdot_product_mt(Out, In1, In0, n, k, m, In2, true, n, U0, U1, NT);
+				return cmdot_product_mt(Out, In1, In0, n, k, m, In2, true, U0, U1, NT);
 			}
 			else {           // Transposed multiple
 				// C.T = A.T * B.T => C = B * A

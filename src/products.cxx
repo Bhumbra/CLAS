@@ -69,10 +69,9 @@ void cmdot_product_double_ut (double* Out,
 															volatile const uint64_t n,
 															double* In2,
 															volatile const bool In2Tr,
-															volatile uint64_t In0s,
 															volatile uint64_t U0,
 															volatile uint64_t U1) {
-	cmdot_product_ut(Out, In0, In1, m, k, n, In2, In2Tr, In0s, U0, U1);
+	cmdot_product_ut(Out, In0, In1, m, k, n, In2, In2Tr, U0, U1);
 }
 //------------------------------------------------------------------------------
 void mrdot_product_double_ut (double* Out, 
@@ -179,11 +178,10 @@ void cmdot_product_double_mt (double* Out,
 															volatile const uint64_t n,
 															double* In2,
 															volatile const bool In2Tr,
-															volatile uint64_t In0s,
 															volatile uint64_t U0,
 															volatile uint64_t U1,
 															volatile uint64_t NT) {
-	cmdot_product_mt(Out, In0, In1, m, k, n, In2, In2Tr, In0s, U0, U1, NT);
+	cmdot_product_mt(Out, In0, In1, m, k, n, In2, In2Tr, U0, U1, NT);
 }
 //------------------------------------------------------------------------------
 void mrdot_product_double_mt (double* Out, 

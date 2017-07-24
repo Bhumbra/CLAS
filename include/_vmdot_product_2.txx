@@ -1,16 +1,17 @@
-#ifndef _rmdot_product_2_txx
-#define _rmdot_product_2_txx
+#ifndef _vmdot_product_2_txx
+#define _vmdot_product_2_txx
 
 //------------------------------------------------------------------------------
 // Note In1s is also the output stride
 //------------------------------------------------------------------------------
 template <class T, class U>
-static inline void rmdot_product_2x1 (T* Out, 
+static inline void vmdot_product_2x1 (T* Out, 
 																			T* In0, 
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
 																			volatile const U In0S = 0,
+																			volatile const U In0s = 0,
 																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1;
@@ -33,7 +34,7 @@ static inline void rmdot_product_2x1 (T* Out,
 		in0_0 = *(in0 + 0);
 		j = In0S;
 		in0_1 = *(in0 + j);
-		in0 ++;
+		in0 += In0s;
 		in1 = In1;
 		In1 += In1s;
 		for (j = n; j; j--) {
@@ -49,12 +50,13 @@ static inline void rmdot_product_2x1 (T* Out,
 
 //------------------------------------------------------------------------------
 template <class T, class U>
-static inline void rmdot_product_2x2 (T* Out, 
+static inline void vmdot_product_2x2 (T* Out, 
 																			T* In0, 
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
 																			volatile const U In0S = 0,
+																			volatile const U In0s = 0,
 																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1;
@@ -81,7 +83,7 @@ static inline void rmdot_product_2x2 (T* Out,
 		in0_0 = *(in0 + 0);
 		j = In0S;
 		in0_1 = *(in0 + j);
-		in0 ++;
+		in0 += In0s;
 		in1 = In1;
 		In1 += In1s;
 		for (j = div; j; j--) {
@@ -99,18 +101,19 @@ static inline void rmdot_product_2x2 (T* Out,
 
 	if (mod) {
 		div = n - mod;
-		rmdot_product_2x1(Out + div, In0, _In1 + div, k, mod, In0S, In1s);
+		vmdot_product_2x1(Out + div, In0, _In1 + div, k, mod, In0S, In0s, In1s);
 	}
 }
 
 //------------------------------------------------------------------------------
 template <class T, class U>
-static inline void rmdot_product_2x4 (T* Out, 
+static inline void vmdot_product_2x4 (T* Out, 
 																			T* In0, 
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
 																			volatile const U In0S = 0,
+																			volatile const U In0s = 0,
 																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1;
@@ -137,7 +140,7 @@ static inline void rmdot_product_2x4 (T* Out,
 		in0_0 = *(in0 + 0);
 		j = In0S;
 		in0_1 = *(in0 + j);
-		in0 ++;
+		in0 += In0s;
 		in1 = In1;
 		In1 += In1s;
 		for (j = div; j; j--) {
@@ -161,18 +164,19 @@ static inline void rmdot_product_2x4 (T* Out,
 
 	if (mod) {
 		div = n - mod;
-		rmdot_product_2x2(Out + div, In0, _In1 + div, k, mod, In0S, In1s);
+		vmdot_product_2x2(Out + div, In0, _In1 + div, k, mod, In0S, In0s, In1s);
 	}
 }
 
 //------------------------------------------------------------------------------
 template <class T, class U>
-static inline void rmdot_product_2x8 (T* Out, 
+static inline void vmdot_product_2x8 (T* Out, 
 																			T* In0, 
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
 																			volatile const U In0S = 0,
+																			volatile const U In0s = 0,
 																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1;
@@ -199,7 +203,7 @@ static inline void rmdot_product_2x8 (T* Out,
 		in0_0 = *(in0 + 0);
 		j = In0S;
 		in0_1 = *(in0 + j);
-		in0 ++;
+		in0 += In0s;
 		in1 = In1;
 		In1 += In1s;
 		for (j = div; j; j--) {
@@ -235,18 +239,19 @@ static inline void rmdot_product_2x8 (T* Out,
 
 	if (mod) {
 		div = n - mod;
-		rmdot_product_2x4(Out + div, In0, _In1 + div, k, mod, In0S, In1s);
+		vmdot_product_2x4(Out + div, In0, _In1 + div, k, mod, In0S, In0s, In1s);
 	}
 }
 
 //------------------------------------------------------------------------------
 template <class T, class U>
-static inline void rmdot_product_2x16(T* Out, 
+static inline void vmdot_product_2x16(T* Out, 
 																			T* In0, 
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
 																			volatile const U In0S = 0,
+																			volatile const U In0s = 0,
 																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1;
@@ -273,7 +278,7 @@ static inline void rmdot_product_2x16(T* Out,
 		in0_0 = *(in0 + 0);
 		j = In0S;
 		in0_1 = *(in0 + j);
-		in0 ++;
+		in0 += In0s;
 		in1 = In1;
 		In1 += In1s;
 		for (j = div; j; j--) {
@@ -336,18 +341,19 @@ static inline void rmdot_product_2x16(T* Out,
 
 	if (mod) {
 		div = n - mod;
-		rmdot_product_2x8 (Out + div, In0, _In1 + div, k, mod, In0S, In1s);
+		vmdot_product_2x8 (Out + div, In0, _In1 + div, k, mod, In0S, In0s, In1s);
 	}
 }
 
 //------------------------------------------------------------------------------
 template <class T, class U>
-static inline void rmdot_product_2x32(T* Out, 
+static inline void vmdot_product_2x32(T* Out, 
 																			T* In0, 
 																			T* _In1, 
 																			volatile const U k, 
 																			volatile const U n = 1,
 																			volatile const U In0S = 0,
+																			volatile const U In0s = 0,
 																			volatile const U In1s = 0) { 
 
 	register T in0_0, in0_1;
@@ -374,7 +380,7 @@ static inline void rmdot_product_2x32(T* Out,
 		in0_0 = *(in0 + 0);
 		j = In0S;
 		in0_1 = *(in0 + j);
-		in0 ++;
+		in0 += In0s;
 		in1 = In1;
 		In1 += In1s;
 		for (j = div; j; j--) {
@@ -491,7 +497,7 @@ static inline void rmdot_product_2x32(T* Out,
 
 	if (mod) {
 		div = n - mod;
-		rmdot_product_2x16(Out + div, In0, _In1 + div, k, mod, In0S, In1s);
+		vmdot_product_2x16(Out + div, In0, _In1 + div, k, mod, In0S, In0s, In1s);
 	}
 }
 
