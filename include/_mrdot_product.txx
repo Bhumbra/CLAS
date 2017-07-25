@@ -241,7 +241,7 @@ static inline void mrdot_product_4 (T* Out,
 			for (; h; h--) {
 				mrdot_product_4x4 (Out, In0, In1, m, k, OutS, Outs, In0s, In1s);
 				Out += OutS * 4;
-				In1 += In1s;
+				In1 += In1s * 4;
 			}
 			if (mod > 1) {
 				mrdot_product_2x4 (Out, In0, In1, m, k, OutS, Outs, In0s, In1s);
