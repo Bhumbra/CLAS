@@ -557,7 +557,7 @@ static inline void vmdot_product (T* Out,
 		return vmdot_product_0(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, In2, In2S, In2s, U0, U1);
 	}
 	vmdot_product_0(Out, In0, In1, m, k, N, OutS, In0S, In0s, In1s, In2, In2S, In2s, U0, U1);
-	vmdot_product_0(Out+N, In0, In1+N, m, k, n-N, OutS, In0S, In0s, In1s, In2, In2S, In2s, U0, U1);
+	vmdot_product_0(Out+N, In0, In1+N, m, k, n-N, OutS, In0S, In0s, In1s, In2+In2s*N, In2S, In2s, U0, U1);
 }
 
 //------------------------------------------------------------------------------

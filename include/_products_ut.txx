@@ -228,7 +228,7 @@ static inline void cmdot_product_ut(T* Out,
 	}
 	OutS = n;
 	In0S = (U)1;
-	In0s = k;
+	In0s = m;
 	In1s = n;
 
 	return vmdot_product(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, In2, In2S, In2s, U0, U1);
