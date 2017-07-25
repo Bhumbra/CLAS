@@ -151,7 +151,7 @@ static inline void cmdot_product_mt(T* Out,
 
 	OutS = n;
 	In0S = (U)1;
-	In0s = k;
+	In0s = m;
 	In1s = n;
 
 	U nt = set_num_threads(NT);
