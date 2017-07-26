@@ -114,10 +114,13 @@ void mmdot_product_double_ut (double* Out,
 															volatile bool ColM,
 															double* In2,
 															volatile uint64_t U0,
-															volatile uint64_t U1) { 
-	mmdot_product_ut(Out, In0, In1, m, k, n, OutT, In0T, In1T, ColM, In2, U0, U1); 
+															volatile uint64_t U1,
+															volatile uint64_t const UD,
+															volatile uint64_t const Arch) {
+	mmdot_product_ut(Out, In0, In1, m, k, n, OutT, In0T, In1T, ColM, In2, U0, U1, UD, Arch); 
 }
 
+//------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void ewise_product_double_mt (double* Out, 
 															double* In0, 
@@ -227,9 +230,11 @@ void mmdot_product_double_mt (double* Out,
 															double* In2,
 															volatile uint64_t NT,
 															volatile uint64_t U0,
-															volatile uint64_t U1) { 
-	// NT at end in template 
-	mmdot_product_mt(Out, In0, In1, m, k, n, OutT, In0T, In1T, ColM, In2, U0, U1, NT); 
+															volatile uint64_t U1,
+															volatile const uint64_t UD,
+															volatile const uint64_t Arch) { 
+	// NT penumultimate in template 
+	mmdot_product_mt(Out, In0, In1, m, k, n, OutT, In0T, In1T, ColM, In2, U0, U1, UD, NT, Arch); 
 }
 
 //------------------------------------------------------------------------------

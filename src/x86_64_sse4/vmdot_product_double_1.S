@@ -1,20 +1,20 @@
 
 # General register plan
 
-# RAX	out0
-# RBX	out1
-# RCX	out2
-# RDX	out3
+# RAX	out0 & in1_0
+# RBX	out1 & in1_1
+# RCX	out2 & in1_2
+# RDX	out3 & in1_3
 # RSI	in0 or In0
 # RDI	in1
 # R08	In1
 # R09	In1s
 # R10 	mod > i
 # R11 	div > j
-# R12	out4
-# R13	out5
-# R14	out6
-# R15	out7
+# R12	out4 & in1_4
+# R13	out5 & in1_5
+# R14	out6 & in1_6
+# R15	out7 & in1_7
 
 # SIMD register plan
 
@@ -27,31 +27,37 @@
 # 0x08(%rsp)	Out
 # 0x10(%rsp)	_In0 
 # 0x18(%rsp)	_In1 
+# 0x20(%rsp)	In0
+# 0x28(%rsp)	m
+# 0x30(%rsp)	k
+# 0x38(%rsp)	n
 
-# 0x20(%rsp)	m
-# 0x28(%rsp)	k
-# 0x30(%rsp)	n
-# 0x38(%rsp)	// unroll
-
-# 0x40(%rsp)	In0
-# 0x48(%rsp)	// In1
-# 0x50(%rsp)	mod
-# 0x58(%rsp)	div
-
-# 0x60(%rsp)	Outs0
-# 0x68(%rsp)	Outs1 
-# 0x70(%rsp)	In0s 
+# 0x40(%rsp)	mod
+# 0x48(%rsp)	div
+# 0x50(%rsp)	Outs0
+# 0x58(%rsp)	Outs1 
+# 0x60(%rsp)	In0S 
+# 0x68(%rsp)	In0s 
+# 0x70(%rsp)	In1S 
 # 0x78(%rsp)	In1s 
 
 # 0x80(%rsp)	Out0
 # 0x88(%rsp)	Out1
 # 0x90(%rsp)	Out2
 # 0x98(%rsp)	Out3
-
 # 0xA0(%rsp)	Out4
 # 0xA8(%rsp)	Out5
 # 0xB0(%rsp)	Out6
 # 0xB8(%rsp)	Out7
+
+# 0xC0(%rsp)	in1_0
+# 0xC8(%rsp)	in1_1
+# 0xD0(%rsp)	in1_2
+# 0xD8(%rsp)	in1_3
+# 0xE0(%rsp)	in1_4
+# 0xE8(%rsp)	in1_5
+# 0xF0(%rsp)	in1_6
+# 0xF8(%rsp)	in1_7
 
 	.globl rmdot_product_double_1x1
 	.globl rmdot_product_double_1x2
@@ -77,15 +83,15 @@ rmdot_product_double_1x1:
 	movq %rdi, 0x08(%rsp) 	# Out
 	movq %rsi, 0x10(%rsp) 	# _In0
 	movq %rdx, 0x18(%rsp) 	# _In1
-	movq %rcx, 0x28(%rsp) 	# k
-	movq %r8 , 0x30(%rsp) 	# n
-	movq %r9 , 0x58(%rsp)   # In1s
+	movq %rcx, 0x30(%rsp) 	# k
+	movq %r8 , 0x38(%rsp) 	# n
+	movq %r9 , 0x48(%rsp)   # In1s
 	shlq $3, %r9
 
 	movq 0x10(%rsp), %rsi 	# In0 = _In0
 	movq 0x18(%rsp), %r8 	# In1 = _In1
 
-	movq 0x28(%rsp), %r10 	# for (i = k; i; i--)
+	movq 0x30(%rsp), %r10 	# for (i = k; i; i--)
 	test %r10, %r10
 	je 3f
 0:
@@ -96,7 +102,7 @@ rmdot_product_double_1x1:
 	movq %r8, %rdi  	# in1 = In1
 	addq %r9, %r8   	# In1 += In1s
 
-	movq 0x30(%rsp), %r11	# for (j = n; j; j--)
+	movq 0x38(%rsp), %r11	# for (j = n; j; j--)
 	test %r11, %r11
 	je 2f
 1:
@@ -146,22 +152,22 @@ rmdot_product_double_1x2:
 	movq %rdi, 0x08(%rsp) 	# Out
 	movq %rsi, 0x10(%rsp) 	# _In0
 	movq %rdx, 0x18(%rsp) 	# _In1
-	movq %rcx, 0x28(%rsp) 	# k
-	movq %r8 , 0x30(%rsp) 	# n
+	movq %rcx, 0x30(%rsp) 	# k
+	movq %r8 , 0x38(%rsp) 	# n
 	movq %r9 , 0x78(%rsp)   # In1s
 	shlq $3, %r9
 
-	movq 0x30(%rsp), %r10	# n
+	movq 0x38(%rsp), %r10	# n
 	movq %r10, %r11		# n
 	andq $1, %r10		# mod = n & 1
 	shrq $1, %r11		# div = n >> 1
-	movq %r10, 0x50(%rsp)	# mod
-	movq %r11, 0x58(%rsp)	# div
+	movq %r10, 0x40(%rsp)	# mod
+	movq %r11, 0x48(%rsp)	# div
 
 	movq 0x10(%rsp), %rsi 	# In0 = _In0
 	movq 0x18(%rsp), %r8 	# In1 = _In1
 
-	movq 0x28(%rsp), %r10 	# for (i = k; i; i--)
+	movq 0x30(%rsp), %r10 	# for (i = k; i; i--)
 	test %r10, %r10
 	je 3f
 	.p2align 5,,16
@@ -175,7 +181,7 @@ rmdot_product_double_1x2:
 	movq %r8, %rdi  	# in1 = In1
 	addq %r9, %r8 		# In1 += In1s
 
-	movq 0x58(%rsp), %r11  # for (j = div; j; j--)
+	movq 0x48(%rsp), %r11  # for (j = div; j; j--)
 	test %r11, %r11
 	je 2f
 	.p2align 6
@@ -198,11 +204,11 @@ rmdot_product_double_1x2:
 	subq $1, %r10     	# }
 	jnz 0b 
 3: 
-	movq 0x50(%rsp), %r8	# mod
+	movq 0x40(%rsp), %r8	# mod
 	test %r8, %r8		# if (mod)
 	je 4f
 
-	movq 0x30(%rsp), %r11   # n
+	movq 0x38(%rsp), %r11   # n
 	subq %r8, %r11		# div = n - mod
 	shlq $3, %r11
 	
@@ -215,7 +221,7 @@ rmdot_product_double_1x2:
 	movq 0x10(%rsp), %rsi
 	movq 0x18(%rsp), %rdx
 	addq %r11, %rdx
-	movq 0x28(%rsp), %rcx
+	movq 0x30(%rsp), %rcx
 	movq 0x78(%rsp), %r9
 	call rmdot_product_double_1x1
 
@@ -249,22 +255,22 @@ rmdot_product_double_1x4:
 	movq %rdi, 0x08(%rsp) 	# Out
 	movq %rsi, 0x10(%rsp) 	# _In0
 	movq %rdx, 0x18(%rsp) 	# _In1
-	movq %rcx, 0x28(%rsp) 	# k
-	movq %r8 , 0x30(%rsp) 	# n
+	movq %rcx, 0x30(%rsp) 	# k
+	movq %r8 , 0x38(%rsp) 	# n
 	movq %r9 , 0x78(%rsp)   # In1s
 	shlq $3, %r9
 
-	movq 0x30(%rsp), %r10	# n
+	movq 0x38(%rsp), %r10	# n
 	movq %r10, %r11		# n
 	andq $3, %r10		# mod = n & 3
 	shrq $2, %r11		# div = n >> 2
-	movq %r10, 0x50(%rsp)	# mod
-	movq %r11, 0x58(%rsp)	# div
+	movq %r10, 0x40(%rsp)	# mod
+	movq %r11, 0x48(%rsp)	# div
 
 	movq 0x10(%rsp), %rsi 	# In0 = _In0
 	movq 0x18(%rsp), %r8 	# In1 = _In1
 
-	movq 0x28(%rsp), %r10 	# for (i = k; i; i--)
+	movq 0x30(%rsp), %r10 	# for (i = k; i; i--)
 	test %r10, %r10
 	je 3f
 	.p2align 5,,16
@@ -277,7 +283,7 @@ rmdot_product_double_1x4:
 	movq %r8, %rdi  	# in1 = In1
 	addq %r9, %r8   	# In1 += In1s
 
-	movq 0x58(%rsp), %r11  # for (j = div; j; j--)
+	movq 0x48(%rsp), %r11  # for (j = div; j; j--)
 	test %r11, %r11
 	je 2f
 	.p2align 6
@@ -306,11 +312,11 @@ rmdot_product_double_1x4:
 	subq $1, %r10     	# }
 	jnz 0b 
 3: 
-	movq 0x50(%rsp), %r8	# mod
+	movq 0x40(%rsp), %r8	# mod
 	test %r8, %r8		# if (mod)
 	je 4f
 
-	movq 0x30(%rsp), %r11   # n
+	movq 0x38(%rsp), %r11   # n
 	subq %r8, %r11		# div = n - mod
 	shlq $3, %r11
 	
@@ -323,7 +329,7 @@ rmdot_product_double_1x4:
 	movq 0x10(%rsp), %rsi
 	movq 0x18(%rsp), %rdx
 	addq %r11, %rdx
-	movq 0x28(%rsp), %rcx
+	movq 0x30(%rsp), %rcx
 	movq 0x78(%rsp), %r9
 	call rmdot_product_double_1x2
 

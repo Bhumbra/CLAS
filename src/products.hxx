@@ -94,7 +94,9 @@ void mmdot_product_double_ut (double* Out,
 															volatile bool ColM = false,
 															double* In2 = 0,
 															volatile uint64_t U0 = 0,
-															volatile uint64_t U1 = 0);
+															volatile uint64_t U1 = 0,
+															volatile uint64_t const UD = 0,
+															volatile uint64_t const Arch = 0);
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void ewise_product_double_mt (double* Out, 
@@ -191,7 +193,9 @@ void mmdot_product_double_mt (double* Out,
 															double* In2 = 0,
 															volatile uint64_t NT = 0,
 															volatile uint64_t U0 = 0,
-															volatile uint64_t U1 = 0);
+															volatile uint64_t U1 = 0,
+															volatile uint64_t const UD = 0,
+															volatile uint64_t const Arch = 0);
 //------------------------------------------------------------------------------
 } // namespace
 //------------------------------------------------------------------------------
