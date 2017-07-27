@@ -1,13 +1,5 @@
 # include "products.hxx"
 
-// to debug assembler
-// g++ -g -save-temps a.cpp
-// gdb a.out
-// break class::function
-// r
-// disp/i $pc
-// si
-
 namespace clas {
 
 //------------------------------------------------------------------------------

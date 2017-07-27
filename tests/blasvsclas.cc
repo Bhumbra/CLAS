@@ -11,7 +11,6 @@
 #include <iostream>
 #include <cblas.h>
 #include <clas.h>
-#include "products.hxx"
 #include "tictoc.txx"
 
 #pragma hdrstop

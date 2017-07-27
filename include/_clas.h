@@ -1,18 +1,22 @@
-# ifndef clas_h
-# define clas_h
+# ifndef _clas_h
+# define _clas_h
 //------------------------------------------------------------------------------
-// Header included when linking to clas-dependent external source code
+// Diagnostic C++ header to compile architecture-blind template code directly.
+// Cannot be mixed with clas.h, and does not use C-code or assembler.
 
 //------------------------------------------------------------------------------
 # define EXCLUDE_C_SOURCE_FILES 1
 
 //------------------------------------------------------------------------------
-# include "products.hxx"
+namespace clas {
+# include "clas.txx"
+}
 
 //------------------------------------------------------------------------------
 namespace clas {
-# define mmdot_product_double mmdot_product_double_mt
+# define mmdot_product_double clas::mmdot_product_mt
 }
+
 //------------------------------------------------------------------------------
-#endif
+# endif
 

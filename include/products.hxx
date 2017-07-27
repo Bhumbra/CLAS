@@ -1,7 +1,8 @@
 #ifndef products_hxx
 #define products_hxx
 
-#include "products.txx"
+# include "clas.hxx"
+# include "clas.txx"
 
 namespace clas {
 //------------------------------------------------------------------------------

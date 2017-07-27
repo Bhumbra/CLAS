@@ -5,6 +5,13 @@ learning.
 
 This library has only recently been started and is at a proof-of-concept stage. Documentation is thus scant.
 
+REQUIREMENTS
+------------
+For the moment the minimum requirements is merely having a version of gcc that is version 5.2 or later. Double-precision
+array multiplication is currently being written to be optimised for Intel x86_64 archectures with a minimal CPU
+requirement of supporting SSE4.1 instructions and multiple threads; in practice this means either an Intel Nehalem CPU
+or AMD Bulldozer or later in each case (although I have not had a chance to test CLAS on any AMD machine).
+
 INSTALLATION
 ------------
 No formal installer has yet been written. However the dependence of CLAS on C++11 standards means that CLAS should not

@@ -4,10 +4,11 @@
 // Header included when linking to clas-dependent external source code
 
 //------------------------------------------------------------------------------
-# define EXCLUDE_C_SOURCE_FILES 1
+# define EXCLUDE_C_SOURCE 1
 
 //------------------------------------------------------------------------------
 # include "products.hxx"
+
 
 //------------------------------------------------------------------------------
 namespace clas {

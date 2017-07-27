@@ -1,8 +1,8 @@
-#ifndef products_txx
-#define products_txx
+#ifndef clas_txx
+#define clas_txx
 
 //------------------------------------------------------------------------------
-# include "_products_ut.txx"
+# include "clas_defs.h"
 # include "_products_mt.txx"
 
 //------------------------------------------------------------------------------
