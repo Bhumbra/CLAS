@@ -9,3 +9,4 @@ sh*
 *.o
 *.ii
 cachegrind*
+.swp
