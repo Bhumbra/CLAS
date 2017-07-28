@@ -531,7 +531,9 @@ static inline void vmdot_product_0 (T* Out,
 					//return vmdot_product_2(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, U1);
 				}
 				case 4: {
-					return vmdot_product_4(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, U1);
+					return VMDOT_PRODUCT_DOUBLE_4(Out, In0, In1, (uint64_t)m, (uint64_t)k, (uint64_t)n, (uint64_t)OutS, 
+																				(uint64_t)In0S, (uint64_t)In0s, (uint64_t)In1s, (uint64_t)U1);
+					//return vmdot_product_4(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, U1);
 				}
 				default: {
 					return vmdot_product_8(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, U1);

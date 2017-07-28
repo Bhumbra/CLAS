@@ -159,7 +159,7 @@ static void vmdot_product_double_2 (double* Out,
 		}
 	}
 }
-/*
+
 //------------------------------------------------------------------------------
 static void vmdot_product_double_4 (double* Out, 
 																		double* In0, 
@@ -292,6 +292,7 @@ static void vmdot_product_double_4 (double* Out,
 	}
 }
 
+/*
 //------------------------------------------------------------------------------
 static void vmdot_product_double_8 (double* Out, 
 																		double* In0, 

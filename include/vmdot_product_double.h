@@ -30,6 +30,12 @@ void vmdot_product_double_2x4 (double* Out, double* In0, double* _In1, uint64_t 
 void vmdot_product_double_2x8 (double* Out, double* In0, double* _In1, uint64_t k, uint64_t n, uint64_t In0S, uint64_t In0s, uint64_t In1s);
 void vmdot_product_double_2x16(double* Out, double* In0, double* _In1, uint64_t k, uint64_t n, uint64_t In0S, uint64_t In0s, uint64_t In1s);
 void vmdot_product_double_2x32(double* Out, double* In0, double* _In1, uint64_t k, uint64_t n, uint64_t In0S, uint64_t In0s, uint64_t In1s);
+void vmdot_product_double_4x1 (double* Out, double* In0, double* _In1, uint64_t k, uint64_t n, uint64_t In0S, uint64_t In0s, uint64_t In1s);
+void vmdot_product_double_4x2 (double* Out, double* In0, double* _In1, uint64_t k, uint64_t n, uint64_t In0S, uint64_t In0s, uint64_t In1s);
+void vmdot_product_double_4x4 (double* Out, double* In0, double* _In1, uint64_t k, uint64_t n, uint64_t In0S, uint64_t In0s, uint64_t In1s);
+void vmdot_product_double_4x8 (double* Out, double* In0, double* _In1, uint64_t k, uint64_t n, uint64_t In0S, uint64_t In0s, uint64_t In1s);
+void vmdot_product_double_4x16(double* Out, double* In0, double* _In1, uint64_t k, uint64_t n, uint64_t In0S, uint64_t In0s, uint64_t In1s);
+void vmdot_product_double_4x32(double* Out, double* In0, double* _In1, uint64_t k, uint64_t n, uint64_t In0S, uint64_t In0s, uint64_t In1s);
 # endif
 
 //------------------------------------------------------------------------------

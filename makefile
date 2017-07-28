@@ -12,7 +12,8 @@ lib/libclas.a:
 	@mkdir -p build
 	$(SS) $(SFLAGS) src/x86_64_sse4/vmdot_product_double_1.S -o build/products1_s.o $(INC) $(LIB)
 	$(SS) $(SFLAGS) src/x86_64_sse4/vmdot_product_double_2.S -o build/products2_s.o $(INC) $(LIB)
+	$(SS) $(SFLAGS) src/x86_64_sse4/vmdot_product_double_4.S -o build/products4_s.o $(INC) $(LIB)
 	$(CC) $(CFLAGS) src/vmdot_product_double.c -o build/products_c.o $(INC) $(LIB)
 	$(XX) $(XFLAGS) src/products.cxx -o build/products_x.o $(INC) $(LIB) 
 	@mkdir -p lib
-	$(AR) $(AFLAGS) lib/libclas.a build/products1_s.o build/products2_s.o build/products_c.o build/products_x.o
+	$(AR) $(AFLAGS) lib/libclas.a build/products1_s.o build/products2_s.o build/products4_s.o build/products_c.o build/products_x.o
