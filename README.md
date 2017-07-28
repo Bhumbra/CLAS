@@ -28,7 +28,7 @@ to compile CLAS this way. A number of DEB-based and RPM-based GNU/Linux distribu
 accommodate gcc 5.x installations that can be evoked from /usr/bin/gcc-5. Without having to change any environment
 variables or symlinks, a convenient way to compile CLAS such cases is using a different makefile call instead:
 
-sh-4.3$ make -f makefile.gcc5 
+sh-4.3$ make -f makefile.gcc-5 
 
 The library archive is outputted to path: lib/libclas.a which must be linked to use CLAS.
 
@@ -53,7 +53,7 @@ can be compiled thus:
 
 sh-4.3$ make -f maketest
 or
-sh-4.3$ make -f maketest.gcc5
+sh-4.3$ make -f maketest.gcc-5
 
 outputting to an executable bin/blasvsclas.run.
 
