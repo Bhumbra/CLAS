@@ -52,7 +52,9 @@ tested BLAS implementation. An example of a BLAS vs CLAS test (using openBLAS) i
 can be compiled thus:
 
 sh-4.3$ make -f maketest
+
 or
+
 sh-4.3$ make -f maketest.gcc-5
 
 outputting to an executable bin/blasvsclas.run.
