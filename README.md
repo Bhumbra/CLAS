@@ -66,13 +66,12 @@ USAGE
 Presently template code has been written for all matrix-matrix multiplication transposition permutations using the
 following function (with argument types and defaults shown):
 
-	void clas::mmdot_product_double(double* Out, double* In0, double* In1, 
-		uint64_t m, uint64_t k, uint64_t n,
-		bool OutT = false, bool In0T = false, bool In1T = false, bool ColM = false, 
-		double* In2 = 0, uint64_t NT = 0, 
-		uint64_t U0 = 0, uint64_t U1 = 0, uint64_t UD= 0, uint64_t Arch = 0);
+	void clas::mmdot_product_double(double* Out, double* In0, double* In1, uint64_t m, uint64_t k, uint64_t n,
+					bool OutT = false, bool In0T = false, bool In1T = false, bool ColM = false, 
+					double* In2 = 0, uint64_t NT = 0, 
+					uint64_t U0 = 0, uint64_t U1 = 0, uint64_t UD= 0, uint64_t Arch = 0);
 
-where the first 12 arguments are:
+... where the first 6 arguments are compulsory:
 
 	Out: is the pointer for the product matrix (where Out = In0 x In1).
 
@@ -86,6 +85,8 @@ where the first 12 arguments are:
 
 	n: is the number of columns in Out and In1.
 
+... and the next 6 arguments are optional:
+
 	OutT (default false): is a boolean flag that is true for a transposed product.
 
 	In0T (default false): is a boolean flag that is true for a transposed multiplicand.
@@ -94,31 +95,37 @@ where the first 12 arguments are:
 
 	ColM (default false): is a boolean flag that is true to denote column-major ordering for all 3 matrices.
 
-	In2 (default 0): is a pointer for an m-length vector added to respective rows of Out (0 denotes no addition, Out
-	adds the matrix product to the existing data content of Out).
+	In2 (default 0): is a pointer for an m-length vector added to respective rows of Out (0 denotes no 
+	addition, or if In2 = Out, this adds the matrix product to the existing data content of Out).
 
-	NT (default 0): is the maximum number of threads used (0 denotes a maximum of all C++11-detectable threads).
+	NT (default 0): is the maximum number of threads used (0 denotes a maximum of all C++11-detectable 
+	threads).
 
-The remaining 4 arguments are _not_ for general use and should be omitted since they are subject to change and intended for purely diagnostic purposes:
+... while the remaining 4 arguments are _not_ for general use and should be omitted since they are subject to change and
+intended only for purely diagnostic purposes:
 
-	U0 (default 0): is the unroll outer radix, which can be 1, 2, 4, or 8 (0 denotes cache-optimised dynamic choice).
+	U0 (default 0): is the unroll outer radix, which can be 1, 2, 4, or 8 (0 denotes cache-optimised dynamic 
+	choice).
 
-	U1 (default 0): is the unroll inner radix, which can be 1, 2, 4, 8, 16, or 32 (0 denotes automated choice).
+	U1 (default 0): is the unroll inner radix, which can be 1, 2, 4, 8, 16, or 32 (0 denotes automated 
+	choice).
 
-	UD (default 0): is a flag denoting outer unroll direction, which can be 3 (matrix X columns) or 4 (rows X matrix) (0 denotes automated choice)
+	UD (default 0): represents the unroll direction, which can be 2 (rows X matrix) or 3 (matrix X columns) 
+	(0 denotes automated choice)
 
-	Arch (default 0): is flag denoting compiling architecture which can be 1 (C++) or 2 (SSE4) (0 denotes automated choice)
+	Arch (default 0): represents which compiled architecture code to use, which can be 1 (C++) or 2 (SSE4) 
+	(0 denotes automated choice)
 
 MOTIVATION
 -----------
 
 The motivation behind CLAS is to execute floating point operations in a way that is optimised for machine learning using
-biologically-inspired concepts. Generally, deep-learning libraries are dependent on a BLAS library to perform the heavy
-lifting to multiple weight matrices with data. However the BLAS specification was originally devised in the 1970s for
-FORTRAN programmers to standardise low-level kernel operations with Level 3 (matrix-matrix) BLAS operations introduced
-in the 1980s to encourage block-partioned algorithms well before the rise of deep-learning. While the venerable BLAS
-standard is still universally used its double-precision matrix multiplication routine (dgemm) is disadvantaged by its
-heritage, especially in the context of deep learning, in the following ways:
+biologically-inspired concepts. Generally, deep-learning libraries are dependent on calls to vendor-optimised BLAS
+libraries to perform the heavy lifting for fast multiplication of weight matrices with data. However the BLAS
+specification was originally devised in the 1970s for FORTRAN programmers to standardise low-level kernel operations
+then Level 3 (matrix-matrix) BLAS operations were introduced in the 1980s well before the rise of deep-learning. While
+the venerable BLAS standard is still universally used its double-precision matrix multiplication routine (dgemm) is
+disadvantaged by its BLAS heritage, especially in the context of deep learning, in the following ways:
 
 - its specification, by necessity, in C and FORTRAN differ (the C version has an additional first parameter).
 
@@ -138,11 +145,13 @@ CLAS is an experiment that aims to overcome these limitations. However rather th
 specification, CLAS is intended to implement design strategies inspired by biology that should improve its performance
 for deep learning applications:
 
-- distribute thread loads so each thread corresponds to a node or group of nodes with minimal write inter-depedence.
+- distribute thread loads evenly so each thread corresponds to a node or group of nodes with minimal write
+  inter-dependence.
 
-- dissociate thread loop-unrolls to optimise cache alignment of read/write data within each thread.
+- minimal data copying but optimising read/write caching by using dynamic sizes for outer and inner loop-unrolls.
 
-- minimal memory footprint for each thread (i.e. no `malloc', `new' etc... to allocate floating point arrays).
+- minimal memory footprint inside and outside each thread (i.e. no 'malloc', 'new' etc... to allocate floating point
+  arrays).
 
 In practice, these motivations might conflict with the aim of extremely efficient L1 and L2 (and L3) caching performed
 by the fastest BLAS implementations, but with the availability of many threads I suspect cache handling isn't everything

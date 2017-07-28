@@ -323,7 +323,7 @@ static inline void mmdot_product_mt(T* Out,
 																	 	volatile U NT = 0,
 																		volatile U const Arch = 0) { 
 	if (NT == (U)-1) {
-		return mmdot_product_ut(Out, In0, In1, m, k, n, OutCm, In0Cm, In1Cm, r2c, In2, U0, U1, Arch);
+		return mmdot_product_ut(Out, In0, In1, m, k, n, OutCm, In0Cm, In1Cm, r2c, In2, U0, U1, UD, Arch);
 	}
 
 	if (r2c) {

@@ -363,6 +363,8 @@ static inline void mmdot_product_ut(T* Out,
 
 	// Scalar/vector outputs fast-track
 
+
+
 	if (UD < 2) {
 		if (m == 1) {        // out can only be a scalar or vector
 			if (n == 1) {      // out is a scalar

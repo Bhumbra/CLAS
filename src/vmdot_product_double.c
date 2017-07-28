@@ -105,7 +105,6 @@ static void vmdot_product_double_2 (double* Out,
 			}
 			return;
 		}
-/*
 		case 4: {
 			for (; h; h--) {
 				vmdot_product_double_2x4 (Out, In0, In1, k, n, In0S, In0s, In1s); 
@@ -158,7 +157,6 @@ static void vmdot_product_double_2 (double* Out,
 			}
 			return;
 		}
-*/
 	}
 }
 /*

@@ -515,6 +515,7 @@ static inline void vmdot_product_0 (T* Out,
 	if (In2 != Out) {
 		replicate_0(Out, m, n, In2, OutS, In2S, (U)1, In2s, U0, U1);
 	}
+
 	U s = Arch != 1 ? sizeof(T) : (U)0;
 	switch (s) {
 		case 8: {
