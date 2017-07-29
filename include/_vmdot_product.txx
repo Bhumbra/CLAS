@@ -26,7 +26,7 @@ extern "C" {
 //------------------------------------------------------------------------------
 # define DEF_VMDOT_OUTER_UNROLL_MAX DEF_OUTER_UNROLL_MAX
 # define DEF_VMDOT_INNER_UNROLL_MAX DEF_INNER_UNROLL_MAX
-# define DEF_VMDOT_OUTER_UNROLL 4 // 8 doesn't compile to SSE2
+# define DEF_VMDOT_OUTER_UNROLL DEF_OUTER_UNROLL
 # define DEF_VMDOT_INNER_UNROLL DEF_INNER_UNROLL 
 
 //------------------------------------------------------------------------------
@@ -536,7 +536,8 @@ static inline void vmdot_product_0 (T* Out,
 					//return vmdot_product_4(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, U1);
 				}
 				default: {
-					return vmdot_product_8(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, U1);
+					return VMDOT_PRODUCT_DOUBLE_8(Out, In0, In1, (uint64_t)m, (uint64_t)k, (uint64_t)n, (uint64_t)OutS, 
+																				(uint64_t)In0S, (uint64_t)In0s, (uint64_t)In1s, (uint64_t)U1);
 				}
 			}
 		}

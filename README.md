@@ -60,8 +60,8 @@ sh-4.3$ make -f maketest.gcc-5
 outputting to an executable bin/blasvsclas.run.
 
 It may be necessary to modify maketest or maketest.gcc5 to include the relevant paths to OpenBLAS for a given system.
-For a fair test, please use the most recent stable release (OpenBLAS 0.2.19) because it appears OpenBLAS 0.2.20 kills
-all other multithreaded libraries.
+For a fair test, please use the most recent stable release (OpenBLAS 0.2.19), because it appears OpenBLAS 0.2.20 kills
+all other multithreaded libraries running from the same executable although I'm sure the authors will correct soon.
 
 USAGE
 -----

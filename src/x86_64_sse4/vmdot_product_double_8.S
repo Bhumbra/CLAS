@@ -1,15 +1,15 @@
 
-	.globl vmdot_product_double_4x1
-	.globl vmdot_product_double_4x2
-	.globl vmdot_product_double_4x4
-	.globl vmdot_product_double_4x8
-	.globl vmdot_product_double_4x16
-	.globl vmdot_product_double_4x32
+	.globl vmdot_product_double_8x1
+	.globl vmdot_product_double_8x2
+	.globl vmdot_product_double_8x4
+	.globl vmdot_product_double_8x8
+	.globl vmdot_product_double_8x16
+	.globl vmdot_product_double_8x32
 
 	.text
 
 //------------------------------------------------------------------------------
-vmdot_product_double_4x1:
+vmdot_product_double_8x1:
 	mov 0x08(%rsp), %r10
 	mov 0x10(%rsp), %r11
 	push %rsp
@@ -47,6 +47,14 @@ vmdot_product_double_4x1:
 	movq %rdi, 0x90(%rsp)
 	addq %r9, %rdi		# Out3 = Out + In1s * 3
 	movq %rdi, 0x98(%rsp)
+	addq %r9, %rdi		# Out4 = Out + In1s * 4
+	movq %rdi, 0xA0(%rsp)
+	addq %r9, %rdi		# Out5 = Out + In1s * 5
+	movq %rdi, 0xA8(%rsp)
+	addq %r9, %rdi		# Out6 = Out + In1s * 6
+	movq %rdi, 0xB0(%rsp)
+	addq %r9, %rdi		# Out7 = Out + In1s * 7
+	movq %rdi, 0xB8(%rsp)
 	movq 0x10(%rsp), %rsi 	# in0 = In0
 	movq 0x18(%rsp), %r8	# In1 = _In1
 
@@ -58,6 +66,10 @@ vmdot_product_double_4x1:
 	movq 0x88(%rsp), %rbx		# out1 = Out1
 	movq 0x90(%rsp), %rcx		# out2 = Out2
 	movq 0x98(%rsp), %rdx		# out3 = Out3
+	movq 0xA0(%rsp), %r12		# out4 = Out4
+	movq 0xA8(%rsp), %r13		# out5 = Out5
+	movq 0xB0(%rsp), %r14		# out6 = Out6
+	movq 0xB8(%rsp), %r15		# out7 = Out7
 	movsd 0(%rsi), %xmm8		# in0_0 = *In0
 	movq 0x60(%rsp), %r11		# j = In0S
 	movsd (%rsi, %r11), %xmm9	# in0_1 = *(in0 + j)
@@ -65,6 +77,14 @@ vmdot_product_double_4x1:
 	movsd (%rsi, %r11), %xmm10	# in0_2 = *(in0 + j)
 	addq 0x60(%rsp), %r11		# j += In0S
 	movsd (%rsi, %r11), %xmm11	# in0_3 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movsd (%rsi, %r11), %xmm12	# in0_4 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movsd (%rsi, %r11), %xmm13	# in0_5 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movsd (%rsi, %r11), %xmm14	# in0_6 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movsd (%rsi, %r11), %xmm15	# in0_7 = *(in0 + j)
 	addq 0x68(%rsp), %rsi		# in0 += In0s
 	movq %r8, %rdi			# in1 = In1
 	addq %r9, %r8			# In1 += In1s
@@ -75,7 +95,7 @@ vmdot_product_double_4x1:
 1:
 	# in1_0 = *(in1 + 0)
 	movsd 0 (%rdi), %xmm4
-	movsd %xmm4, %xmm12
+	movsd %xmm4, %xmm6
 
 	# *(out0 +  0) += in0_0 * in1_0; 
 	movsd 0 (%rax), %xmm0
@@ -84,29 +104,61 @@ vmdot_product_double_4x1:
 	movsd %xmm0, 0 (%rax)
 
 	# *(out1 +  0) += in0_1 * in1_0; 
-	movsd %xmm12, %xmm4
+	movsd %xmm6, %xmm4
 	movsd 0 (%rbx), %xmm0
 	mulsd %xmm9, %xmm4
 	addsd %xmm4, %xmm0
 	movsd %xmm0, 0 (%rbx)
 
 	# *(out2 +  0) += in0_2 * in1_0; 
-	movsd %xmm12, %xmm4
+	movsd %xmm6, %xmm4
 	movsd 0 (%rcx), %xmm0
 	mulsd %xmm10, %xmm4
 	addsd %xmm4, %xmm0
 	movsd %xmm0, 0 (%rcx)
 
 	# *(out3 +  0) += in0_3 * in1_0; 
+	movsd %xmm6, %xmm4
 	movsd 0 (%rdx), %xmm0
-	mulsd %xmm11, %xmm12
-	addsd %xmm12, %xmm0
+	mulsd %xmm11, %xmm4
+	addsd %xmm4, %xmm0
 	movsd %xmm0, 0 (%rdx)
+
+	# *(out4 +  0) += in0_4 * in1_0; 
+	movsd %xmm6, %xmm4
+	movsd 0 (%r12), %xmm0
+	mulsd %xmm12, %xmm4
+	addsd %xmm4, %xmm0
+	movsd %xmm0, 0 (%r12)
+
+	# *(out5 +  0) += in0_5 * in1_0; 
+	movsd %xmm6, %xmm4
+	movsd 0 (%r13), %xmm0
+	mulsd %xmm13, %xmm4
+	addsd %xmm4, %xmm0
+	movsd %xmm0, 0 (%r13)
+
+	# *(out6 +  0) += in0_6 * in1_0; 
+	movsd %xmm6, %xmm4
+	movsd 0 (%r14), %xmm0
+	mulsd %xmm14, %xmm4
+	addsd %xmm4, %xmm0
+	movsd %xmm0, 0 (%r14)
+
+	# *(out7 +  0) += in0_7 * in1_0; 
+	movsd 0 (%r15), %xmm0
+	mulsd %xmm15, %xmm6
+	addsd %xmm6, %xmm0
+	movsd %xmm0, 0 (%r15)
 
 	addq $8, %rax	# out0 ++
 	addq $8, %rbx	# out1 ++
 	addq $8, %rcx	# out2 ++
 	addq $8, %rdx	# out3 ++
+	addq $8, %r12	# out4 ++
+	addq $8, %r13	# out5 ++
+	addq $8, %r14	# out6 ++
+	addq $8, %r15	# out7 ++
 	addq $8, %rdi	# in1 ++
 
 	subq $1, %r11	# }
@@ -126,7 +178,7 @@ vmdot_product_double_4x1:
 	ret
 
 //------------------------------------------------------------------------------
-vmdot_product_double_4x2:
+vmdot_product_double_8x2:
 	mov 0x08(%rsp), %r10
 	mov 0x10(%rsp), %r11
 	push %rsp
@@ -163,6 +215,15 @@ vmdot_product_double_4x2:
 	movq %rdi, 0x90(%rsp)
 	addq %r9, %rdi		# Out3 = Out + In1s * 3
 	movq %rdi, 0x98(%rsp)
+	addq %r9, %rdi		# Out4 = Out + In1s * 4
+	movq %rdi, 0xA0(%rsp)
+	addq %r9, %rdi		# Out5 = Out + In1s * 5
+	movq %rdi, 0xA8(%rsp)
+	addq %r9, %rdi		# Out6 = Out + In1s * 6
+	movq %rdi, 0xB0(%rsp)
+	addq %r9, %rdi		# Out7 = Out + In1s * 7
+	movq %rdi, 0xB8(%rsp)
+
 	movq 0x10(%rsp), %rsi 	# in0 = In0
 	movq 0x18(%rsp), %r8	# In1 = _In1
 
@@ -184,6 +245,10 @@ vmdot_product_double_4x2:
 	movq 0x88(%rsp), %rbx		# out1 = Out1
 	movq 0x90(%rsp), %rcx		# out2 = Out2
 	movq 0x98(%rsp), %rdx		# out3 = Out3
+	movq 0xA0(%rsp), %r12		# out4 = Out4
+	movq 0xA8(%rsp), %r13		# out5 = Out5
+	movq 0xB0(%rsp), %r14		# out6 = Out6
+	movq 0xB8(%rsp), %r15		# out7 = Out7
 	movddup 0(%rsi), %xmm8		# in0_0 = *In0
 	movq 0x60(%rsp), %r11		# j = In0S
 	movddup (%rsi, %r11), %xmm9	# in0_1 = *(in0 + j)
@@ -191,6 +256,14 @@ vmdot_product_double_4x2:
 	movddup (%rsi, %r11), %xmm10	# in0_2 = *(in0 + j)
 	addq 0x60(%rsp), %r11		# j += In0S
 	movddup (%rsi, %r11), %xmm11	# in0_3 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm12	# in0_4 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm13	# in0_5 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm14	# in0_6 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm15	# in0_7 = *(in0 + j)
 	addq 0x68(%rsp), %rsi		# in0 += In0s
 	movq %r8, %rdi			# in1 = In1
 	addq %r9, %r8			# In1 += In1s
@@ -203,7 +276,7 @@ vmdot_product_double_4x2:
 	# in1_0 = *(in1 + 0)
 	# in1_1 = *(in1 + 1)
 	movupd 0 (%rdi), %xmm4
-	movapd %xmm4, %xmm12
+	movapd %xmm4, %xmm6
 
 	# *(out0 +  0) += in0_0 * in1_0; 
 	# *(out0 +  1) += in0_0 * in1_1; 
@@ -214,7 +287,7 @@ vmdot_product_double_4x2:
 
 	# *(out1 +  0) += in0_1 * in1_0; 
 	# *(out1 +  1) += in0_1 * in1_1; 
-	movapd %xmm12, %xmm4
+	movapd %xmm6, %xmm4
 	movupd 0 (%rbx), %xmm0
 	mulpd %xmm9, %xmm4
 	addpd %xmm4, %xmm0
@@ -222,7 +295,7 @@ vmdot_product_double_4x2:
 
 	# *(out2 +  0) += in0_2 * in1_0; 
 	# *(out2 +  1) += in0_2 * in1_1; 
-	movapd %xmm12, %xmm4
+	movapd %xmm6, %xmm4
 	movupd 0 (%rcx), %xmm0
 	mulpd %xmm10, %xmm4
 	addpd %xmm4, %xmm0
@@ -230,15 +303,51 @@ vmdot_product_double_4x2:
 
 	# *(out3 +  0) += in0_3 * in1_0; 
 	# *(out3 +  1) += in0_3 * in1_1; 
+	movapd %xmm6, %xmm4
 	movupd 0 (%rdx), %xmm0
-	mulpd %xmm11, %xmm12
-	addpd %xmm12, %xmm0
+	mulpd %xmm11, %xmm4
+	addpd %xmm4, %xmm0
 	movupd %xmm0, 0 (%rdx)
+
+	# *(out4 +  0) += in0_4 * in1_0; 
+	# *(out4 +  1) += in0_4 * in1_1; 
+	movapd %xmm6, %xmm4
+	movupd 0 (%r12), %xmm0
+	mulpd %xmm12, %xmm4
+	addpd %xmm4, %xmm0
+	movupd %xmm0, 0 (%r12)
+
+	# *(out5 +  0) += in0_5 * in1_0; 
+	# *(out5 +  1) += in0_5 * in1_1; 
+	movapd %xmm6, %xmm4
+	movupd 0 (%r13), %xmm0
+	mulpd %xmm13, %xmm4
+	addpd %xmm4, %xmm0
+	movupd %xmm0, 0 (%r13)
+
+	# *(out6 +  0) += in0_6 * in1_0; 
+	# *(out6 +  1) += in0_6 * in1_1; 
+	movapd %xmm6, %xmm4
+	movupd 0 (%r14), %xmm0
+	mulpd %xmm14, %xmm4
+	addpd %xmm4, %xmm0
+	movupd %xmm0, 0 (%r14)
+
+	# *(out7 +  0) += in0_7 * in1_0; 
+	# *(out7 +  1) += in0_7 * in1_1; 
+	movupd 0 (%r15), %xmm0
+	mulpd %xmm15, %xmm6
+	addpd %xmm6, %xmm0
+	movupd %xmm0, 0 (%r15)
 
 	addq $16, %rax   	# out0 += 2
 	addq $16, %rbx   	# out1 += 2
 	addq $16, %rcx   	# out2 += 2
 	addq $16, %rdx   	# out3 += 2
+	addq $16, %r12   	# out4 += 2
+	addq $16, %r13   	# out5 += 2
+	addq $16, %r14   	# out6 += 2
+	addq $16, %r15   	# out7 += 2
 	addq $16, %rdi   	# in1 += 2
 
 	subq $1, %r11   	# }
@@ -258,7 +367,7 @@ vmdot_product_double_4x2:
 	# Out _In0 _In1 k   n   In0S In0s In1s
 	# rdi rsi  rdx  rcx r8  r9   r10  r11 
 
-	# vmdot_product_4x1(Out + div, In0, _In1 + div, k, mod, In0S, In0s, In1s);
+	# vmdot_product_8x1(Out + div, In0, _In1 + div, k, mod, In0S, In0s, In1s);
 	movq 0x08(%rsp), %rdi
 	addq %rbx, %rdi
 	movq 0x10(%rsp), %rsi
@@ -273,7 +382,7 @@ vmdot_product_double_4x2:
 	movq %r10, 0x08(%rsp)
 	movq %r11, 0x10(%rsp)
 	addq $8, %rsp
-	call vmdot_product_double_4x1
+	call vmdot_product_double_8x1
 
 4:
 	movq %rbp, %rsp
@@ -287,7 +396,7 @@ vmdot_product_double_4x2:
 	ret
 
 //------------------------------------------------------------------------------
-vmdot_product_double_4x4:
+vmdot_product_double_8x4:
 	mov 0x08(%rsp), %r10
 	mov 0x10(%rsp), %r11
 	push %rsp
@@ -324,6 +433,15 @@ vmdot_product_double_4x4:
 	movq %rdi, 0x90(%rsp)
 	addq %r9, %rdi		# Out3 = Out + In1s * 3
 	movq %rdi, 0x98(%rsp)
+	addq %r9, %rdi		# Out4 = Out + In1s * 4
+	movq %rdi, 0xA0(%rsp)
+	addq %r9, %rdi		# Out5 = Out + In1s * 5
+	movq %rdi, 0xA8(%rsp)
+	addq %r9, %rdi		# Out6 = Out + In1s * 6
+	movq %rdi, 0xB0(%rsp)
+	addq %r9, %rdi		# Out7 = Out + In1s * 7
+	movq %rdi, 0xB8(%rsp)
+
 	movq 0x10(%rsp), %rsi 	# in0 = In0
 	movq 0x18(%rsp), %r8	# In1 = _In1
 
@@ -345,6 +463,10 @@ vmdot_product_double_4x4:
 	movq 0x88(%rsp), %rbx		# out1 = Out1
 	movq 0x90(%rsp), %rcx		# out2 = Out2
 	movq 0x98(%rsp), %rdx		# out3 = Out3
+	movq 0xA0(%rsp), %r12		# out4 = Out4
+	movq 0xA8(%rsp), %r13		# out5 = Out5
+	movq 0xB0(%rsp), %r14		# out6 = Out6
+	movq 0xB8(%rsp), %r15		# out7 = Out7
 	movddup 0(%rsi), %xmm8		# in0_0 = *In0
 	movq 0x60(%rsp), %r11		# j = In0S
 	movddup (%rsi, %r11), %xmm9	# in0_1 = *(in0 + j)
@@ -352,6 +474,14 @@ vmdot_product_double_4x4:
 	movddup (%rsi, %r11), %xmm10	# in0_2 = *(in0 + j)
 	addq 0x60(%rsp), %r11		# j += In0S
 	movddup (%rsi, %r11), %xmm11	# in0_3 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm12	# in0_4 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm13	# in0_5 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm14	# in0_6 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm15	# in0_7 = *(in0 + j)
 	addq 0x68(%rsp), %rsi		# in0 += In0s
 	movq %r8, %rdi			# in1 = In1
 	addq %r9, %r8			# In1 += In1s
@@ -366,9 +496,9 @@ vmdot_product_double_4x4:
 	# in1_2 = *(in1 + 2)
 	# in1_3 = *(in1 + 3)
 	movupd 0 (%rdi), %xmm4
-	movapd %xmm4, %xmm12
+	movapd %xmm4, %xmm6
 	movupd 16(%rdi), %xmm5
-	movapd %xmm5, %xmm13
+	movapd %xmm5, %xmm7
 
 	# *(out0 +  0) += in0_0 * in1_0; 
 	# *(out0 +  1) += in0_0 * in1_1; 
@@ -389,8 +519,8 @@ vmdot_product_double_4x4:
 	# *(out1 +  1) += in0_1 * in1_1; 
 	# *(out1 +  2) += in0_1 * in1_2; 
 	# *(out1 +  3) += in0_1 * in1_3; 
-	movapd %xmm12, %xmm4
-	movapd %xmm13, %xmm5
+	movapd %xmm6, %xmm4
+	movapd %xmm7, %xmm5
 
 	movupd 0 (%rbx), %xmm0
 	movupd 16(%rbx), %xmm1
@@ -407,8 +537,8 @@ vmdot_product_double_4x4:
 	# *(out2 +  1) += in0_2 * in1_1; 
 	# *(out2 +  2) += in0_2 * in1_2; 
 	# *(out2 +  3) += in0_2 * in1_3; 
-	movapd %xmm12, %xmm4
-	movapd %xmm13, %xmm5
+	movapd %xmm6, %xmm4
+	movapd %xmm7, %xmm5
 
 	movupd 0 (%rcx), %xmm0
 	movupd 16(%rcx), %xmm1
@@ -425,21 +555,97 @@ vmdot_product_double_4x4:
 	# *(out3 +  1) += in0_3 * in1_1; 
 	# *(out3 +  2) += in0_3 * in1_2; 
 	# *(out3 +  3) += in0_3 * in1_3; 
+	movapd %xmm6, %xmm4
+	movapd %xmm7, %xmm5
+
 	movupd 0 (%rdx), %xmm0
 	movupd 16(%rdx), %xmm1
 
-	mulpd %xmm11, %xmm12
-	addpd %xmm12, %xmm0
-	mulpd %xmm11, %xmm13
-	addpd %xmm13, %xmm1
+	mulpd %xmm11, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm11, %xmm5
+	addpd %xmm5, %xmm1
 
 	movupd %xmm0, 0 (%rdx)
 	movupd %xmm1, 16(%rdx)
+
+	# *(out4 +  0) += in0_4 * in1_0; 
+	# *(out4 +  1) += in0_4 * in1_1; 
+	# *(out4 +  2) += in0_4 * in1_2; 
+	# *(out4 +  3) += in0_4 * in1_3; 
+	movapd %xmm6, %xmm4
+	movapd %xmm7, %xmm5
+
+	movupd 0 (%r12), %xmm0
+	movupd 16(%r12), %xmm1
+
+	mulpd %xmm12, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm12, %xmm5
+	addpd %xmm5, %xmm1
+
+	movupd %xmm0, 0 (%r12)
+	movupd %xmm1, 16(%r12)
+
+	# *(out5 +  0) += in0_5 * in1_0; 
+	# *(out5 +  1) += in0_5 * in1_1; 
+	# *(out5 +  2) += in0_5 * in1_2; 
+	# *(out5 +  3) += in0_5 * in1_3; 
+	movapd %xmm6, %xmm4
+	movapd %xmm7, %xmm5
+
+	movupd 0 (%r13), %xmm0
+	movupd 16(%r13), %xmm1
+
+	mulpd %xmm13, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm13, %xmm5
+	addpd %xmm5, %xmm1
+
+	movupd %xmm0, 0 (%r13)
+	movupd %xmm1, 16(%r13)
+
+	# *(out6 +  0) += in0_6 * in1_0; 
+	# *(out6 +  1) += in0_6 * in1_1; 
+	# *(out6 +  2) += in0_6 * in1_2; 
+	# *(out6 +  3) += in0_6 * in1_3; 
+	movapd %xmm6, %xmm4
+	movapd %xmm7, %xmm5
+
+	movupd 0 (%r14), %xmm0
+	movupd 16(%r14), %xmm1
+
+	mulpd %xmm14, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm14, %xmm5
+	addpd %xmm5, %xmm1
+
+	movupd %xmm0, 0 (%r14)
+	movupd %xmm1, 16(%r14)
+
+	# *(out7 +  0) += in0_7 * in1_0; 
+	# *(out7 +  1) += in0_7 * in1_1; 
+	# *(out7 +  2) += in0_7 * in1_2; 
+	# *(out7 +  3) += in0_7 * in1_3; 
+	movupd 0 (%r15), %xmm0
+	movupd 16(%r15), %xmm1
+
+	mulpd %xmm15, %xmm6
+	addpd %xmm6, %xmm0
+	mulpd %xmm15, %xmm7
+	addpd %xmm7, %xmm1
+
+	movupd %xmm0, 0 (%r15)
+	movupd %xmm1, 16(%r15)
 
 	addq $32, %rax   	# out0 += 4
 	addq $32, %rbx   	# out1 += 4
 	addq $32, %rcx   	# out2 += 4
 	addq $32, %rdx   	# out3 += 4
+	addq $32, %r12   	# out4 += 4
+	addq $32, %r13   	# out5 += 4
+	addq $32, %r14   	# out6 += 4
+	addq $32, %r15   	# out7 += 4
 	addq $32, %rdi   	# in1 += 4
 
 	subq $1, %r11   	# }
@@ -459,7 +665,7 @@ vmdot_product_double_4x4:
 	# Out _In0 _In1 k   n   In0S In0s In1s
 	# rdi rsi  rdx  rcx r8  r9   r10  r11 
 
-	# vmdot_product_4x2(Out + div, In0, _In1 + div, k, mod, In0S, In0s, In1s);
+	# vmdot_product_8x2(Out + div, In0, _In1 + div, k, mod, In0S, In0s, In1s);
 	movq 0x08(%rsp), %rdi
 	addq %rbx, %rdi
 	movq 0x10(%rsp), %rsi
@@ -474,7 +680,7 @@ vmdot_product_double_4x4:
 	movq %r10, 0x08(%rsp)
 	movq %r11, 0x10(%rsp)
 	addq $8, %rsp
-	call vmdot_product_double_4x2
+	call vmdot_product_double_8x2
 
 4:
 	movq %rbp, %rsp
@@ -488,7 +694,7 @@ vmdot_product_double_4x4:
 	ret
 
 //------------------------------------------------------------------------------
-vmdot_product_double_4x8:
+vmdot_product_double_8x8:
 	mov 0x08(%rsp), %r10
 	mov 0x10(%rsp), %r11
 	push %rsp
@@ -525,6 +731,15 @@ vmdot_product_double_4x8:
 	movq %rdi, 0x90(%rsp)
 	addq %r9, %rdi		# Out3 = Out + In1s * 3
 	movq %rdi, 0x98(%rsp)
+	addq %r9, %rdi		# Out4 = Out + In1s * 4
+	movq %rdi, 0xA0(%rsp)
+	addq %r9, %rdi		# Out5 = Out + In1s * 5
+	movq %rdi, 0xA8(%rsp)
+	addq %r9, %rdi		# Out6 = Out + In1s * 6
+	movq %rdi, 0xB0(%rsp)
+	addq %r9, %rdi		# Out7 = Out + In1s * 7
+	movq %rdi, 0xB8(%rsp)
+
 	movq 0x10(%rsp), %rsi 	# in0 = In0
 	movq 0x18(%rsp), %r8	# In1 = _In1
 
@@ -546,6 +761,10 @@ vmdot_product_double_4x8:
 	movq 0x88(%rsp), %rbx		# out1 = Out1
 	movq 0x90(%rsp), %rcx		# out2 = Out2
 	movq 0x98(%rsp), %rdx		# out3 = Out3
+	movq 0xA0(%rsp), %r12		# out4 = Out4
+	movq 0xA8(%rsp), %r13		# out5 = Out5
+	movq 0xB0(%rsp), %r14		# out6 = Out6
+	movq 0xB8(%rsp), %r15		# out7 = Out7
 	movddup 0(%rsi), %xmm8		# in0_0 = *In0
 	movq 0x60(%rsp), %r11		# j = In0S
 	movddup (%rsi, %r11), %xmm9	# in0_1 = *(in0 + j)
@@ -553,6 +772,14 @@ vmdot_product_double_4x8:
 	movddup (%rsi, %r11), %xmm10	# in0_2 = *(in0 + j)
 	addq 0x60(%rsp), %r11		# j += In0S
 	movddup (%rsi, %r11), %xmm11	# in0_3 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm12	# in0_4 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm13	# in0_5 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm14	# in0_6 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm15	# in0_7 = *(in0 + j)
 	addq 0x68(%rsp), %rsi		# in0 += In0s
 	movq %r8, %rdi			# in1 = In1
 	addq %r9, %r8			# In1 += In1s
@@ -571,13 +798,13 @@ vmdot_product_double_4x8:
 	# in1_6 = *(in1 + 6)
 	# in1_7 = *(in1 + 7)
 	movupd 0 (%rdi), %xmm4
-	movapd %xmm4, %xmm12
+	movapd %xmm4, 0xC0(%rsp)
 	movupd 16(%rdi), %xmm5
-	movapd %xmm5, %xmm13
+	movapd %xmm5, 0xD0(%rsp)
 	movupd 32(%rdi), %xmm6
-	movapd %xmm6, %xmm14
+	movapd %xmm6, 0xE0(%rsp)
 	movupd 48(%rdi), %xmm7
-	movapd %xmm7, %xmm15
+	movapd %xmm7, 0xF0(%rsp)
 
 	# *(out0 +  0) += in0_0 * in1_0; 
 	# *(out0 +  1) += in0_0 * in1_1; 
@@ -614,10 +841,10 @@ vmdot_product_double_4x8:
 	# *(out1 +  5) += in0_1 * in1_5; 
 	# *(out1 +  6) += in0_1 * in1_6; 
 	# *(out1 +  7) += in0_1 * in1_7; 
-	movapd %xmm12, %xmm4
-	movapd %xmm13, %xmm5
-	movapd %xmm14, %xmm6
-	movapd %xmm15, %xmm7
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
 
 	movupd 0 (%rbx), %xmm0
 	movupd 16(%rbx), %xmm1
@@ -646,10 +873,10 @@ vmdot_product_double_4x8:
 	# *(out2 +  5) += in0_2 * in1_5; 
 	# *(out2 +  6) += in0_2 * in1_6; 
 	# *(out2 +  7) += in0_2 * in1_7; 
-	movapd %xmm12, %xmm4
-	movapd %xmm13, %xmm5
-	movapd %xmm14, %xmm6
-	movapd %xmm15, %xmm7
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
 
 	movupd 0 (%rcx), %xmm0
 	movupd 16(%rcx), %xmm1
@@ -678,29 +905,166 @@ vmdot_product_double_4x8:
 	# *(out3 +  5) += in0_3 * in1_5; 
 	# *(out3 +  6) += in0_3 * in1_6; 
 	# *(out3 +  7) += in0_3 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
 	movupd 0 (%rdx), %xmm0
 	movupd 16(%rdx), %xmm1
 	movupd 32(%rdx), %xmm2
 	movupd 48(%rdx), %xmm3
 
-	mulpd %xmm11, %xmm12
-	addpd %xmm12, %xmm0
-	mulpd %xmm11, %xmm13
-	addpd %xmm13, %xmm1
-	mulpd %xmm11, %xmm14
-	addpd %xmm14, %xmm2
-	mulpd %xmm11, %xmm15
-	addpd %xmm15, %xmm3
+	mulpd %xmm11, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm11, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm11, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm11, %xmm7
+	addpd %xmm7, %xmm3
 
 	movupd %xmm0, 0 (%rdx)
 	movupd %xmm1, 16(%rdx)
 	movupd %xmm2, 32(%rdx)
 	movupd %xmm3, 48(%rdx)
 
+	# *(out4 +  0) += in0_4 * in1_0; 
+	# *(out4 +  1) += in0_4 * in1_1; 
+	# *(out4 +  2) += in0_4 * in1_2; 
+	# *(out4 +  3) += in0_4 * in1_3; 
+	# *(out4 +  4) += in0_4 * in1_4; 
+	# *(out4 +  5) += in0_4 * in1_5; 
+	# *(out4 +  6) += in0_4 * in1_6; 
+	# *(out4 +  7) += in0_4 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r12), %xmm0
+	movupd 16(%r12), %xmm1
+	movupd 32(%r12), %xmm2
+	movupd 48(%r12), %xmm3
+
+	mulpd %xmm12, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm12, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm12, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm12, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r12)
+	movupd %xmm1, 16(%r12)
+	movupd %xmm2, 32(%r12)
+	movupd %xmm3, 48(%r12)
+
+	# *(out5 +  0) += in0_5 * in1_0; 
+	# *(out5 +  1) += in0_5 * in1_1; 
+	# *(out5 +  2) += in0_5 * in1_2; 
+	# *(out5 +  3) += in0_5 * in1_3; 
+	# *(out5 +  4) += in0_5 * in1_4; 
+	# *(out5 +  5) += in0_5 * in1_5; 
+	# *(out5 +  6) += in0_5 * in1_6; 
+	# *(out5 +  7) += in0_5 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r13), %xmm0
+	movupd 16(%r13), %xmm1
+	movupd 32(%r13), %xmm2
+	movupd 48(%r13), %xmm3
+
+	mulpd %xmm13, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm13, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm13, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm13, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r13)
+	movupd %xmm1, 16(%r13)
+	movupd %xmm2, 32(%r13)
+	movupd %xmm3, 48(%r13)
+
+	# *(out6 +  0) += in0_6 * in1_0; 
+	# *(out6 +  1) += in0_6 * in1_1; 
+	# *(out6 +  2) += in0_6 * in1_2; 
+	# *(out6 +  3) += in0_6 * in1_3; 
+	# *(out6 +  4) += in0_6 * in1_4; 
+	# *(out6 +  5) += in0_6 * in1_5; 
+	# *(out6 +  6) += in0_6 * in1_6; 
+	# *(out6 +  7) += in0_6 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r14), %xmm0
+	movupd 16(%r14), %xmm1
+	movupd 32(%r14), %xmm2
+	movupd 48(%r14), %xmm3
+
+	mulpd %xmm14, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm14, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm14, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm14, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r14)
+	movupd %xmm1, 16(%r14)
+	movupd %xmm2, 32(%r14)
+	movupd %xmm3, 48(%r14)
+
+	# *(out7 +  0) += in0_7 * in1_0; 
+	# *(out7 +  1) += in0_7 * in1_1; 
+	# *(out7 +  2) += in0_7 * in1_2; 
+	# *(out7 +  3) += in0_7 * in1_3; 
+	# *(out7 +  4) += in0_7 * in1_4; 
+	# *(out7 +  5) += in0_7 * in1_5; 
+	# *(out7 +  6) += in0_7 * in1_6; 
+	# *(out7 +  7) += in0_7 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r15), %xmm0
+	movupd 16(%r15), %xmm1
+	movupd 32(%r15), %xmm2
+	movupd 48(%r15), %xmm3
+
+	mulpd %xmm15, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm15, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm15, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm15, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r15)
+	movupd %xmm1, 16(%r15)
+	movupd %xmm2, 32(%r15)
+	movupd %xmm3, 48(%r15)
+
 	addq $64, %rax   	# out0 += 8
 	addq $64, %rbx   	# out1 += 8
 	addq $64, %rcx   	# out2 += 8
 	addq $64, %rdx   	# out3 += 8
+	addq $64, %r12   	# out4 += 8
+	addq $64, %r13   	# out5 += 8
+	addq $64, %r14   	# out6 += 8
+	addq $64, %r15   	# out7 += 8
 	addq $64, %rdi   	# in1 += 8
 
 	subq $1, %r11   	# }
@@ -720,7 +1084,7 @@ vmdot_product_double_4x8:
 	# Out _In0 _In1 k   n   In0S In0s In1s
 	# rdi rsi  rdx  rcx r8  r9   r10  r11 
 
-	# vmdot_product_4x4(Out + div, In0, _In1 + div, k, mod, In0S, In0s, In1s);
+	# vmdot_product_8x4(Out + div, In0, _In1 + div, k, mod, In0S, In0s, In1s);
 	movq 0x08(%rsp), %rdi
 	addq %rbx, %rdi
 	movq 0x10(%rsp), %rsi
@@ -735,7 +1099,7 @@ vmdot_product_double_4x8:
 	movq %r10, 0x08(%rsp)
 	movq %r11, 0x10(%rsp)
 	addq $8, %rsp
-	call vmdot_product_double_4x4
+	call vmdot_product_double_8x4
 
 4:
 	movq %rbp, %rsp
@@ -749,7 +1113,7 @@ vmdot_product_double_4x8:
 	ret
 
 //------------------------------------------------------------------------------
-vmdot_product_double_4x16:
+vmdot_product_double_8x16:
 	mov 0x08(%rsp), %r10
 	mov 0x10(%rsp), %r11
 	push %rsp
@@ -786,6 +1150,15 @@ vmdot_product_double_4x16:
 	movq %rdi, 0x90(%rsp)
 	addq %r9, %rdi		# Out3 = Out + In1s * 3
 	movq %rdi, 0x98(%rsp)
+	addq %r9, %rdi		# Out4 = Out + In1s * 4
+	movq %rdi, 0xA0(%rsp)
+	addq %r9, %rdi		# Out5 = Out + In1s * 5
+	movq %rdi, 0xA8(%rsp)
+	addq %r9, %rdi		# Out6 = Out + In1s * 6
+	movq %rdi, 0xB0(%rsp)
+	addq %r9, %rdi		# Out7 = Out + In1s * 7
+	movq %rdi, 0xB8(%rsp)
+
 	movq 0x10(%rsp), %rsi 	# in0 = In0
 	movq 0x18(%rsp), %r8	# In1 = _In1
 
@@ -807,6 +1180,10 @@ vmdot_product_double_4x16:
 	movq 0x88(%rsp), %rbx		# out1 = Out1
 	movq 0x90(%rsp), %rcx		# out2 = Out2
 	movq 0x98(%rsp), %rdx		# out3 = Out3
+	movq 0xA0(%rsp), %r12		# out4 = Out4
+	movq 0xA8(%rsp), %r13		# out5 = Out5
+	movq 0xB0(%rsp), %r14		# out6 = Out6
+	movq 0xB8(%rsp), %r15		# out7 = Out7
 	movddup 0(%rsi), %xmm8		# in0_0 = *In0
 	movq 0x60(%rsp), %r11		# j = In0S
 	movddup (%rsi, %r11), %xmm9	# in0_1 = *(in0 + j)
@@ -814,6 +1191,14 @@ vmdot_product_double_4x16:
 	movddup (%rsi, %r11), %xmm10	# in0_2 = *(in0 + j)
 	addq 0x60(%rsp), %r11		# j += In0S
 	movddup (%rsi, %r11), %xmm11	# in0_3 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm12	# in0_4 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm13	# in0_5 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm14	# in0_6 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm15	# in0_7 = *(in0 + j)
 	addq 0x68(%rsp), %rsi		# in0 += In0s
 	movq %r8, %rdi			# in1 = In1
 	addq %r9, %r8			# In1 += In1s
@@ -832,13 +1217,13 @@ vmdot_product_double_4x16:
 	# in1_6 = *(in1 + 6)
 	# in1_7 = *(in1 + 7)
 	movupd 0 (%rdi), %xmm4
-	movapd %xmm4, %xmm12
+	movapd %xmm4, 0xC0(%rsp)
 	movupd 16(%rdi), %xmm5
-	movapd %xmm5, %xmm13
+	movapd %xmm5, 0xD0(%rsp)
 	movupd 32(%rdi), %xmm6
-	movapd %xmm6, %xmm14
+	movapd %xmm6, 0xE0(%rsp)
 	movupd 48(%rdi), %xmm7
-	movapd %xmm7, %xmm15
+	movapd %xmm7, 0xF0(%rsp)
 
 	# *(out0 +  0) += in0_0 * in1_0; 
 	# *(out0 +  1) += in0_0 * in1_1; 
@@ -875,10 +1260,10 @@ vmdot_product_double_4x16:
 	# *(out1 +  5) += in0_1 * in1_5; 
 	# *(out1 +  6) += in0_1 * in1_6; 
 	# *(out1 +  7) += in0_1 * in1_7; 
-	movapd %xmm12, %xmm4
-	movapd %xmm13, %xmm5
-	movapd %xmm14, %xmm6
-	movapd %xmm15, %xmm7
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
 
 	movupd 0 (%rbx), %xmm0
 	movupd 16(%rbx), %xmm1
@@ -907,10 +1292,10 @@ vmdot_product_double_4x16:
 	# *(out2 +  5) += in0_2 * in1_5; 
 	# *(out2 +  6) += in0_2 * in1_6; 
 	# *(out2 +  7) += in0_2 * in1_7; 
-	movapd %xmm12, %xmm4
-	movapd %xmm13, %xmm5
-	movapd %xmm14, %xmm6
-	movapd %xmm15, %xmm7
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
 
 	movupd 0 (%rcx), %xmm0
 	movupd 16(%rcx), %xmm1
@@ -939,30 +1324,168 @@ vmdot_product_double_4x16:
 	# *(out3 +  5) += in0_3 * in1_5; 
 	# *(out3 +  6) += in0_3 * in1_6; 
 	# *(out3 +  7) += in0_3 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
 	movupd 0 (%rdx), %xmm0
 	movupd 16(%rdx), %xmm1
 	movupd 32(%rdx), %xmm2
 	movupd 48(%rdx), %xmm3
 
-	mulpd %xmm11, %xmm12
-	addpd %xmm12, %xmm0
-	mulpd %xmm11, %xmm13
-	addpd %xmm13, %xmm1
-	mulpd %xmm11, %xmm14
-	addpd %xmm14, %xmm2
-	mulpd %xmm11, %xmm15
-	addpd %xmm15, %xmm3
+	mulpd %xmm11, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm11, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm11, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm11, %xmm7
+	addpd %xmm7, %xmm3
 
 	movupd %xmm0, 0 (%rdx)
 	movupd %xmm1, 16(%rdx)
 	movupd %xmm2, 32(%rdx)
 	movupd %xmm3, 48(%rdx)
 
+	# *(out4 +  0) += in0_4 * in1_0; 
+	# *(out4 +  1) += in0_4 * in1_1; 
+	# *(out4 +  2) += in0_4 * in1_2; 
+	# *(out4 +  3) += in0_4 * in1_3; 
+	# *(out4 +  4) += in0_4 * in1_4; 
+	# *(out4 +  5) += in0_4 * in1_5; 
+	# *(out4 +  6) += in0_4 * in1_6; 
+	# *(out4 +  7) += in0_4 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r12), %xmm0
+	movupd 16(%r12), %xmm1
+	movupd 32(%r12), %xmm2
+	movupd 48(%r12), %xmm3
+
+	mulpd %xmm12, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm12, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm12, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm12, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r12)
+	movupd %xmm1, 16(%r12)
+	movupd %xmm2, 32(%r12)
+	movupd %xmm3, 48(%r12)
+
+	# *(out5 +  0) += in0_5 * in1_0; 
+	# *(out5 +  1) += in0_5 * in1_1; 
+	# *(out5 +  2) += in0_5 * in1_2; 
+	# *(out5 +  3) += in0_5 * in1_3; 
+	# *(out5 +  4) += in0_5 * in1_4; 
+	# *(out5 +  5) += in0_5 * in1_5; 
+	# *(out5 +  6) += in0_5 * in1_6; 
+	# *(out5 +  7) += in0_5 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r13), %xmm0
+	movupd 16(%r13), %xmm1
+	movupd 32(%r13), %xmm2
+	movupd 48(%r13), %xmm3
+
+	mulpd %xmm13, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm13, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm13, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm13, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r13)
+	movupd %xmm1, 16(%r13)
+	movupd %xmm2, 32(%r13)
+	movupd %xmm3, 48(%r13)
+
+	# *(out6 +  0) += in0_6 * in1_0; 
+	# *(out6 +  1) += in0_6 * in1_1; 
+	# *(out6 +  2) += in0_6 * in1_2; 
+	# *(out6 +  3) += in0_6 * in1_3; 
+	# *(out6 +  4) += in0_6 * in1_4; 
+	# *(out6 +  5) += in0_6 * in1_5; 
+	# *(out6 +  6) += in0_6 * in1_6; 
+	# *(out6 +  7) += in0_6 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r14), %xmm0
+	movupd 16(%r14), %xmm1
+	movupd 32(%r14), %xmm2
+	movupd 48(%r14), %xmm3
+
+	mulpd %xmm14, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm14, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm14, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm14, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r14)
+	movupd %xmm1, 16(%r14)
+	movupd %xmm2, 32(%r14)
+	movupd %xmm3, 48(%r14)
+
+	# *(out7 +  0) += in0_7 * in1_0; 
+	# *(out7 +  1) += in0_7 * in1_1; 
+	# *(out7 +  2) += in0_7 * in1_2; 
+	# *(out7 +  3) += in0_7 * in1_3; 
+	# *(out7 +  4) += in0_7 * in1_4; 
+	# *(out7 +  5) += in0_7 * in1_5; 
+	# *(out7 +  6) += in0_7 * in1_6; 
+	# *(out7 +  7) += in0_7 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r15), %xmm0
+	movupd 16(%r15), %xmm1
+	movupd 32(%r15), %xmm2
+	movupd 48(%r15), %xmm3
+
+	mulpd %xmm15, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm15, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm15, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm15, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r15)
+	movupd %xmm1, 16(%r15)
+	movupd %xmm2, 32(%r15)
+	movupd %xmm3, 48(%r15)
+
 	addq $64, %rax   	# out0 += 8
 	addq $64, %rbx   	# out1 += 8
 	addq $64, %rcx   	# out2 += 8
 	addq $64, %rdx   	# out3 += 8
+	addq $64, %r12   	# out4 += 8
+	addq $64, %r13   	# out5 += 8
+	addq $64, %r14   	# out6 += 8
+	addq $64, %r15   	# out7 += 8
 	addq $64, %rdi   	# in1 += 8
+
 	# in1_0 = *(in1 + 0)
 	# in1_1 = *(in1 + 1)
 	# in1_2 = *(in1 + 2)
@@ -972,13 +1495,13 @@ vmdot_product_double_4x16:
 	# in1_6 = *(in1 + 6)
 	# in1_7 = *(in1 + 7)
 	movupd 0 (%rdi), %xmm4
-	movapd %xmm4, %xmm12
+	movapd %xmm4, 0xC0(%rsp)
 	movupd 16(%rdi), %xmm5
-	movapd %xmm5, %xmm13
+	movapd %xmm5, 0xD0(%rsp)
 	movupd 32(%rdi), %xmm6
-	movapd %xmm6, %xmm14
+	movapd %xmm6, 0xE0(%rsp)
 	movupd 48(%rdi), %xmm7
-	movapd %xmm7, %xmm15
+	movapd %xmm7, 0xF0(%rsp)
 
 	# *(out0 +  0) += in0_0 * in1_0; 
 	# *(out0 +  1) += in0_0 * in1_1; 
@@ -1015,10 +1538,10 @@ vmdot_product_double_4x16:
 	# *(out1 +  5) += in0_1 * in1_5; 
 	# *(out1 +  6) += in0_1 * in1_6; 
 	# *(out1 +  7) += in0_1 * in1_7; 
-	movapd %xmm12, %xmm4
-	movapd %xmm13, %xmm5
-	movapd %xmm14, %xmm6
-	movapd %xmm15, %xmm7
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
 
 	movupd 0 (%rbx), %xmm0
 	movupd 16(%rbx), %xmm1
@@ -1047,10 +1570,10 @@ vmdot_product_double_4x16:
 	# *(out2 +  5) += in0_2 * in1_5; 
 	# *(out2 +  6) += in0_2 * in1_6; 
 	# *(out2 +  7) += in0_2 * in1_7; 
-	movapd %xmm12, %xmm4
-	movapd %xmm13, %xmm5
-	movapd %xmm14, %xmm6
-	movapd %xmm15, %xmm7
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
 
 	movupd 0 (%rcx), %xmm0
 	movupd 16(%rcx), %xmm1
@@ -1079,29 +1602,166 @@ vmdot_product_double_4x16:
 	# *(out3 +  5) += in0_3 * in1_5; 
 	# *(out3 +  6) += in0_3 * in1_6; 
 	# *(out3 +  7) += in0_3 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
 	movupd 0 (%rdx), %xmm0
 	movupd 16(%rdx), %xmm1
 	movupd 32(%rdx), %xmm2
 	movupd 48(%rdx), %xmm3
 
-	mulpd %xmm11, %xmm12
-	addpd %xmm12, %xmm0
-	mulpd %xmm11, %xmm13
-	addpd %xmm13, %xmm1
-	mulpd %xmm11, %xmm14
-	addpd %xmm14, %xmm2
-	mulpd %xmm11, %xmm15
-	addpd %xmm15, %xmm3
+	mulpd %xmm11, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm11, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm11, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm11, %xmm7
+	addpd %xmm7, %xmm3
 
 	movupd %xmm0, 0 (%rdx)
 	movupd %xmm1, 16(%rdx)
 	movupd %xmm2, 32(%rdx)
 	movupd %xmm3, 48(%rdx)
 
+	# *(out4 +  0) += in0_4 * in1_0; 
+	# *(out4 +  1) += in0_4 * in1_1; 
+	# *(out4 +  2) += in0_4 * in1_2; 
+	# *(out4 +  3) += in0_4 * in1_3; 
+	# *(out4 +  4) += in0_4 * in1_4; 
+	# *(out4 +  5) += in0_4 * in1_5; 
+	# *(out4 +  6) += in0_4 * in1_6; 
+	# *(out4 +  7) += in0_4 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r12), %xmm0
+	movupd 16(%r12), %xmm1
+	movupd 32(%r12), %xmm2
+	movupd 48(%r12), %xmm3
+
+	mulpd %xmm12, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm12, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm12, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm12, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r12)
+	movupd %xmm1, 16(%r12)
+	movupd %xmm2, 32(%r12)
+	movupd %xmm3, 48(%r12)
+
+	# *(out5 +  0) += in0_5 * in1_0; 
+	# *(out5 +  1) += in0_5 * in1_1; 
+	# *(out5 +  2) += in0_5 * in1_2; 
+	# *(out5 +  3) += in0_5 * in1_3; 
+	# *(out5 +  4) += in0_5 * in1_4; 
+	# *(out5 +  5) += in0_5 * in1_5; 
+	# *(out5 +  6) += in0_5 * in1_6; 
+	# *(out5 +  7) += in0_5 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r13), %xmm0
+	movupd 16(%r13), %xmm1
+	movupd 32(%r13), %xmm2
+	movupd 48(%r13), %xmm3
+
+	mulpd %xmm13, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm13, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm13, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm13, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r13)
+	movupd %xmm1, 16(%r13)
+	movupd %xmm2, 32(%r13)
+	movupd %xmm3, 48(%r13)
+
+	# *(out6 +  0) += in0_6 * in1_0; 
+	# *(out6 +  1) += in0_6 * in1_1; 
+	# *(out6 +  2) += in0_6 * in1_2; 
+	# *(out6 +  3) += in0_6 * in1_3; 
+	# *(out6 +  4) += in0_6 * in1_4; 
+	# *(out6 +  5) += in0_6 * in1_5; 
+	# *(out6 +  6) += in0_6 * in1_6; 
+	# *(out6 +  7) += in0_6 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r14), %xmm0
+	movupd 16(%r14), %xmm1
+	movupd 32(%r14), %xmm2
+	movupd 48(%r14), %xmm3
+
+	mulpd %xmm14, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm14, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm14, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm14, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r14)
+	movupd %xmm1, 16(%r14)
+	movupd %xmm2, 32(%r14)
+	movupd %xmm3, 48(%r14)
+
+	# *(out7 +  0) += in0_7 * in1_0; 
+	# *(out7 +  1) += in0_7 * in1_1; 
+	# *(out7 +  2) += in0_7 * in1_2; 
+	# *(out7 +  3) += in0_7 * in1_3; 
+	# *(out7 +  4) += in0_7 * in1_4; 
+	# *(out7 +  5) += in0_7 * in1_5; 
+	# *(out7 +  6) += in0_7 * in1_6; 
+	# *(out7 +  7) += in0_7 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r15), %xmm0
+	movupd 16(%r15), %xmm1
+	movupd 32(%r15), %xmm2
+	movupd 48(%r15), %xmm3
+
+	mulpd %xmm15, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm15, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm15, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm15, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r15)
+	movupd %xmm1, 16(%r15)
+	movupd %xmm2, 32(%r15)
+	movupd %xmm3, 48(%r15)
+
 	addq $64, %rax   	# out0 += 8
 	addq $64, %rbx   	# out1 += 8
 	addq $64, %rcx   	# out2 += 8
 	addq $64, %rdx   	# out3 += 8
+	addq $64, %r12   	# out4 += 8
+	addq $64, %r13   	# out5 += 8
+	addq $64, %r14   	# out6 += 8
+	addq $64, %r15   	# out7 += 8
 	addq $64, %rdi   	# in1 += 8
 
 	subq $1, %r11   	# }
@@ -1121,7 +1781,7 @@ vmdot_product_double_4x16:
 	# Out _In0 _In1 k   n   In0S In0s In1s
 	# rdi rsi  rdx  rcx r8  r9   r10  r11 
 
-	# vmdot_product_4x8(Out + div, In0, _In1 + div, k, mod, In0S, In0s, In1s);
+	# vmdot_product_8x8(Out + div, In0, _In1 + div, k, mod, In0S, In0s, In1s);
 	movq 0x08(%rsp), %rdi
 	addq %rbx, %rdi
 	movq 0x10(%rsp), %rsi
@@ -1136,7 +1796,7 @@ vmdot_product_double_4x16:
 	movq %r10, 0x08(%rsp)
 	movq %r11, 0x10(%rsp)
 	addq $8, %rsp
-	call vmdot_product_double_4x8
+	call vmdot_product_double_8x8
 
 4:
 	movq %rbp, %rsp
@@ -1150,7 +1810,7 @@ vmdot_product_double_4x16:
 	ret
 
 //------------------------------------------------------------------------------
-vmdot_product_double_4x32:
+vmdot_product_double_8x32:
 	mov 0x08(%rsp), %r10
 	mov 0x10(%rsp), %r11
 	push %rsp
@@ -1187,6 +1847,15 @@ vmdot_product_double_4x32:
 	movq %rdi, 0x90(%rsp)
 	addq %r9, %rdi		# Out3 = Out + In1s * 3
 	movq %rdi, 0x98(%rsp)
+	addq %r9, %rdi		# Out4 = Out + In1s * 4
+	movq %rdi, 0xA0(%rsp)
+	addq %r9, %rdi		# Out5 = Out + In1s * 5
+	movq %rdi, 0xA8(%rsp)
+	addq %r9, %rdi		# Out6 = Out + In1s * 6
+	movq %rdi, 0xB0(%rsp)
+	addq %r9, %rdi		# Out7 = Out + In1s * 7
+	movq %rdi, 0xB8(%rsp)
+
 	movq 0x10(%rsp), %rsi 	# in0 = In0
 	movq 0x18(%rsp), %r8	# In1 = _In1
 
@@ -1208,6 +1877,10 @@ vmdot_product_double_4x32:
 	movq 0x88(%rsp), %rbx		# out1 = Out1
 	movq 0x90(%rsp), %rcx		# out2 = Out2
 	movq 0x98(%rsp), %rdx		# out3 = Out3
+	movq 0xA0(%rsp), %r12		# out4 = Out4
+	movq 0xA8(%rsp), %r13		# out5 = Out5
+	movq 0xB0(%rsp), %r14		# out6 = Out6
+	movq 0xB8(%rsp), %r15		# out7 = Out7
 	movddup 0(%rsi), %xmm8		# in0_0 = *In0
 	movq 0x60(%rsp), %r11		# j = In0S
 	movddup (%rsi, %r11), %xmm9	# in0_1 = *(in0 + j)
@@ -1215,6 +1888,14 @@ vmdot_product_double_4x32:
 	movddup (%rsi, %r11), %xmm10	# in0_2 = *(in0 + j)
 	addq 0x60(%rsp), %r11		# j += In0S
 	movddup (%rsi, %r11), %xmm11	# in0_3 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm12	# in0_4 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm13	# in0_5 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm14	# in0_6 = *(in0 + j)
+	addq 0x60(%rsp), %r11		# j += In0S
+	movddup (%rsi, %r11), %xmm15	# in0_7 = *(in0 + j)
 	addq 0x68(%rsp), %rsi		# in0 += In0s
 	movq %r8, %rdi			# in1 = In1
 	addq %r9, %r8			# In1 += In1s
@@ -1233,13 +1914,13 @@ vmdot_product_double_4x32:
 	# in1_6 = *(in1 + 6)
 	# in1_7 = *(in1 + 7)
 	movupd 0 (%rdi), %xmm4
-	movapd %xmm4, %xmm12
+	movapd %xmm4, 0xC0(%rsp)
 	movupd 16(%rdi), %xmm5
-	movapd %xmm5, %xmm13
+	movapd %xmm5, 0xD0(%rsp)
 	movupd 32(%rdi), %xmm6
-	movapd %xmm6, %xmm14
+	movapd %xmm6, 0xE0(%rsp)
 	movupd 48(%rdi), %xmm7
-	movapd %xmm7, %xmm15
+	movapd %xmm7, 0xF0(%rsp)
 
 	# *(out0 +  0) += in0_0 * in1_0; 
 	# *(out0 +  1) += in0_0 * in1_1; 
@@ -1276,10 +1957,10 @@ vmdot_product_double_4x32:
 	# *(out1 +  5) += in0_1 * in1_5; 
 	# *(out1 +  6) += in0_1 * in1_6; 
 	# *(out1 +  7) += in0_1 * in1_7; 
-	movapd %xmm12, %xmm4
-	movapd %xmm13, %xmm5
-	movapd %xmm14, %xmm6
-	movapd %xmm15, %xmm7
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
 
 	movupd 0 (%rbx), %xmm0
 	movupd 16(%rbx), %xmm1
@@ -1308,10 +1989,10 @@ vmdot_product_double_4x32:
 	# *(out2 +  5) += in0_2 * in1_5; 
 	# *(out2 +  6) += in0_2 * in1_6; 
 	# *(out2 +  7) += in0_2 * in1_7; 
-	movapd %xmm12, %xmm4
-	movapd %xmm13, %xmm5
-	movapd %xmm14, %xmm6
-	movapd %xmm15, %xmm7
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
 
 	movupd 0 (%rcx), %xmm0
 	movupd 16(%rcx), %xmm1
@@ -1340,169 +2021,166 @@ vmdot_product_double_4x32:
 	# *(out3 +  5) += in0_3 * in1_5; 
 	# *(out3 +  6) += in0_3 * in1_6; 
 	# *(out3 +  7) += in0_3 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
 	movupd 0 (%rdx), %xmm0
 	movupd 16(%rdx), %xmm1
 	movupd 32(%rdx), %xmm2
 	movupd 48(%rdx), %xmm3
 
-	mulpd %xmm11, %xmm12
-	addpd %xmm12, %xmm0
-	mulpd %xmm11, %xmm13
-	addpd %xmm13, %xmm1
-	mulpd %xmm11, %xmm14
-	addpd %xmm14, %xmm2
-	mulpd %xmm11, %xmm15
-	addpd %xmm15, %xmm3
+	mulpd %xmm11, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm11, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm11, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm11, %xmm7
+	addpd %xmm7, %xmm3
 
 	movupd %xmm0, 0 (%rdx)
 	movupd %xmm1, 16(%rdx)
 	movupd %xmm2, 32(%rdx)
 	movupd %xmm3, 48(%rdx)
 
-	addq $64, %rax   	# out0 += 8
-	addq $64, %rbx   	# out1 += 8
-	addq $64, %rcx   	# out2 += 8
-	addq $64, %rdx   	# out3 += 8
-	addq $64, %rdi   	# in1 += 8
-	# in1_0 = *(in1 + 0)
-	# in1_1 = *(in1 + 1)
-	# in1_2 = *(in1 + 2)
-	# in1_3 = *(in1 + 3)
-	# in1_4 = *(in1 + 4)
-	# in1_5 = *(in1 + 5)
-	# in1_6 = *(in1 + 6)
-	# in1_7 = *(in1 + 7)
-	movupd 0 (%rdi), %xmm4
-	movapd %xmm4, %xmm12
-	movupd 16(%rdi), %xmm5
-	movapd %xmm5, %xmm13
-	movupd 32(%rdi), %xmm6
-	movapd %xmm6, %xmm14
-	movupd 48(%rdi), %xmm7
-	movapd %xmm7, %xmm15
+	# *(out4 +  0) += in0_4 * in1_0; 
+	# *(out4 +  1) += in0_4 * in1_1; 
+	# *(out4 +  2) += in0_4 * in1_2; 
+	# *(out4 +  3) += in0_4 * in1_3; 
+	# *(out4 +  4) += in0_4 * in1_4; 
+	# *(out4 +  5) += in0_4 * in1_5; 
+	# *(out4 +  6) += in0_4 * in1_6; 
+	# *(out4 +  7) += in0_4 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
 
-	# *(out0 +  0) += in0_0 * in1_0; 
-	# *(out0 +  1) += in0_0 * in1_1; 
-	# *(out0 +  2) += in0_0 * in1_2; 
-	# *(out0 +  3) += in0_0 * in1_3; 
-	# *(out0 +  4) += in0_0 * in1_4; 
-	# *(out0 +  5) += in0_0 * in1_5; 
-	# *(out0 +  6) += in0_0 * in1_6; 
-	# *(out0 +  7) += in0_0 * in1_7; 
-	movupd 0 (%rax), %xmm0
-	movupd 16(%rax), %xmm1
-	movupd 32(%rax), %xmm2
-	movupd 48(%rax), %xmm3
+	movupd 0 (%r12), %xmm0
+	movupd 16(%r12), %xmm1
+	movupd 32(%r12), %xmm2
+	movupd 48(%r12), %xmm3
 
-	mulpd %xmm8, %xmm4
+	mulpd %xmm12, %xmm4
 	addpd %xmm4, %xmm0
-	mulpd %xmm8, %xmm5
+	mulpd %xmm12, %xmm5
 	addpd %xmm5, %xmm1
-	mulpd %xmm8, %xmm6
+	mulpd %xmm12, %xmm6
 	addpd %xmm6, %xmm2
-	mulpd %xmm8, %xmm7
+	mulpd %xmm12, %xmm7
 	addpd %xmm7, %xmm3
 
-	movupd %xmm0, 0 (%rax)
-	movupd %xmm1, 16(%rax)
-	movupd %xmm2, 32(%rax)
-	movupd %xmm3, 48(%rax)
+	movupd %xmm0, 0 (%r12)
+	movupd %xmm1, 16(%r12)
+	movupd %xmm2, 32(%r12)
+	movupd %xmm3, 48(%r12)
 
-	# *(out1 +  0) += in0_1 * in1_0; 
-	# *(out1 +  1) += in0_1 * in1_1; 
-	# *(out1 +  2) += in0_1 * in1_2; 
-	# *(out1 +  3) += in0_1 * in1_3; 
-	# *(out1 +  4) += in0_1 * in1_4; 
-	# *(out1 +  5) += in0_1 * in1_5; 
-	# *(out1 +  6) += in0_1 * in1_6; 
-	# *(out1 +  7) += in0_1 * in1_7; 
-	movapd %xmm12, %xmm4
-	movapd %xmm13, %xmm5
-	movapd %xmm14, %xmm6
-	movapd %xmm15, %xmm7
+	# *(out5 +  0) += in0_5 * in1_0; 
+	# *(out5 +  1) += in0_5 * in1_1; 
+	# *(out5 +  2) += in0_5 * in1_2; 
+	# *(out5 +  3) += in0_5 * in1_3; 
+	# *(out5 +  4) += in0_5 * in1_4; 
+	# *(out5 +  5) += in0_5 * in1_5; 
+	# *(out5 +  6) += in0_5 * in1_6; 
+	# *(out5 +  7) += in0_5 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
 
-	movupd 0 (%rbx), %xmm0
-	movupd 16(%rbx), %xmm1
-	movupd 32(%rbx), %xmm2
-	movupd 48(%rbx), %xmm3
+	movupd 0 (%r13), %xmm0
+	movupd 16(%r13), %xmm1
+	movupd 32(%r13), %xmm2
+	movupd 48(%r13), %xmm3
 
-	mulpd %xmm9, %xmm4
+	mulpd %xmm13, %xmm4
 	addpd %xmm4, %xmm0
-	mulpd %xmm9, %xmm5
+	mulpd %xmm13, %xmm5
 	addpd %xmm5, %xmm1
-	mulpd %xmm9, %xmm6
+	mulpd %xmm13, %xmm6
 	addpd %xmm6, %xmm2
-	mulpd %xmm9, %xmm7
+	mulpd %xmm13, %xmm7
 	addpd %xmm7, %xmm3
 
-	movupd %xmm0, 0 (%rbx)
-	movupd %xmm1, 16(%rbx)
-	movupd %xmm2, 32(%rbx)
-	movupd %xmm3, 48(%rbx)
+	movupd %xmm0, 0 (%r13)
+	movupd %xmm1, 16(%r13)
+	movupd %xmm2, 32(%r13)
+	movupd %xmm3, 48(%r13)
 
-	# *(out2 +  0) += in0_2 * in1_0; 
-	# *(out2 +  1) += in0_2 * in1_1; 
-	# *(out2 +  2) += in0_2 * in1_2; 
-	# *(out2 +  3) += in0_2 * in1_3; 
-	# *(out2 +  4) += in0_2 * in1_4; 
-	# *(out2 +  5) += in0_2 * in1_5; 
-	# *(out2 +  6) += in0_2 * in1_6; 
-	# *(out2 +  7) += in0_2 * in1_7; 
-	movapd %xmm12, %xmm4
-	movapd %xmm13, %xmm5
-	movapd %xmm14, %xmm6
-	movapd %xmm15, %xmm7
+	# *(out6 +  0) += in0_6 * in1_0; 
+	# *(out6 +  1) += in0_6 * in1_1; 
+	# *(out6 +  2) += in0_6 * in1_2; 
+	# *(out6 +  3) += in0_6 * in1_3; 
+	# *(out6 +  4) += in0_6 * in1_4; 
+	# *(out6 +  5) += in0_6 * in1_5; 
+	# *(out6 +  6) += in0_6 * in1_6; 
+	# *(out6 +  7) += in0_6 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
 
-	movupd 0 (%rcx), %xmm0
-	movupd 16(%rcx), %xmm1
-	movupd 32(%rcx), %xmm2
-	movupd 48(%rcx), %xmm3
+	movupd 0 (%r14), %xmm0
+	movupd 16(%r14), %xmm1
+	movupd 32(%r14), %xmm2
+	movupd 48(%r14), %xmm3
 
-	mulpd %xmm10, %xmm4
+	mulpd %xmm14, %xmm4
 	addpd %xmm4, %xmm0
-	mulpd %xmm10, %xmm5
+	mulpd %xmm14, %xmm5
 	addpd %xmm5, %xmm1
-	mulpd %xmm10, %xmm6
+	mulpd %xmm14, %xmm6
 	addpd %xmm6, %xmm2
-	mulpd %xmm10, %xmm7
+	mulpd %xmm14, %xmm7
 	addpd %xmm7, %xmm3
 
-	movupd %xmm0, 0 (%rcx)
-	movupd %xmm1, 16(%rcx)
-	movupd %xmm2, 32(%rcx)
-	movupd %xmm3, 48(%rcx)
+	movupd %xmm0, 0 (%r14)
+	movupd %xmm1, 16(%r14)
+	movupd %xmm2, 32(%r14)
+	movupd %xmm3, 48(%r14)
 
-	# *(out3 +  0) += in0_3 * in1_0; 
-	# *(out3 +  1) += in0_3 * in1_1; 
-	# *(out3 +  2) += in0_3 * in1_2; 
-	# *(out3 +  3) += in0_3 * in1_3; 
-	# *(out3 +  4) += in0_3 * in1_4; 
-	# *(out3 +  5) += in0_3 * in1_5; 
-	# *(out3 +  6) += in0_3 * in1_6; 
-	# *(out3 +  7) += in0_3 * in1_7; 
-	movupd 0 (%rdx), %xmm0
-	movupd 16(%rdx), %xmm1
-	movupd 32(%rdx), %xmm2
-	movupd 48(%rdx), %xmm3
+	# *(out7 +  0) += in0_7 * in1_0; 
+	# *(out7 +  1) += in0_7 * in1_1; 
+	# *(out7 +  2) += in0_7 * in1_2; 
+	# *(out7 +  3) += in0_7 * in1_3; 
+	# *(out7 +  4) += in0_7 * in1_4; 
+	# *(out7 +  5) += in0_7 * in1_5; 
+	# *(out7 +  6) += in0_7 * in1_6; 
+	# *(out7 +  7) += in0_7 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
 
-	mulpd %xmm11, %xmm12
-	addpd %xmm12, %xmm0
-	mulpd %xmm11, %xmm13
-	addpd %xmm13, %xmm1
-	mulpd %xmm11, %xmm14
-	addpd %xmm14, %xmm2
-	mulpd %xmm11, %xmm15
-	addpd %xmm15, %xmm3
+	movupd 0 (%r15), %xmm0
+	movupd 16(%r15), %xmm1
+	movupd 32(%r15), %xmm2
+	movupd 48(%r15), %xmm3
 
-	movupd %xmm0, 0 (%rdx)
-	movupd %xmm1, 16(%rdx)
-	movupd %xmm2, 32(%rdx)
-	movupd %xmm3, 48(%rdx)
+	mulpd %xmm15, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm15, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm15, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm15, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r15)
+	movupd %xmm1, 16(%r15)
+	movupd %xmm2, 32(%r15)
+	movupd %xmm3, 48(%r15)
 
 	addq $64, %rax   	# out0 += 8
 	addq $64, %rbx   	# out1 += 8
 	addq $64, %rcx   	# out2 += 8
 	addq $64, %rdx   	# out3 += 8
+	addq $64, %r12   	# out4 += 8
+	addq $64, %r13   	# out5 += 8
+	addq $64, %r14   	# out6 += 8
+	addq $64, %r15   	# out7 += 8
 	addq $64, %rdi   	# in1 += 8
 
 	# in1_0 = *(in1 + 0)
@@ -1514,13 +2192,13 @@ vmdot_product_double_4x32:
 	# in1_6 = *(in1 + 6)
 	# in1_7 = *(in1 + 7)
 	movupd 0 (%rdi), %xmm4
-	movapd %xmm4, %xmm12
+	movapd %xmm4, 0xC0(%rsp)
 	movupd 16(%rdi), %xmm5
-	movapd %xmm5, %xmm13
+	movapd %xmm5, 0xD0(%rsp)
 	movupd 32(%rdi), %xmm6
-	movapd %xmm6, %xmm14
+	movapd %xmm6, 0xE0(%rsp)
 	movupd 48(%rdi), %xmm7
-	movapd %xmm7, %xmm15
+	movapd %xmm7, 0xF0(%rsp)
 
 	# *(out0 +  0) += in0_0 * in1_0; 
 	# *(out0 +  1) += in0_0 * in1_1; 
@@ -1557,10 +2235,10 @@ vmdot_product_double_4x32:
 	# *(out1 +  5) += in0_1 * in1_5; 
 	# *(out1 +  6) += in0_1 * in1_6; 
 	# *(out1 +  7) += in0_1 * in1_7; 
-	movapd %xmm12, %xmm4
-	movapd %xmm13, %xmm5
-	movapd %xmm14, %xmm6
-	movapd %xmm15, %xmm7
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
 
 	movupd 0 (%rbx), %xmm0
 	movupd 16(%rbx), %xmm1
@@ -1589,10 +2267,10 @@ vmdot_product_double_4x32:
 	# *(out2 +  5) += in0_2 * in1_5; 
 	# *(out2 +  6) += in0_2 * in1_6; 
 	# *(out2 +  7) += in0_2 * in1_7; 
-	movapd %xmm12, %xmm4
-	movapd %xmm13, %xmm5
-	movapd %xmm14, %xmm6
-	movapd %xmm15, %xmm7
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
 
 	movupd 0 (%rcx), %xmm0
 	movupd 16(%rcx), %xmm1
@@ -1621,29 +2299,166 @@ vmdot_product_double_4x32:
 	# *(out3 +  5) += in0_3 * in1_5; 
 	# *(out3 +  6) += in0_3 * in1_6; 
 	# *(out3 +  7) += in0_3 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
 	movupd 0 (%rdx), %xmm0
 	movupd 16(%rdx), %xmm1
 	movupd 32(%rdx), %xmm2
 	movupd 48(%rdx), %xmm3
 
-	mulpd %xmm11, %xmm12
-	addpd %xmm12, %xmm0
-	mulpd %xmm11, %xmm13
-	addpd %xmm13, %xmm1
-	mulpd %xmm11, %xmm14
-	addpd %xmm14, %xmm2
-	mulpd %xmm11, %xmm15
-	addpd %xmm15, %xmm3
+	mulpd %xmm11, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm11, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm11, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm11, %xmm7
+	addpd %xmm7, %xmm3
 
 	movupd %xmm0, 0 (%rdx)
 	movupd %xmm1, 16(%rdx)
 	movupd %xmm2, 32(%rdx)
 	movupd %xmm3, 48(%rdx)
 
+	# *(out4 +  0) += in0_4 * in1_0; 
+	# *(out4 +  1) += in0_4 * in1_1; 
+	# *(out4 +  2) += in0_4 * in1_2; 
+	# *(out4 +  3) += in0_4 * in1_3; 
+	# *(out4 +  4) += in0_4 * in1_4; 
+	# *(out4 +  5) += in0_4 * in1_5; 
+	# *(out4 +  6) += in0_4 * in1_6; 
+	# *(out4 +  7) += in0_4 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r12), %xmm0
+	movupd 16(%r12), %xmm1
+	movupd 32(%r12), %xmm2
+	movupd 48(%r12), %xmm3
+
+	mulpd %xmm12, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm12, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm12, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm12, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r12)
+	movupd %xmm1, 16(%r12)
+	movupd %xmm2, 32(%r12)
+	movupd %xmm3, 48(%r12)
+
+	# *(out5 +  0) += in0_5 * in1_0; 
+	# *(out5 +  1) += in0_5 * in1_1; 
+	# *(out5 +  2) += in0_5 * in1_2; 
+	# *(out5 +  3) += in0_5 * in1_3; 
+	# *(out5 +  4) += in0_5 * in1_4; 
+	# *(out5 +  5) += in0_5 * in1_5; 
+	# *(out5 +  6) += in0_5 * in1_6; 
+	# *(out5 +  7) += in0_5 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r13), %xmm0
+	movupd 16(%r13), %xmm1
+	movupd 32(%r13), %xmm2
+	movupd 48(%r13), %xmm3
+
+	mulpd %xmm13, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm13, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm13, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm13, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r13)
+	movupd %xmm1, 16(%r13)
+	movupd %xmm2, 32(%r13)
+	movupd %xmm3, 48(%r13)
+
+	# *(out6 +  0) += in0_6 * in1_0; 
+	# *(out6 +  1) += in0_6 * in1_1; 
+	# *(out6 +  2) += in0_6 * in1_2; 
+	# *(out6 +  3) += in0_6 * in1_3; 
+	# *(out6 +  4) += in0_6 * in1_4; 
+	# *(out6 +  5) += in0_6 * in1_5; 
+	# *(out6 +  6) += in0_6 * in1_6; 
+	# *(out6 +  7) += in0_6 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r14), %xmm0
+	movupd 16(%r14), %xmm1
+	movupd 32(%r14), %xmm2
+	movupd 48(%r14), %xmm3
+
+	mulpd %xmm14, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm14, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm14, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm14, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r14)
+	movupd %xmm1, 16(%r14)
+	movupd %xmm2, 32(%r14)
+	movupd %xmm3, 48(%r14)
+
+	# *(out7 +  0) += in0_7 * in1_0; 
+	# *(out7 +  1) += in0_7 * in1_1; 
+	# *(out7 +  2) += in0_7 * in1_2; 
+	# *(out7 +  3) += in0_7 * in1_3; 
+	# *(out7 +  4) += in0_7 * in1_4; 
+	# *(out7 +  5) += in0_7 * in1_5; 
+	# *(out7 +  6) += in0_7 * in1_6; 
+	# *(out7 +  7) += in0_7 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r15), %xmm0
+	movupd 16(%r15), %xmm1
+	movupd 32(%r15), %xmm2
+	movupd 48(%r15), %xmm3
+
+	mulpd %xmm15, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm15, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm15, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm15, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r15)
+	movupd %xmm1, 16(%r15)
+	movupd %xmm2, 32(%r15)
+	movupd %xmm3, 48(%r15)
+
 	addq $64, %rax   	# out0 += 8
 	addq $64, %rbx   	# out1 += 8
 	addq $64, %rcx   	# out2 += 8
 	addq $64, %rdx   	# out3 += 8
+	addq $64, %r12   	# out4 += 8
+	addq $64, %r13   	# out5 += 8
+	addq $64, %r14   	# out6 += 8
+	addq $64, %r15   	# out7 += 8
 	addq $64, %rdi   	# in1 += 8
 
 	# in1_0 = *(in1 + 0)
@@ -1655,13 +2470,13 @@ vmdot_product_double_4x32:
 	# in1_6 = *(in1 + 6)
 	# in1_7 = *(in1 + 7)
 	movupd 0 (%rdi), %xmm4
-	movapd %xmm4, %xmm12
+	movapd %xmm4, 0xC0(%rsp)
 	movupd 16(%rdi), %xmm5
-	movapd %xmm5, %xmm13
+	movapd %xmm5, 0xD0(%rsp)
 	movupd 32(%rdi), %xmm6
-	movapd %xmm6, %xmm14
+	movapd %xmm6, 0xE0(%rsp)
 	movupd 48(%rdi), %xmm7
-	movapd %xmm7, %xmm15
+	movapd %xmm7, 0xF0(%rsp)
 
 	# *(out0 +  0) += in0_0 * in1_0; 
 	# *(out0 +  1) += in0_0 * in1_1; 
@@ -1698,10 +2513,10 @@ vmdot_product_double_4x32:
 	# *(out1 +  5) += in0_1 * in1_5; 
 	# *(out1 +  6) += in0_1 * in1_6; 
 	# *(out1 +  7) += in0_1 * in1_7; 
-	movapd %xmm12, %xmm4
-	movapd %xmm13, %xmm5
-	movapd %xmm14, %xmm6
-	movapd %xmm15, %xmm7
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
 
 	movupd 0 (%rbx), %xmm0
 	movupd 16(%rbx), %xmm1
@@ -1730,10 +2545,10 @@ vmdot_product_double_4x32:
 	# *(out2 +  5) += in0_2 * in1_5; 
 	# *(out2 +  6) += in0_2 * in1_6; 
 	# *(out2 +  7) += in0_2 * in1_7; 
-	movapd %xmm12, %xmm4
-	movapd %xmm13, %xmm5
-	movapd %xmm14, %xmm6
-	movapd %xmm15, %xmm7
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
 
 	movupd 0 (%rcx), %xmm0
 	movupd 16(%rcx), %xmm1
@@ -1762,29 +2577,444 @@ vmdot_product_double_4x32:
 	# *(out3 +  5) += in0_3 * in1_5; 
 	# *(out3 +  6) += in0_3 * in1_6; 
 	# *(out3 +  7) += in0_3 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
 	movupd 0 (%rdx), %xmm0
 	movupd 16(%rdx), %xmm1
 	movupd 32(%rdx), %xmm2
 	movupd 48(%rdx), %xmm3
 
-	mulpd %xmm11, %xmm12
-	addpd %xmm12, %xmm0
-	mulpd %xmm11, %xmm13
-	addpd %xmm13, %xmm1
-	mulpd %xmm11, %xmm14
-	addpd %xmm14, %xmm2
-	mulpd %xmm11, %xmm15
-	addpd %xmm15, %xmm3
+	mulpd %xmm11, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm11, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm11, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm11, %xmm7
+	addpd %xmm7, %xmm3
 
 	movupd %xmm0, 0 (%rdx)
 	movupd %xmm1, 16(%rdx)
 	movupd %xmm2, 32(%rdx)
 	movupd %xmm3, 48(%rdx)
 
+	# *(out4 +  0) += in0_4 * in1_0; 
+	# *(out4 +  1) += in0_4 * in1_1; 
+	# *(out4 +  2) += in0_4 * in1_2; 
+	# *(out4 +  3) += in0_4 * in1_3; 
+	# *(out4 +  4) += in0_4 * in1_4; 
+	# *(out4 +  5) += in0_4 * in1_5; 
+	# *(out4 +  6) += in0_4 * in1_6; 
+	# *(out4 +  7) += in0_4 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r12), %xmm0
+	movupd 16(%r12), %xmm1
+	movupd 32(%r12), %xmm2
+	movupd 48(%r12), %xmm3
+
+	mulpd %xmm12, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm12, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm12, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm12, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r12)
+	movupd %xmm1, 16(%r12)
+	movupd %xmm2, 32(%r12)
+	movupd %xmm3, 48(%r12)
+
+	# *(out5 +  0) += in0_5 * in1_0; 
+	# *(out5 +  1) += in0_5 * in1_1; 
+	# *(out5 +  2) += in0_5 * in1_2; 
+	# *(out5 +  3) += in0_5 * in1_3; 
+	# *(out5 +  4) += in0_5 * in1_4; 
+	# *(out5 +  5) += in0_5 * in1_5; 
+	# *(out5 +  6) += in0_5 * in1_6; 
+	# *(out5 +  7) += in0_5 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r13), %xmm0
+	movupd 16(%r13), %xmm1
+	movupd 32(%r13), %xmm2
+	movupd 48(%r13), %xmm3
+
+	mulpd %xmm13, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm13, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm13, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm13, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r13)
+	movupd %xmm1, 16(%r13)
+	movupd %xmm2, 32(%r13)
+	movupd %xmm3, 48(%r13)
+
+	# *(out6 +  0) += in0_6 * in1_0; 
+	# *(out6 +  1) += in0_6 * in1_1; 
+	# *(out6 +  2) += in0_6 * in1_2; 
+	# *(out6 +  3) += in0_6 * in1_3; 
+	# *(out6 +  4) += in0_6 * in1_4; 
+	# *(out6 +  5) += in0_6 * in1_5; 
+	# *(out6 +  6) += in0_6 * in1_6; 
+	# *(out6 +  7) += in0_6 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r14), %xmm0
+	movupd 16(%r14), %xmm1
+	movupd 32(%r14), %xmm2
+	movupd 48(%r14), %xmm3
+
+	mulpd %xmm14, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm14, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm14, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm14, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r14)
+	movupd %xmm1, 16(%r14)
+	movupd %xmm2, 32(%r14)
+	movupd %xmm3, 48(%r14)
+
+	# *(out7 +  0) += in0_7 * in1_0; 
+	# *(out7 +  1) += in0_7 * in1_1; 
+	# *(out7 +  2) += in0_7 * in1_2; 
+	# *(out7 +  3) += in0_7 * in1_3; 
+	# *(out7 +  4) += in0_7 * in1_4; 
+	# *(out7 +  5) += in0_7 * in1_5; 
+	# *(out7 +  6) += in0_7 * in1_6; 
+	# *(out7 +  7) += in0_7 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r15), %xmm0
+	movupd 16(%r15), %xmm1
+	movupd 32(%r15), %xmm2
+	movupd 48(%r15), %xmm3
+
+	mulpd %xmm15, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm15, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm15, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm15, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r15)
+	movupd %xmm1, 16(%r15)
+	movupd %xmm2, 32(%r15)
+	movupd %xmm3, 48(%r15)
+
 	addq $64, %rax   	# out0 += 8
 	addq $64, %rbx   	# out1 += 8
 	addq $64, %rcx   	# out2 += 8
 	addq $64, %rdx   	# out3 += 8
+	addq $64, %r12   	# out4 += 8
+	addq $64, %r13   	# out5 += 8
+	addq $64, %r14   	# out6 += 8
+	addq $64, %r15   	# out7 += 8
+	addq $64, %rdi   	# in1 += 8
+
+	# in1_0 = *(in1 + 0)
+	# in1_1 = *(in1 + 1)
+	# in1_2 = *(in1 + 2)
+	# in1_3 = *(in1 + 3)
+	# in1_4 = *(in1 + 4)
+	# in1_5 = *(in1 + 5)
+	# in1_6 = *(in1 + 6)
+	# in1_7 = *(in1 + 7)
+	movupd 0 (%rdi), %xmm4
+	movapd %xmm4, 0xC0(%rsp)
+	movupd 16(%rdi), %xmm5
+	movapd %xmm5, 0xD0(%rsp)
+	movupd 32(%rdi), %xmm6
+	movapd %xmm6, 0xE0(%rsp)
+	movupd 48(%rdi), %xmm7
+	movapd %xmm7, 0xF0(%rsp)
+
+	# *(out0 +  0) += in0_0 * in1_0; 
+	# *(out0 +  1) += in0_0 * in1_1; 
+	# *(out0 +  2) += in0_0 * in1_2; 
+	# *(out0 +  3) += in0_0 * in1_3; 
+	# *(out0 +  4) += in0_0 * in1_4; 
+	# *(out0 +  5) += in0_0 * in1_5; 
+	# *(out0 +  6) += in0_0 * in1_6; 
+	# *(out0 +  7) += in0_0 * in1_7; 
+	movupd 0 (%rax), %xmm0
+	movupd 16(%rax), %xmm1
+	movupd 32(%rax), %xmm2
+	movupd 48(%rax), %xmm3
+
+	mulpd %xmm8, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm8, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm8, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm8, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%rax)
+	movupd %xmm1, 16(%rax)
+	movupd %xmm2, 32(%rax)
+	movupd %xmm3, 48(%rax)
+
+	# *(out1 +  0) += in0_1 * in1_0; 
+	# *(out1 +  1) += in0_1 * in1_1; 
+	# *(out1 +  2) += in0_1 * in1_2; 
+	# *(out1 +  3) += in0_1 * in1_3; 
+	# *(out1 +  4) += in0_1 * in1_4; 
+	# *(out1 +  5) += in0_1 * in1_5; 
+	# *(out1 +  6) += in0_1 * in1_6; 
+	# *(out1 +  7) += in0_1 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%rbx), %xmm0
+	movupd 16(%rbx), %xmm1
+	movupd 32(%rbx), %xmm2
+	movupd 48(%rbx), %xmm3
+
+	mulpd %xmm9, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm9, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm9, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm9, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%rbx)
+	movupd %xmm1, 16(%rbx)
+	movupd %xmm2, 32(%rbx)
+	movupd %xmm3, 48(%rbx)
+
+	# *(out2 +  0) += in0_2 * in1_0; 
+	# *(out2 +  1) += in0_2 * in1_1; 
+	# *(out2 +  2) += in0_2 * in1_2; 
+	# *(out2 +  3) += in0_2 * in1_3; 
+	# *(out2 +  4) += in0_2 * in1_4; 
+	# *(out2 +  5) += in0_2 * in1_5; 
+	# *(out2 +  6) += in0_2 * in1_6; 
+	# *(out2 +  7) += in0_2 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%rcx), %xmm0
+	movupd 16(%rcx), %xmm1
+	movupd 32(%rcx), %xmm2
+	movupd 48(%rcx), %xmm3
+
+	mulpd %xmm10, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm10, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm10, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm10, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%rcx)
+	movupd %xmm1, 16(%rcx)
+	movupd %xmm2, 32(%rcx)
+	movupd %xmm3, 48(%rcx)
+
+	# *(out3 +  0) += in0_3 * in1_0; 
+	# *(out3 +  1) += in0_3 * in1_1; 
+	# *(out3 +  2) += in0_3 * in1_2; 
+	# *(out3 +  3) += in0_3 * in1_3; 
+	# *(out3 +  4) += in0_3 * in1_4; 
+	# *(out3 +  5) += in0_3 * in1_5; 
+	# *(out3 +  6) += in0_3 * in1_6; 
+	# *(out3 +  7) += in0_3 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%rdx), %xmm0
+	movupd 16(%rdx), %xmm1
+	movupd 32(%rdx), %xmm2
+	movupd 48(%rdx), %xmm3
+
+	mulpd %xmm11, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm11, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm11, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm11, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%rdx)
+	movupd %xmm1, 16(%rdx)
+	movupd %xmm2, 32(%rdx)
+	movupd %xmm3, 48(%rdx)
+
+	# *(out4 +  0) += in0_4 * in1_0; 
+	# *(out4 +  1) += in0_4 * in1_1; 
+	# *(out4 +  2) += in0_4 * in1_2; 
+	# *(out4 +  3) += in0_4 * in1_3; 
+	# *(out4 +  4) += in0_4 * in1_4; 
+	# *(out4 +  5) += in0_4 * in1_5; 
+	# *(out4 +  6) += in0_4 * in1_6; 
+	# *(out4 +  7) += in0_4 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r12), %xmm0
+	movupd 16(%r12), %xmm1
+	movupd 32(%r12), %xmm2
+	movupd 48(%r12), %xmm3
+
+	mulpd %xmm12, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm12, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm12, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm12, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r12)
+	movupd %xmm1, 16(%r12)
+	movupd %xmm2, 32(%r12)
+	movupd %xmm3, 48(%r12)
+
+	# *(out5 +  0) += in0_5 * in1_0; 
+	# *(out5 +  1) += in0_5 * in1_1; 
+	# *(out5 +  2) += in0_5 * in1_2; 
+	# *(out5 +  3) += in0_5 * in1_3; 
+	# *(out5 +  4) += in0_5 * in1_4; 
+	# *(out5 +  5) += in0_5 * in1_5; 
+	# *(out5 +  6) += in0_5 * in1_6; 
+	# *(out5 +  7) += in0_5 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r13), %xmm0
+	movupd 16(%r13), %xmm1
+	movupd 32(%r13), %xmm2
+	movupd 48(%r13), %xmm3
+
+	mulpd %xmm13, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm13, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm13, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm13, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r13)
+	movupd %xmm1, 16(%r13)
+	movupd %xmm2, 32(%r13)
+	movupd %xmm3, 48(%r13)
+
+	# *(out6 +  0) += in0_6 * in1_0; 
+	# *(out6 +  1) += in0_6 * in1_1; 
+	# *(out6 +  2) += in0_6 * in1_2; 
+	# *(out6 +  3) += in0_6 * in1_3; 
+	# *(out6 +  4) += in0_6 * in1_4; 
+	# *(out6 +  5) += in0_6 * in1_5; 
+	# *(out6 +  6) += in0_6 * in1_6; 
+	# *(out6 +  7) += in0_6 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r14), %xmm0
+	movupd 16(%r14), %xmm1
+	movupd 32(%r14), %xmm2
+	movupd 48(%r14), %xmm3
+
+	mulpd %xmm14, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm14, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm14, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm14, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r14)
+	movupd %xmm1, 16(%r14)
+	movupd %xmm2, 32(%r14)
+	movupd %xmm3, 48(%r14)
+
+	# *(out7 +  0) += in0_7 * in1_0; 
+	# *(out7 +  1) += in0_7 * in1_1; 
+	# *(out7 +  2) += in0_7 * in1_2; 
+	# *(out7 +  3) += in0_7 * in1_3; 
+	# *(out7 +  4) += in0_7 * in1_4; 
+	# *(out7 +  5) += in0_7 * in1_5; 
+	# *(out7 +  6) += in0_7 * in1_6; 
+	# *(out7 +  7) += in0_7 * in1_7; 
+	movapd 0xC0(%rsp), %xmm4
+	movapd 0xD0(%rsp), %xmm5
+	movapd 0xE0(%rsp), %xmm6
+	movapd 0xF0(%rsp), %xmm7
+
+	movupd 0 (%r15), %xmm0
+	movupd 16(%r15), %xmm1
+	movupd 32(%r15), %xmm2
+	movupd 48(%r15), %xmm3
+
+	mulpd %xmm15, %xmm4
+	addpd %xmm4, %xmm0
+	mulpd %xmm15, %xmm5
+	addpd %xmm5, %xmm1
+	mulpd %xmm15, %xmm6
+	addpd %xmm6, %xmm2
+	mulpd %xmm15, %xmm7
+	addpd %xmm7, %xmm3
+
+	movupd %xmm0, 0 (%r15)
+	movupd %xmm1, 16(%r15)
+	movupd %xmm2, 32(%r15)
+	movupd %xmm3, 48(%r15)
+
+	addq $64, %rax   	# out0 += 8
+	addq $64, %rbx   	# out1 += 8
+	addq $64, %rcx   	# out2 += 8
+	addq $64, %rdx   	# out3 += 8
+	addq $64, %r12   	# out4 += 8
+	addq $64, %r13   	# out5 += 8
+	addq $64, %r14   	# out6 += 8
+	addq $64, %r15   	# out7 += 8
 	addq $64, %rdi   	# in1 += 8
 
 	subq $1, %r11   	# }
@@ -1804,7 +3034,7 @@ vmdot_product_double_4x32:
 	# Out _In0 _In1 k   n   In0S In0s In1s
 	# rdi rsi  rdx  rcx r8  r9   r10  r11 
 
-	# vmdot_product_4x16(Out + div, In0, _In1 + div, k, mod, In0S, In0s, In1s);
+	# vmdot_product_8x16(Out + div, In0, _In1 + div, k, mod, In0S, In0s, In1s);
 	movq 0x08(%rsp), %rdi
 	addq %rbx, %rdi
 	movq 0x10(%rsp), %rsi
@@ -1819,7 +3049,7 @@ vmdot_product_double_4x32:
 	movq %r10, 0x08(%rsp)
 	movq %r11, 0x10(%rsp)
 	addq $8, %rsp
-	call vmdot_product_double_4x16
+	call vmdot_product_double_8x16
 
 4:
 	movq %rbp, %rsp
