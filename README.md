@@ -48,7 +48,7 @@ The source file must be linked to the libclas archive during compiling e.g.:
 sh-4.3$ g++ sourcefile.cc -o executable.run -L/CLAS_LIB_DIRECTORY/ -lclas
 
 If it is desired to compare with BLAS, it is necessary to include the inclusions and linkage options specific to the
-tested BLAS implementation. An example of a BLAS vs CLAS test (using openBLAS) is included in tests/blasvstest.cc and
+tested BLAS implementation. An example of a BLAS vs CLAS test (using PpenBLAS) is included in tests/blasvstest.cc and
 can be compiled thus:
 
 sh-4.3$ make -f maketest
@@ -59,7 +59,9 @@ sh-4.3$ make -f maketest.gcc-5
 
 outputting to an executable bin/blasvsclas.run.
 
-It may be necessary to modify maketest or maketest.gcc5 to include the relevant paths to openBLAS for a given system.
+It may be necessary to modify maketest or maketest.gcc5 to include the relevant paths to OpenBLAS for a given system.
+For a fair test, please use the most recent stable release (OpenBLAS 0.2.19) because it appears OpenBLAS 0.2.20 kills
+all other multithreaded libraries.
 
 USAGE
 -----
@@ -137,7 +139,7 @@ disadvantaged by its BLAS heritage, especially in the context of deep learning, 
 
 - it does not include intuitive default values.
 
-- it provides no facility to specify the maximum number of threads used by different calls at runtime.
+- itself it provides no facility to specify the maximum number of threads used by specific calls at runtime.
 
 - it provides no option to offset the output matrix by a vector containing bias values added to the matrix product.
 
