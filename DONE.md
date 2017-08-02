@@ -26,3 +26,9 @@ The following scheme has been devised:
 C++ template calls C code for a given data type if a specific archetecture has been detected by the C pre-processor.
 The C will then perform the third loop from the inner-most calling assembler functions.
 The assembler functions (e.g. see vmdot_product_1.S) will then perform the two inner-most loops.
+
+The assembler performance of vmdot_product_1_to_8 produced a speed-up compared to C++ template code but not
+substantially so. In attempt to improve caching, an intermediate unroll step was introduced (vmdot_product_1x1x1,
+vmdot_product_2x2x2, and vmdot_product_4x4x4) which helps considerably, with the associated assembler well optimised but
+the number of cache swaps could be improved, perhaps looking at mcdot.
+

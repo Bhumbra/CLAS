@@ -6,7 +6,11 @@
 # include "_products_ut.txx"
 # include "clas_threads.txx"
 
+
 //------------------------------------------------------------------------------
+# define DEF_RMDOT_THREAD_LOAD_MIN_LO 1 // default minimum if m <= TC*num_threads
+# define DEF_RMDOT_THREAD_LOAD_MIN_HI 8 // default minimum otherwise
+# define DEF_RMDOT_THREAD_LOAD_MIN_TC 1 // TC (i.e. thresholding coefficient)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -105,8 +109,10 @@ static inline void rmdot_product_mt(T* Out,
 	In1s = n;
 
 	U nt = set_num_threads(NT);
+	U tc = U0 ? U0 : (U)DEF_RMDOT_THREAD_LOAD_MIN_TC;
+	U md = m <= tc * nt ? (U)DEF_RMDOT_THREAD_LOAD_MIN_LO : (U)DEF_RMDOT_THREAD_LOAD_MIN_HI;
 	U* td = new U[nt];
-	U Nt = set_thread_load(td, m, nt);
+	U Nt = set_thread_load(td, m, nt, md);
 	std::thread th[Nt];
 	
 	for (f = 0, h = 0; f<Nt; f++, h += g) {

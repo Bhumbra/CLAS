@@ -1,8 +1,7 @@
 # ifndef clas_threads_txx
 # define clas_threads_txx
 # include <thread>
-# include <iostream>
-using namespace std;
+//------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 template <class U>
 static inline U set_num_threads(volatile U NT = 0) { 

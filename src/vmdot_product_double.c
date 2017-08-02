@@ -54,11 +54,16 @@ static void vmdot_product_double_1 (double* Out, double* In0,
 			}
 			return;
 		}
-		default: { for (; h; h--) {
+		case 32: {
+			for (; h; h--) {
 				vmdot_product_double_1x32(Out, In0, In1, k, n, In0s, In1s); 
 				Out += OutS;
 				In0 += In0S;
 			}
+			return;
+		}
+		default: {
+			vmdot_product_double_1x1x1(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s);
 			return;
 		}
 	}
@@ -144,7 +149,7 @@ static void vmdot_product_double_2 (double* Out,
 			}
 			return;
 		}
-		default: {
+		case 32: {
 			for (; h; h--) {
 				vmdot_product_double_2x32(Out, In0, In1, k, n, In0S, In0s, In1s); 
 				Out += OutS * 2;
@@ -155,6 +160,10 @@ static void vmdot_product_double_2 (double* Out,
 				Out += OutS;
 				In0 += In0S;
 			}
+			return;
+		}
+		default: {
+			vmdot_product_double_2x2x2(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s);
 			return;
 		}
 	}
@@ -270,7 +279,7 @@ static void vmdot_product_double_4 (double* Out,
 			}
 			return;
 		}
-		default: {
+		case 32: {
 			for (; h; h--) {
 				vmdot_product_double_4x32(Out, In0, In1, k, n, In0S, In0s, In1s); 
 				Out += OutS * 4;
@@ -287,6 +296,10 @@ static void vmdot_product_double_4 (double* Out,
 				Out += OutS;
 				In0 += In0S;
 			}
+			return;
+		}
+		default: {
+			vmdot_product_double_4x4x4(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s);
 			return;
 		}
 	}

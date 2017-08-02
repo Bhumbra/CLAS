@@ -22,11 +22,12 @@ extern "C" {
 # include "_vmdot_product_2.txx"
 # include "_vmdot_product_4.txx"
 # include "_vmdot_product_8.txx"
+# include "_vmdot_product_m.txx"
 
 //------------------------------------------------------------------------------
 # define DEF_VMDOT_OUTER_UNROLL_MAX DEF_OUTER_UNROLL_MAX
 # define DEF_VMDOT_INNER_UNROLL_MAX DEF_INNER_UNROLL_MAX
-# define DEF_VMDOT_OUTER_UNROLL DEF_OUTER_UNROLL
+# define DEF_VMDOT_OUTER_UNROLL 4 // DEF_OUTER_UNROLL - 8 SSE4 hasn't been coded
 # define DEF_VMDOT_INNER_UNROLL DEF_INNER_UNROLL 
 
 //------------------------------------------------------------------------------
@@ -84,12 +85,16 @@ static inline void vmdot_product_1 (T* Out,
 			}
 			return;
 		}
-		default: {
+		case 32: {
 			for (; h; h--) {
 				vmdot_product_1x32(Out, In0, In1, k, n, In0s, In1s); 
 				Out += OutS;
 				In0 += In0S;
 			}
+			return;
+		}
+		default: {
+			vmdot_product_1x1x1(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s);
 			return;
 		}
 	}
@@ -108,8 +113,7 @@ static inline void vmdot_product_2 (T* Out,
 																		volatile U In0s = 0, 
 																		volatile U In1s = 0, 
 																		volatile U U1 = 0) { 
-	U h = m >> 1;
-	U mod = m & 1;
+	U h = m >> 1; U mod = m & 1;
 	switch (U1) {
 		case 1: {
 			for (; h; h--) {
@@ -176,7 +180,7 @@ static inline void vmdot_product_2 (T* Out,
 			}
 			return;
 		}
-		default: {
+		case 32: {
 			for (; h; h--) {
 				vmdot_product_2x32(Out, In0, In1, k, n, In0S, In0s, In1s); 
 				Out += OutS * 2;
@@ -189,9 +193,73 @@ static inline void vmdot_product_2 (T* Out,
 			}
 			return;
 		}
+		default: {
+			vmdot_product_2x2x2(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s);
+			return;
+		}
 	}
 }
 
+//------------------------------------------------------------------------------
+template <class T, class U>
+static inline void vmdot_product_3 (T* Out, 
+																		T* In0, 
+																		T* In1, 
+																		volatile const U m, 
+																		volatile const U k,
+																		volatile const U n,
+																		volatile U OutS = 0, 
+																		volatile U In0S = 0, 
+																		volatile U In0s = 0, 
+																		volatile U In1s = 0, 
+																		volatile U U1 = 0) { 
+	U g, h; 
+
+	switch (U1) {
+		case 1: {
+			for (h = m; h; h--) {
+				vmdot_product_1x1x1(Out, In0, In1, k, n, In0s, In1s); 
+				Out += OutS;
+				In0 += In0S;
+			}
+			return;
+		}
+		case 2: {
+			g = m & 1;
+			for (h = m >> 1; h; h--) {
+				vmdot_product_2x2x2(Out, In0, In1, k, n, In0S, In0s, In1s); 
+				Out += OutS * 2;
+				In0 += In0S * 2;
+			}
+			if (g) {
+				vmdot_product_1x1x1(Out, In0, In1, k, n, In0s, In1s); 
+				Out += OutS;
+				In0 += In0S;
+			}
+			return;
+		}
+		default: {
+			g = m & 3;
+			for (h == m >> 2; h; h--) {
+				vmdot_product_4x4x4(Out, In0, In1, k, n, In0S, In0s, In1s); 
+				Out += OutS * 4;
+				In0 += In0S * 4;
+			}
+			if (g > 1) {
+				vmdot_product_2x2x2(Out, In0, In1, k, n, In0S, In0s, In1s); 
+				Out += OutS * 2;
+				In0 += In0S * 2;
+				g &= 1;
+			}
+			if (g) {
+				vmdot_product_1x1x1(Out, In0, In1, k, n, In0S, In1s); 
+				Out += OutS;
+				In0 += In0S;
+			}
+			return;
+		}
+	}
+}
 //------------------------------------------------------------------------------
 template <class T, class U>
 static inline void vmdot_product_4 (T* Out, 
@@ -303,7 +371,7 @@ static inline void vmdot_product_4 (T* Out,
 			}
 			return;
 		}
-		default: {
+		case 32: {
 			for (; h; h--) {
 				vmdot_product_4x32(Out, In0, In1, k, n, In0S, In0s, In1s); 
 				Out += OutS * 4;
@@ -320,6 +388,10 @@ static inline void vmdot_product_4 (T* Out,
 				Out += OutS;
 				In0 += In0S;
 			}
+			return;
+		}
+		default: {
+			vmdot_product_4x4x4(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s);
 			return;
 		}
 	}
@@ -535,9 +607,15 @@ static inline void vmdot_product_0 (T* Out,
 																				(uint64_t)In0S, (uint64_t)In0s, (uint64_t)In1s, (uint64_t)U1);
 					//return vmdot_product_4(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, U1);
 				}
-				default: {
+				case 8: {
 					return VMDOT_PRODUCT_DOUBLE_8(Out, In0, In1, (uint64_t)m, (uint64_t)k, (uint64_t)n, (uint64_t)OutS, 
 																				(uint64_t)In0S, (uint64_t)In0s, (uint64_t)In1s, (uint64_t)U1);
+					//return vmdot_product_8(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, U1);
+				}
+				default: { // default to 4
+					return VMDOT_PRODUCT_DOUBLE_4(Out, In0, In1, (uint64_t)m, (uint64_t)k, (uint64_t)n, (uint64_t)OutS, 
+																				(uint64_t)In0S, (uint64_t)In0s, (uint64_t)In1s, (uint64_t)U1);
+					//return vmdot_product_4(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, U1);
 				}
 			}
 		}
@@ -552,8 +630,11 @@ static inline void vmdot_product_0 (T* Out,
 				case 4: {
 					return vmdot_product_4(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, U1);
 				}
-				default: {
+				case 8: {
 					return vmdot_product_8(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, U1);
+				}
+				default: { // default to 4
+					return vmdot_product_4(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, U1);
 				}
 			}
 		}
@@ -575,28 +656,30 @@ static inline void vmdot_product (T* Out,
 																	T* In2 = 0,
 																	volatile U In2S = 0, 
 																	volatile U In2s = 0, 
-																	volatile U U0 = 0,
-																	volatile U U1 = 0,
+																	volatile U _U0 = 0,
+																	volatile U _U1 = 0,
 																	volatile U Arch = 0) { 
+	U U0 = _U0;
+	U U1 = _U1;
+	U L = (U)DEF_CACHE_LINE_SIZE/sizeof(T);
+
 	if (U0 && U1) {
 		return vmdot_product_0(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, In2, In2S, In2s, U0, U1, Arch);
 	}
-	if (!U0) {
-		U0 = DEF_VMDOT_OUTER_UNROLL;
-	}
-	while (U0 > m) {
-		U0 >>= 1;
-	}
-	if (U0 > DEF_VMDOT_OUTER_UNROLL_MAX) {U0 = DEF_VMDOT_OUTER_UNROLL_MAX;}
-	if (U1) {
-		return vmdot_product_0(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, In2, In2S, In2s, U0, U1, Arch);
-	}
-	U1 = n % DEF_VMDOT_INNER_UNROLL  ? (U)(DEF_VMDOT_INNER_UNROLL/2) : (U)(DEF_VMDOT_INNER_UNROLL);
-	if (U1 > DEF_VMDOT_OUTER_UNROLL_MAX) {U1 = DEF_VMDOT_OUTER_UNROLL_MAX;}
 
-	U L = (U)DEF_CACHE_LINE_SIZE/sizeof(T);
+	if (!U0) {
+		U0 = set_outer_unroll(m, (U)DEF_VMDOT_OUTER_UNROLL);
+		if (U0 > DEF_VMDOT_OUTER_UNROLL_MAX) {U0 = DEF_VMDOT_OUTER_UNROLL_MAX;}
+	}
+	if (!U1) { 
+		if (!_U0 && m < 2) {U1 = set_inner_unroll(n, (U)DEF_VMDOT_INNER_UNROLL);}
+		if (U1 > DEF_VMDOT_INNER_UNROLL_MAX) {U1 = DEF_VMDOT_INNER_UNROLL_MAX;}
+	}
+
+	// Attempt alignment of Out to cache line-size alignment if U1 not entered
+
 	U N = next_aligned_index(Out, L, n);
-	if (!N) {
+	if (!N || _U1) {
 		return vmdot_product_0(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, In2, In2S, In2s, U0, U1, Arch);
 	}
 	vmdot_product_0(Out, In0, In1, m, k, N, OutS, In0S, In0s, In1s, In2, In2S, In2s, U0, U1, Arch);

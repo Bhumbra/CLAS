@@ -24,3 +24,4 @@ The assembler code for vmdot, mcdot, and mrdot must be coded to optimise caching
 further unroll strategies have been devised. Interestingly assembly code for rmdot_double_1 is complete with a
 performance similar to C++, showing gcc -O3 optimisation is very good for vectors even if not for matrices.
 
+The SSE2 assembler for vmdot is done. Need to do mcdot next.
