@@ -663,26 +663,33 @@ static inline void vmdot_product (T* Out,
 	U U1 = _U1;
 	U L = (U)DEF_CACHE_LINE_SIZE/sizeof(T);
 
-	if (U0 && U1) {
+	if (U0 && (U1 && U1 < (U)(-DEF_VMDOT_INNER_UNROLL_MAX))) {
 		return vmdot_product_0(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, In2, In2S, In2s, U0, U1, Arch);
 	}
 
 	if (!U0) {
 		U0 = set_outer_unroll(m, (U)DEF_VMDOT_OUTER_UNROLL);
-		if (U0 > DEF_VMDOT_OUTER_UNROLL_MAX) {U0 = DEF_VMDOT_OUTER_UNROLL_MAX;}
 	}
+	if (U0 > DEF_VMDOT_OUTER_UNROLL_MAX) {U0 = DEF_VMDOT_OUTER_UNROLL_MAX;}
 	if (!U1) { 
 		if (!_U0 && m < 2) {U1 = set_inner_unroll(n, (U)DEF_VMDOT_INNER_UNROLL);}
+	}
+	if (U1 < (U)(-DEF_VMDOT_INNER_UNROLL_MAX)) {
 		if (U1 > DEF_VMDOT_INNER_UNROLL_MAX) {U1 = DEF_VMDOT_INNER_UNROLL_MAX;}
 	}
 
-	// Attempt alignment of Out to cache line-size alignment if U1 not entered
+	// Attempt alignment of In1 to cache line-size alignment if U0 and U1 not entered
 
-	U N = next_aligned_index(Out, L, n);
-	if (!N || _U1) {
+	if (_U1 < (U)(-DEF_VMDOT_INNER_UNROLL_MAX)) {
 		return vmdot_product_0(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, In2, In2S, In2s, U0, U1, Arch);
 	}
+	else {
+		U1 = (U)(-U1);
+	}
+	
+	U N = next_aligned_index(In1, L, n);
 	vmdot_product_0(Out, In0, In1, m, k, N, OutS, In0S, In0s, In1s, In2, In2S, In2s, U0, U1, Arch);
+	if (!N) {return;}
 	vmdot_product_0(Out+N, In0, In1+N, m, k, n-N, OutS, In0S, In0s, In1s, In2+In2s*N, In2S, In2s, U0, U1, Arch);
 }
 

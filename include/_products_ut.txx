@@ -197,6 +197,10 @@ static inline void rmdot_product_ut(T* Out,
 	In0s = (U)1;
 	In1s = n;
 
+	if (sizeof(T) == 8) {
+		shared_read_cache_prefetch_double_cols(In1, k, n, (U)DEF_SHARED_CACHE_PER_THREAD);
+	}
+
 	return vmdot_product(Out, In0, In1, m, k, n, OutS, In0S, In0s, In1s, In2, In2S, In2s, U0, U1, Arch);
 }
 

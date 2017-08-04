@@ -1697,6 +1697,96 @@ static void mmdot_product_4x4x8 (T* _Out,
 		}
 	}
 }
+//------------------------------------------------------------------------------
+template <class T, class U>
+static inline void mmdot_product_64x64 (T* _Out, 
+																				T* _In0, 
+																				T* _In1, 
+																				volatile const U m,
+																				volatile const U k, 
+																			  volatile const U n) { 
+	U i, j; 
+	U m6. k6, n6;
+	U m3, k3, n3;
+	U m0, k0, n0;
+	m6 = m >> 6;
+	k6 = k >> 6;
+	n6 = n >> 6;
+	m3 = m6 << 3;
+	k3 = k6 << 3;
+	n3 = n6 << 3;
+	m0 = m3 << 3;
+	k0 = k3 << 3;
+	n0 = n3 << 3;
+
+	T T1[1600];								// Out (8x8), In0d (8x64), In1 (64x8)
+	T T2[16384];							// Out (64x64), In0d (64x64), In1d (64x64)
+	T* T3 = new T[k0 + n0];		// all of In2 divided 64x64 along row
+
+	T* In1_T3 = T3;
+	T* Out_T2 = T2;
+	T* In0_T1 = Out_T2 + 4096;
+	T* In1_T1 = In1_T2 + 8192;
+	T* Out_T1 = T1;
+	T* In0_T1 = Out_T1 + 64;
+	T* In1_T1 = In0_T1 + 1024;
+
+	T* In1o = In2_T3;
+	T* In1i = _In1;
+	T *in1o, *in1i;
+
+	// Level 3
+
+	for (i = 0; i < k6; i++) {
+		in1o = In1o;
+		in1i = In1i;
+		In1o += 4096 * n6;
+		In1i += 64 * n;
+		for (j = 0; j < n6; j++) {
+			replicate_8(in1o, (U)64, (U)64, In1i, (U)64, n, (U)1, (U)1);
+			in1o += 64;
+			In1i += 64;
+		}
+	}
+
+	// Level 2
+
+	T* Outo = Out_T2;
+	T* Outi = _Out;
+	T *outo, *outi;
+
+	for (i = 0; i < m6; i++) {
+		outo = Outo;
+		outi = outi;
+		Outo += 4096 * n6;
+		Outi += 64 * n;
+		for (j = 0; j < n6; j++) {
+			replicate_8(outo, (U)64, (U)64, outi, (U)64, n, (U)1, (U)1);
+			outo += 64;
+			outi += 64;
+		}
+	}
+
+	T* In0o = In0_T2;
+	T* In0i = _In0;
+	T *in0s, *outi;
+
+	for (i = 0; i < m6; i++) {
+		in0o = In0o;
+		in0i = In0i;
+		in0s += 4096 * n6;
+		Outi += 64 * n;
+		for (j = 0; j < n6; j++) {
+			replicate_8(outo, (U)64, (U)64, outi, (U)64, n, (U)1, (U)1);
+			outo += 64;
+			outi += 64;
+		}
+	}
+	
+
+
+	delete[] L3;
+}
 
 //------------------------------------------------------------------------------
 #endif

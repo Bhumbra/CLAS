@@ -108,16 +108,23 @@ static inline void rmdot_product_mt(T* Out,
 	In0s = (U)1;
 	In1s = n;
 
+	
 	U nt = set_num_threads(NT);
 	U tc = U0 ? U0 : (U)DEF_RMDOT_THREAD_LOAD_MIN_TC;
 	U md = m <= tc * nt ? (U)DEF_RMDOT_THREAD_LOAD_MIN_LO : (U)DEF_RMDOT_THREAD_LOAD_MIN_HI;
 	U* td = new U[nt];
 	U Nt = set_thread_load(td, m, nt, md);
 	std::thread th[Nt];
+
+	if (sizeof(T) == 8) {
+		shared_read_cache_prefetch_double_cols(In1, k, n, Nt*(U)DEF_SHARED_CACHE_PER_THREAD);
+	}
 	
 	for (f = 0, h = 0; f<Nt; f++, h += g) {
 		g = td[f];
-		th[f] = std::thread(vmdot_product<T,U>, Out+h*n, In0+h*In0S, In1, g, k, n, OutS, In0S, In0s, In1s, In2+h*In2S, In2S, In2s, U0, U1, Arch);
+		th[f] = std::thread(vmdot_product<T,U>, Out+h*n, In0+h*In0S, In1, g, k, n, 
+																						OutS, In0S, In0s, In1s, In2+h*In2S, In2S, In2s, 
+																						U0, U1, Arch);
 	}
 	for (f = 0; f<Nt; f++) {
 		th[f].join();
@@ -234,6 +241,7 @@ static inline void mrdot_product_mt(T* Out,
 	U* td = new U[nt];
 	U Nt = set_thread_load(td, n, nt);
 	std::thread th[Nt];
+
 	for (f = 0, h = 0; f<Nt; f++, h += g) {
 		g = td[f];
 		th[f] = std::thread(mrdot_product<T,U>, Out+h*OutS, In0, In1+h*k, m, k, g, OutS, Outs, In0s, In1s, In2+h*In2S, In2S, In2s, U0, U1);
@@ -299,7 +307,7 @@ static inline void mcdot_product_mt(T* Out,
 	U* td = new U[nt];
 	U Nt = set_thread_load(td, n, nt);
 	std::thread th[Nt];
-	
+
 	for (f = 0, h = 0; f<Nt; f++, h += g) {
 		g = td[f];
 		th[f] = std::thread(mcdot_product<T,U>, Out+h*OutS, In0, In1+h, m, k, g, OutS, Outs, In0s, In1s, In2+h*In2S, In2S, In2s, U0, U1);
