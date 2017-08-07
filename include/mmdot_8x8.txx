@@ -1,5 +1,8 @@
-#ifndef _mmdot_8x8_txx
-#define _mmdot_8x8_txx
+# ifndef _mmdot_8x8_txx
+# define _mmdot_8x8_txx
+
+# include "cacher.txx"
+
 using namespace std;
 //------------------------------------------------------------------------------
 // Note In1s is also the output stride
@@ -1705,7 +1708,17 @@ static inline void mmdot_product_64x64 (T* _Out,
 																				volatile const U m,
 																				volatile const U k, 
 																			  volatile const U n) { 
-	U i, j; 
+// A possible vmdot read cache scheme (for thread-safety do not cache Out):
+// Fast: In0 (8x64x2)    , In1T (64x8)       - 12288
+// Slow: In0 ([_8x8x64x2), In1T (64x[8x_8]) - 98304
+// Shared: In1
+	double _cache[12544];
+	T* cache = _cache + nextAlignedInd((T*)_cache, 256);
+	T *Out, *_out, *out;
+	T *In0, *_in0, *in0;
+	T *In1, *_in1, *in1;
+
+	U f, g, h, i, j; 
 	U m6. k6, n6;
 	U m3, k3, n3;
 	U m0, k0, n0;
@@ -1715,77 +1728,42 @@ static inline void mmdot_product_64x64 (T* _Out,
 	m3 = m6 << 3;
 	k3 = k6 << 3;
 	n3 = n6 << 3;
-	m0 = m3 << 3;
-	k0 = k3 << 3;
-	n0 = n3 << 3;
 
-	T T1[1600];								// Out (8x8), In0d (8x64), In1 (64x8)
-	T T2[16384];							// Out (64x64), In0d (64x64), In1d (64x64)
-	T* T3 = new T[k0 + n0];		// all of In2 divided 64x64 along row
+	cacher<T, U> Cacher = cacher(cache, (U)2);
+	_in0 = Cacher.setUnit((U)0, (U)64, (U)64, (U)2);
+	_in1 = Cacher.setUnit((U)1, (U)64, (U)64, (U)1);
 
-	T* In1_T3 = T3;
-	T* Out_T2 = T2;
-	T* In0_T1 = Out_T2 + 4096;
-	T* In1_T1 = In1_T2 + 8192;
-	T* Out_T1 = T1;
-	T* In0_T1 = Out_T1 + 64;
-	T* In1_T1 = In0_T1 + 1024;
+	In0 = _In0;
+	Out = _Out;
 
-	T* In1o = In2_T3;
-	T* In1i = _In1;
-	T *in1o, *in1i;
+	for (e = m6; e; e--) {
+		Cacher.prefetch((U)0, (U)1, (U)2);
+		Cacher.cpyToUnit((U)0, In0, k, (U)1);
+		In0 += (U)8192;
+		for (f = (U)0; f < (U)8192; f += (U)1024) {
+			in0 = _in0;
+			In1 = _In1;
+			Cacher.prefetch(U)0, (U)0, (U)3, f, f+(U)1024);
+			_out = Out;
+			Out += (U)64 * n;
+			for (g = n6; g; g--) {
+				Cacher.prefetch((U)1, (U)1, (U)2);
+				Cacher.cpyToUnit((U)1, (U)1, n, (U)1);
+				In1 += (U)4096;
+				for (h = (U)0; h < (U)4096; h += (U)512) {
+					in1 = _in1;
+					Cacher.prefetch((U)1, (U)0, (U)3, h, h+(U)512);
+					out = _out;
+					_out += (U)64;
+					for (i = (U)8; i; i--) {
+						for (j = (U)8; j; j--) {
 
-	// Level 3
-
-	for (i = 0; i < k6; i++) {
-		in1o = In1o;
-		in1i = In1i;
-		In1o += 4096 * n6;
-		In1i += 64 * n;
-		for (j = 0; j < n6; j++) {
-			replicate_8(in1o, (U)64, (U)64, In1i, (U)64, n, (U)1, (U)1);
-			in1o += 64;
-			In1i += 64;
+						}
+					}
+				}
+			}
 		}
 	}
-
-	// Level 2
-
-	T* Outo = Out_T2;
-	T* Outi = _Out;
-	T *outo, *outi;
-
-	for (i = 0; i < m6; i++) {
-		outo = Outo;
-		outi = outi;
-		Outo += 4096 * n6;
-		Outi += 64 * n;
-		for (j = 0; j < n6; j++) {
-			replicate_8(outo, (U)64, (U)64, outi, (U)64, n, (U)1, (U)1);
-			outo += 64;
-			outi += 64;
-		}
-	}
-
-	T* In0o = In0_T2;
-	T* In0i = _In0;
-	T *in0s, *outi;
-
-	for (i = 0; i < m6; i++) {
-		in0o = In0o;
-		in0i = In0i;
-		in0s += 4096 * n6;
-		Outi += 64 * n;
-		for (j = 0; j < n6; j++) {
-			replicate_8(outo, (U)64, (U)64, outi, (U)64, n, (U)1, (U)1);
-			outo += 64;
-			outi += 64;
-		}
-	}
-	
-
-
-	delete[] L3;
 }
 
 //------------------------------------------------------------------------------
