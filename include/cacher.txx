@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-// Architecture-unoependent class for caching multiple data units within a 
+// Architecture-independent class for caching multiple data units within a 
 // single cache source.
 
 //------------------------------------------------------------------------------
@@ -33,9 +33,9 @@ U nextAlignedInd(const T* ptr, U alb) {
 	uint64_t sot, mod;
 	sot = (uint64_t)(sizeof(T));
 	if (!alb) {alb = sot;};
-	mod = ((uint64_t)(ptr) * sot) % (uint64_t)(alb);
+	mod = (uint64_t)(ptr) % (uint64_t)(alb);
 	if (!mod) {return (U)0;}
-	return ( (U) (((uint64_t)(alb) - mod) / sot));
+	return ( (U) ((alb - mod)/sot) );
 }
 
 //------------------------------------------------------------------------------

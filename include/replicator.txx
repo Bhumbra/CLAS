@@ -13,19 +13,19 @@ class replicator {
 		replicator<T, U>(T* _OP, U _O2);
 		~replicator<T, U>();
 		void setO(T* _OP, U _O0 = (U)0, U _O1 = (U)0, U _O2 = (U)0);
-		void setO(U _O0 = (U)0, U _O1 = (U)0);
+		void setO(U _O0, U _O1 = (U)0);
 		void setI(T* _IP, U _I0 = (U)0, U _I1 = (U)0);
-		void setI(U _I0 = (U)0, U _I1 = (U)0);
+		void setI(U _I0, U _I1 = (U)0);
 		T* retOP();
 		U retOL();
 		void copy();
 	protected:
 		void init(T* _OP = (U)0, U _O2 = (U)0);
-		U OP; // output pointer
+		T* OP; // output pointer
 		U O0; // output outer dimension
 		U O1; // output inner dimension
 		U O2; // output innermost cloned dimension
-		U IP; // input pointer
+		T* IP; // input pointer
 		U I0; // input outer stride
 		U I1; // input inner stride
 		void copy_1();
@@ -167,7 +167,7 @@ void replicator<T, U>::copy_2() {
 			ip += s;
 			*(op + 0) = t;
 			*(op + 1) = t;
-			op ++;
+			op += 2;
 		}
 	}
 }

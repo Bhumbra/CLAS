@@ -8,6 +8,9 @@
 // Fast: In0 (8x64x2)    , In1T (64x8)       - 12288
 // Slow: In0 ([_8x8x64x2), In1T (64x[8x_8]) - 98304
 // Shared: In1
+//
+// Double length:	pre-aligned  12320 
+//								post-aligned 12288
 
 //------------------------------------------------------------------------------
 # include "replicator.txx"
