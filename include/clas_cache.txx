@@ -4,9 +4,9 @@
 //------------------------------------------------------------------------------
 # include "clas_defs.h"
 
-// A possible vmdot read cache scheme (for thread-safety do not cache Out):
-// Fast: In0 (8x64x2)    , In1T (64x8)       - 12288
-// Slow: In0 ([_8x8]x64x2), In1T (64x[8x_8]) - 98304
+// A possible vmdot read cache scheme (for thread-safety do not cache OUT):
+// Fast: out(8), In0 (8x64x2)     , In1T (64x8)         - 12352
+// Slow: out(8*_8), In0 ([_8x8]x64x2), In1T (64x[8x_8]) - 98816
 // Shared: In1
 
 //------------------------------------------------------------------------------
