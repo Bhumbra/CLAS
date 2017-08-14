@@ -1,34 +1,6 @@
-Completed:
+Completed: template code for following array products:  ewise (element wise), outer, and inner.
 
-Template code for following array products:
-
-- ewise (element wise).
-- outer
-- inner
-- rmdot (row vector x matrix): 1x1 to 8x32 - using vmdot
-- cmdot (col vector x matrix): 1x1 to 8x32 - using vmdot
-- mrdot (matrix x row vector): 1x1 to 8x32
-- mcdot (matrix x col vector): 1x1 to 8x32
-
-Template code for mmdot single- and multi-threaded products accommodating all 8 possible transposition permutations.
-
-With mcdot and mrdot, template code has been improved to attempt unroll scheme to follow data alignment along cache line
-boundaries (see TODO).
-
-With rmdot and cmdot, the unrolled template functions have been fused so that both functional forms call vmdot which
-accommodates for both stride specifications with neglible overhead. No such fusion is possible or desired for mcdot or
-mrdot.
-
-The makefiles have been modified to archive built objects from C++, C, and assembler sources.
-
-The following scheme has been devised:
-
-C++ template calls C code for a given data type if a specific archetecture has been detected by the C pre-processor.
-The C will then perform the third loop from the inner-most calling assembler functions.
-The assembler functions (e.g. see vmdot_product_1.S) will then perform the two inner-most loops.
-
-The assembler performance of vmdot_product_1_to_8 produced a speed-up compared to C++ template code but not
-substantially so. In attempt to improve caching, an intermediate unroll step was introduced (vmdot_product_1x1x1,
-vmdot_product_2x2x2, and vmdot_product_4x4x4) which helps considerably, with the associated assembler well optimised but
-the number of cache swaps could be improved, perhaps looking at mcdot.
-
+Different implementations of matrix-matrix multiplication (mmdot) have been tested for all 8 possible transposition
+permutations, but will be improved by cache manager classes which are currently being coded. Unfortunately gcc still
+cannot SIMD-compile code from these manager classes so a combination of inline assembler (for copying) and native
+assembler need to be coded.

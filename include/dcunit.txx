@@ -16,7 +16,7 @@
 //------------------------------------------------------------------------------
 
 // comment next line to disable prefetching
-# define DO_NOT_PREFETCH 1
+// # define DO_NOT_PREFETCH 1
 
 # ifndef DO_NOT_PREFETCH
 # define PREFETCH_READ_0(PREFETCH_PTR) __builtin_prefetch (PREFETCH_PTR, 0, 0)
@@ -63,14 +63,14 @@ class dcunit {
 		T* setC(T* _CP, U _C0 = (U)0, U _C1 = (U)1, U _C2 = (U)1);
 		void setC(U _C0, U _C1 = (U)1, U _C2 = (U)1);
 		void setI(T* _IP = (T*)0, U _I0 = (U)0, U _I1 = (U)1);
-		void setO(T* _OP = (T*)0, U _O0 = (U)0);
+		void setO(T* _OP = (T*)0, U _OS = (U)0);
 		T* retCP();
 		U retCI();
 		U retCL();
 		void copyFr();
 		void copyFr(T* _IP, U _I0 = (U)0, U _I1 = (U)0);
 		void copyTo();
-		void copyTo(T* _OP, U _O0 = (U)0);
+		void copyTo(T* _OP, U _OS = (U)0);
 		U prefetch (U rw = (U)0, U locality = (U)3, U ind_beg = (U)0, U ind_end = (U)0);
 	protected:
 		void init(T* _CP = (U)0, U _A1 = (U)0);
@@ -87,7 +87,7 @@ class dcunit {
 		U I0; // input outer stride
 		U I1; // input inner stride
 		T* OP; // output pointer
-		U O0; // output outer stride
+		U OS; // output outer stride
 };
 
 //---------------------------------------------------------------------------
@@ -155,9 +155,9 @@ void dcunit<T, U>::setI(T* _IP, U _I0, U _I1) {
 
 //---------------------------------------------------------------------------
 template <class T, class U>
-void dcunit<T, U>::setO(T* _OP, U _O0) {
+void dcunit<T, U>::setO(T* _OP, U _OS) {
 	this -> OP = _OP;
-	this -> O0 = (U)_O0 ? _O0 : this -> C0;
+	this -> OS = (U)_OS ? _OS : this -> C0;
 }
 
 //---------------------------------------------------------------------------
@@ -202,17 +202,17 @@ template <class T, class U>
 void dcunit<T, U>::copyTo() {
 	replicate(this -> OP, 
 						this -> C0, 
-						this -> C1,
-						this -> O0,
+						this -> CI,
+						this -> OS, 
 						this -> CP,
-						this -> C0,
+						this -> CI,
 						(U)1,
 						this -> C2);
 }
 //---------------------------------------------------------------------------
 template <class T, class U>
-void dcunit<T, U>::copyTo(T* _OP, U _O0) {
-	this -> setO(_OP, _O0);
+void dcunit<T, U>::copyTo(T* _OP, U _OS) {
+	this -> setO(_OP, _OS);
 	this -> copyTo();
 }
 

@@ -8,10 +8,10 @@
 
 //---------------------------------------------------------------------------
 
-#include <iostream>
-#include <cblas.h>
-#include <clas.h>
-#include "tictoc.txx"
+# include <iostream>
+# include <cblas.h>
+# include <clas.h>
+# include "tictoc.txx"
 
 #pragma hdrstop
 #pragma argsused
@@ -35,6 +35,7 @@ int main(int argc, char* argv[])
 	bool showInputs = false;
 	bool showResult[] = {0, 0, 0};
 	bool benchMark[] =  {1, 1, 1}; 
+	uint64_t repDispMax = 10;
 
 	uint64_t nt = 0; // number of threads (-1 - force unithread, 0 - all threads) 
 	uint64_t u0 = 0; // maximum outer unroll (0 - optimal)
@@ -43,7 +44,6 @@ int main(int argc, char* argv[])
 	double c0 = 1.;  // coefficient to multiply with multiplicand
 	double c1 = 1.;  // coefficient to multiply with multiple
 	int maxuend = 0;  // 0 means not used - non-zero is casted to double
-
 
 	uint64_t zr, zc;
 	double* d = 0;
@@ -77,8 +77,8 @@ int main(int argc, char* argv[])
 	double* z = new double[zr * zc]; 
 	double** Z = new double*[zr];
 
-
-	struct timeb t;
+	struct timeb t, t0;
+	double* dt = new double[N+1];
 
 	for (i = 0; i < m*k; i++) {
 		a[i] = (double)((int)(i+1)) * c0;
@@ -177,33 +177,57 @@ int main(int argc, char* argv[])
 	std::cout << std::endl;
 	h = 0;
 	if (benchMark[h++]) {
-		tic(t);
+		tic(t0);
 		for (i = 0; i<N; i++) {
+			tic(t);
 			cblas_dgemm(CblasRowMajor, aT, bT,
 									m, n, k, 1.,
 									a, lda, b, ldb, 1., 
 									c, n);
+			dt[i] = 1000. * toc(t);
 		}
-		std::cout << "cblas_dgemm: elapsed time = " << toc(t) << " seconds" << std::endl;
+		std::cout << "cblas_dgemm:" << std::endl;
+		if (N <= repDispMax) {
+			for (i = 0; i<N; i++) {
+				std::cout << "\t Rep #" << i << ": " << dt[i] << " ms" << std::endl;
+			}
+		}
+		std::cout << "\t Mean time per rep. = " << (1000.*toc(t0))/(double)(N) << " ms" << std::endl;
 	}
 
 	if (benchMark[h++]) {
-		tic(t);
+		tic(t0);
 		for (i = 0; i<N; i++) {
+			tic(t);
 			clas::mmdot_product_double(z, x, y, m, k, n, transpose[0], transpose[1], transpose[2], ColMajor, d, -1, u0, u1);
+			dt[i] = 1000. * toc(t);
 		}
-		std::cout << "clas::mmdot_product_double (single thread): elapsed time = " << toc(t) << " seconds" << std::endl;
+		std::cout << "clas::mmdot_product_double (single thread):" << std::endl;
+		if (N <= repDispMax) {
+			for (i = 0; i<N; i++) {
+				std::cout << "\t Rep #" << i << ": " << dt[i] << " ms" << std::endl;
+			}
+		}
+		std::cout << "\t Mean time per rep. = " << (1000.*toc(t0))/(double)(N) << " ms" << std::endl;
 	}
 
 	if (benchMark[h++]) {
-		tic(t);
+		tic(t0);
 		for (i = 0; i<N; i++) {
+			tic(t);
 			clas::mmdot_product_double(z, x, y, m, k, n, transpose[0], transpose[1], transpose[2], ColMajor, d, nt, u0, u1);
+			dt[i] = 1000. * toc(t);
 		}
-		std::cout << "clas::mmdot_product_double (multithreaded): elapsed time = " << toc(t) << " seconds" << std::endl;
+		std::cout << "clas::mmdot_product_double (multithreaded):" << std::endl;
+		if (N <= repDispMax) {
+			for (i = 0; i<N; i++) {
+				std::cout << "\t Rep #" << i << ": " << dt[i] << " ms" << std::endl;
+			}
+		}
+		std::cout << "\t Mean time per rep. = " << (1000.*toc(t0))/(double)(N) << " ms" << std::endl;
 	}
 
-
+	delete[] dt;
 	delete[] x;
 	delete[] y;
 	delete[] a;

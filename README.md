@@ -17,9 +17,9 @@ true in practice.
 
 INSTALLATION
 ------------
-No formal installer has yet been written. However the complexities of combining C++, C, and assembler means that CLAS
-should not be compiled manually but only through the makefile. Check (using `gcc -v') that your default g++ version is
-5.2 or later. If so the CLAS library can be compiled using:
+No formal installer has yet been written. However the combination of C++, C, and assembler code means that CLAS should
+not be compiled manually but only through the makefile. Check (using `gcc -v') that your default g++ version is 5.2 or
+later. If so the CLAS library can be compiled using:
 
 sh-4.3$ make 
 
@@ -150,7 +150,7 @@ for deep learning applications:
 - distribute thread loads evenly so each thread corresponds to a node or group of nodes with minimal write
   inter-dependence.
 
-- minimal data copying but optimising read/write caching by using dynamic sizes for outer and inner loop-unrolls.
+- recruit threads as required for optimum performance up to a user-specifiable maximum.
 
 - minimal memory footprint inside and outside each thread (i.e. no 'malloc', 'new' etc... to allocate floating point
   arrays).

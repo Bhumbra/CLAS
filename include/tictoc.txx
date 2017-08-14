@@ -16,14 +16,11 @@ double toc(T& t0)
 {
   T t;
   ftime(&t);
-  double dt;
+  double Dt, dt;
 
-  dt = (double) t.millitm;
-  dt = dt - t0.millitm;
-  dt = dt / 1000;
-  dt = dt + t.time - t0.time;
-
-  return(dt);
+  dt = (int) t.millitm - (int)t0.millitm;
+	dt += 1000. * ((int) t.time    - (int)t0.time);
+  return(0.001*dt);
 }
 //---------------------------------------------------------------------------
  
