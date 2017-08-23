@@ -2975,7 +2975,6 @@ static inline void replicate_8x8x1 (T* O,
 						*(o5 +   0) = *(i5 +   0);
 						*(o6 +   0) = *(i6 +   0);
 						*(o7 +   0) = *(i7 +   0);
-						/*
 						*(o0 +   1) = *(i0 +   1);
 						*(o1 +   1) = *(i1 +   1);
 						*(o2 +   1) = *(i2 +   1);
@@ -2984,7 +2983,6 @@ static inline void replicate_8x8x1 (T* O,
 						*(o5 +   1) = *(i5 +   1);
 						*(o6 +   1) = *(i6 +   1);
 						*(o7 +   1) = *(i7 +   1);
-						*/
 						*(o0 +   2) = *(i0 +   2);
 						*(o1 +   2) = *(i1 +   2);
 						*(o2 +   2) = *(i2 +   2);
@@ -2993,7 +2991,6 @@ static inline void replicate_8x8x1 (T* O,
 						*(o5 +   2) = *(i5 +   2);
 						*(o6 +   2) = *(i6 +   2);
 						*(o7 +   2) = *(i7 +   2);
-						/*
 						*(o0 +   3) = *(i0 +   3);
 						*(o1 +   3) = *(i1 +   3);
 						*(o2 +   3) = *(i2 +   3);
@@ -3002,7 +2999,6 @@ static inline void replicate_8x8x1 (T* O,
 						*(o5 +   3) = *(i5 +   3);
 						*(o6 +   3) = *(i6 +   3);
 						*(o7 +   3) = *(i7 +   3);
-						*/
 						*(o0 +   4) = *(i0 +   4);
 						*(o1 +   4) = *(i1 +   4);
 						*(o2 +   4) = *(i2 +   4);
@@ -3011,7 +3007,6 @@ static inline void replicate_8x8x1 (T* O,
 						*(o5 +   4) = *(i5 +   4);
 						*(o6 +   4) = *(i6 +   4);
 						*(o7 +   4) = *(i7 +   4);
-						/*
 						*(o0 +   5) = *(i0 +   5);
 						*(o1 +   5) = *(i1 +   5);
 						*(o2 +   5) = *(i2 +   5);
@@ -3020,7 +3015,6 @@ static inline void replicate_8x8x1 (T* O,
 						*(o5 +   5) = *(i5 +   5);
 						*(o6 +   5) = *(i6 +   5);
 						*(o7 +   5) = *(i7 +   5);
-						*/
 						*(o0 +   6) = *(i0 +   6);
 						*(o1 +   6) = *(i1 +   6);
 						*(o2 +   6) = *(i2 +   6);
@@ -3029,7 +3023,6 @@ static inline void replicate_8x8x1 (T* O,
 						*(o5 +   6) = *(i5 +   6);
 						*(o6 +   6) = *(i6 +   6);
 						*(o7 +   6) = *(i7 +   6);
-						/*
 						*(o0 +   7) = *(i0 +   7);
 						*(o1 +   7) = *(i1 +   7);
 						*(o2 +   7) = *(i2 +   7);
@@ -3038,7 +3031,6 @@ static inline void replicate_8x8x1 (T* O,
 						*(o5 +   7) = *(i5 +   7);
 						*(o6 +   7) = *(i6 +   7);
 						*(o7 +   7) = *(i7 +   7);
-						*/
 						i0 += 8;
 						o0 += 8;
 						i1 += 8;
@@ -3281,7 +3273,7 @@ static inline void replicate (T* O,
 															U r = (U)1) {
 	switch (r) {
 		case 1: {
-			return replicate_8x8x1(O, m, n, R, I, S, s);
+			return replicate_1x8x1(O, m, n, R, I, S, s);
 		}
 		default: {
 			return replicate_1x1xr(O, m, n, R, I, S, s, r);

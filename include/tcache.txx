@@ -1,5 +1,5 @@
-# ifndef dcunit_txx
-# define dcunit_txx
+# ifndef tcache_txx
+# define tcache_txx
 
 //------------------------------------------------------------------------------
 // Data cache unit class for with capability to copy, transpose,
@@ -15,7 +15,7 @@
 // LOCALITY = 0(NTA), 1(L3), 2(L2), 3(L1)
 //------------------------------------------------------------------------------
 
-// comment next line to disable prefetching
+// uncomment next line to disable prefetching
 // # define DO_NOT_PREFETCH 1
 
 # ifndef DO_NOT_PREFETCH
@@ -54,11 +54,12 @@ U nextAlignedInd(const T* ptr, U alb) {
 
 //------------------------------------------------------------------------------
 template <class T, class U>
-class dcunit {
+class tcache {
 	public:
-		dcunit<T, U>();
-		dcunit<T, U>(T* _CP, U _C2);
-		~dcunit<T, U>();
+		tcache<T, U>();
+		tcache<T, U>(T* _CP, U _C2);
+		~tcache<T, U>();
+		void init(T* _CP = (U)0, U _A1 = (U)0);
 		void setA(U _A1);
 		T* setC(T* _CP, U _C0 = (U)0, U _C1 = (U)1, U _C2 = (U)1);
 		void setC(U _C0, U _C1 = (U)1, U _C2 = (U)1);
@@ -73,7 +74,6 @@ class dcunit {
 		void copyTo(T* _OP, U _OS = (U)0);
 		U prefetch (U rw = (U)0, U locality = (U)3, U ind_beg = (U)0, U ind_end = (U)0);
 	protected:
-		void init(T* _CP = (U)0, U _A1 = (U)0);
 		U sot; // sizeof(T)
 		U a1; // a1 = A1 / sot
 		U A1; // alignment in bytes
@@ -93,26 +93,26 @@ class dcunit {
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 template <class T, class U>
-dcunit<T, U>::dcunit() {
+tcache<T, U>::tcache() {
 	this -> init();
 }
 
 //---------------------------------------------------------------------------
 template <class T, class U>
-dcunit<T, U>::dcunit(T* _CP, U _A1) {
+tcache<T, U>::tcache(T* _CP, U _A1) {
 	this -> init(_CP, _A1);
 }
 
 //---------------------------------------------------------------------------
 template <class T, class U>
-dcunit<T, U>::~dcunit() {
+tcache<T, U>::~tcache() {
 	this -> init();
 }
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 template <class T, class U>
-void dcunit<T, U>::init(T* _CP, U _A1) {
+void tcache<T, U>::init(T* _CP, U _A1) {
 	this -> sot = sizeof(T);
 	this -> setA(_A1);
 	this -> setC(_CP);
@@ -122,14 +122,14 @@ void dcunit<T, U>::init(T* _CP, U _A1) {
 
 //---------------------------------------------------------------------------
 template <class T, class U>
-void dcunit<T, U>::setA(U _A1) {
+void tcache<T, U>::setA(U _A1) {
 	this -> A1 = (U)_A1 ? (U)_A1 : this -> sot;
 	this -> a1 = this -> A1 / this -> sot;
 }
 
 //---------------------------------------------------------------------------
 template <class T, class U>
-T* dcunit<T, U>::setC(T* _CP, U _C0, U _C1, U _C2) {
+T* tcache<T, U>::setC(T* _CP, U _C0, U _C1, U _C2) {
 	this -> CP = _CP + nextAlignedInd(_CP, this -> A1);
 	this -> C0 = _C0;
 	this -> C1 = _C1;
@@ -141,13 +141,13 @@ T* dcunit<T, U>::setC(T* _CP, U _C0, U _C1, U _C2) {
 
 //---------------------------------------------------------------------------
 template <class T, class U>
-void dcunit<T, U>::setC(U _C0, U _C1, U _C2) {
+void tcache<T, U>::setC(U _C0, U _C1, U _C2) {
 	this -> setC(this -> CP, _C0, _C1, _C2);
 }
 
 //---------------------------------------------------------------------------
 template <class T, class U>
-void dcunit<T, U>::setI(T* _IP, U _I0, U _I1) {
+void tcache<T, U>::setI(T* _IP, U _I0, U _I1) {
 	this -> IP = _IP;
 	this -> I0 = _I0;
 	this -> I1 = _I1;
@@ -155,32 +155,32 @@ void dcunit<T, U>::setI(T* _IP, U _I0, U _I1) {
 
 //---------------------------------------------------------------------------
 template <class T, class U>
-void dcunit<T, U>::setO(T* _OP, U _OS) {
+void tcache<T, U>::setO(T* _OP, U _OS) {
 	this -> OP = _OP;
 	this -> OS = (U)_OS ? _OS : this -> C0;
 }
 
 //---------------------------------------------------------------------------
 template <class T, class U>
-T* dcunit<T, U>::retCP() {
+T* tcache<T, U>::retCP() {
 	return (this -> CP);
 }
 
 //---------------------------------------------------------------------------
 template <class T, class U>
-U dcunit<T, U>::retCL() {
+U tcache<T, U>::retCL() {
 	return (this -> CL);
 }
 
 //---------------------------------------------------------------------------
 template <class T, class U>
-U dcunit<T, U>::retCI() {
+U tcache<T, U>::retCI() {
 	return (this -> CI);
 }
 
 //---------------------------------------------------------------------------
 template <class T, class U>
-void dcunit<T, U>::copyFr() {
+void tcache<T, U>::copyFr() {
 	replicate(this -> CP,
 						this -> C0,
 						this -> C1,
@@ -192,14 +192,14 @@ void dcunit<T, U>::copyFr() {
 }
 //---------------------------------------------------------------------------
 template <class T, class U>
-void dcunit<T, U>::copyFr(T* _IP, U _I0, U _I1) {
+void tcache<T, U>::copyFr(T* _IP, U _I0, U _I1) {
 	this -> setI(_IP, _I0, _I1);
 	return (this -> copyFr());
 }
 
 //---------------------------------------------------------------------------
 template <class T, class U>
-void dcunit<T, U>::copyTo() {
+void tcache<T, U>::copyTo() {
 	replicate(this -> OP, 
 						this -> C0, 
 						this -> CI,
@@ -211,14 +211,14 @@ void dcunit<T, U>::copyTo() {
 }
 //---------------------------------------------------------------------------
 template <class T, class U>
-void dcunit<T, U>::copyTo(T* _OP, U _OS) {
+void tcache<T, U>::copyTo(T* _OP, U _OS) {
 	this -> setO(_OP, _OS);
 	this -> copyTo();
 }
 
 //---------------------------------------------------------------------------
 template <class T, class U>
-U dcunit<T, U>::prefetch (U rw, U locality, U ind_beg, U ind_end) {
+U tcache<T, U>::prefetch (U rw, U locality, U ind_beg, U ind_end) {
 	// Returns number of cache prefetch calls
 	
 	if (!ind_end) {ind_end = this -> C0 * this -> C1 * this -> C2;}
