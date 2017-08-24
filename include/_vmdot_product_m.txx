@@ -18,7 +18,7 @@ static NOINLINE void vmdot_product_1x1x1 (T* _Out,
 																					volatile U OutS = 0, 
 																					volatile U In0S = 0, 
 																					volatile U In0s = 0, 
-																					volatile const U In1S = 0) { 
+																					volatile const U In1s = 0) { 
 
 	register T o0, i0;
 	register T in1_0_0; 
@@ -47,8 +47,8 @@ static NOINLINE void vmdot_product_1x1x1 (T* _Out,
 			out_0 = Out_0;
 			in0_0_0 = *(in0_0 + In0s * 0);
 			in0_0 += In0s * 1;
-			in1_0 = In1 + In1S * 0;
-			In1 += In1S * 1;
+			in1_0 = In1 + In1s * 0;
+			In1 += In1s * 1;
 			for (j = n; j; j--) {
 				in1_0_0 = *(in1_0 + 0);
 				in1_0 += 1;
@@ -72,7 +72,7 @@ static NOINLINE void vmdot_product_2x2x2 (T* _Out,
 																					volatile U OutS = 0, 
 																					volatile U In0S = 0, 
 																					volatile U In0s = 0, 
-																					volatile const U In1S = 0) { 
+																					volatile const U In1s = 0) { 
 
 	register T o0, o1, i0, i1;
 	register T in1_0_0, in1_0_1; 
@@ -114,9 +114,9 @@ static NOINLINE void vmdot_product_2x2x2 (T* _Out,
 			in0_1_0 = *(in0_1 + In0s * 0);
 			in0_1_1 = *(in0_1 + In0s * 1);
 			in0_1 += In0s * 2;
-			in1_0 = In1 + In1S * 0;
-			in1_1 = In1 + In1S * 1;
-			In1 += In1S * 2;
+			in1_0 = In1 + In1s * 0;
+			in1_1 = In1 + In1s * 1;
+			In1 += In1s * 2;
 			for (j = N; j; j--) {
 				in1_0_0 = *(in1_0 + 0);
 				in1_0_1 = *(in1_0 + 1);
@@ -161,15 +161,15 @@ static NOINLINE void vmdot_product_2x2x2 (T* _Out,
 		h -= M;
 		Out += OutS * h;
 		In0 += In0S * h;
-		vmdot_product_1x1x1(Out, In0, In1, M, k, n, OutS, In0S, In0s, In1S);
+		vmdot_product_1x1x1(Out, In0, In1, M, k, n, OutS, In0S, In0s, In1s);
 		Out = _Out;
 		In0 = _In0;
 	}
 	if (K) {
 		i -= K;
 		In0 += In0s * i;
-		In1 += In1S * i;
-		vmdot_product_1x1x1(Out, In0, In1, h, K, n, OutS, In0S, In0s, In1S);
+		In1 += In1s * i;
+		vmdot_product_1x1x1(Out, In0, In1, h, K, n, OutS, In0S, In0s, In1s);
 		In0 = _In0;
 		In1 = _In1;
 	}
@@ -177,7 +177,7 @@ static NOINLINE void vmdot_product_2x2x2 (T* _Out,
 		j -= N;
 		Out += j;
 		In1 += j;
-		vmdot_product_1x1x1(Out, In0, In1, h, i, N, OutS, In0S, In0s, In1S);
+		vmdot_product_1x1x1(Out, In0, In1, h, i, N, OutS, In0S, In0s, In1s);
 	}
 }
 
@@ -192,11 +192,11 @@ static NOINLINE void vmdot_product_4x4x4 (T* _Out,
 																					volatile U OutS = 0, 
 																					volatile U In0S = 0, 
 																					volatile U In0s = 0, 
-																					volatile U In1S = 0) { 
+																					volatile U In1s = 0) { 
 	if (!OutS) (OutS = n);																					
 	if (!In0S) (In0S = k);																					
 	if (!In0s) (In0s = 1);																					
-	if (!In1S) (In1S = n);																					
+	if (!In1s) (In1s = n);																					
 
 	register T o0, o1, o2, o3, i0, i1, i2, i3;
 	register T in1_0_0, in1_0_1, in1_0_2, in1_0_3; 
@@ -262,11 +262,11 @@ static NOINLINE void vmdot_product_4x4x4 (T* _Out,
 			in0_3_2 = *(in0_3 + In0s * 2);
 			in0_3_3 = *(in0_3 + In0s * 3);
 			in0_3 += In0s * 4;
-			in1_0 = In1 + In1S * 0;
-			in1_1 = In1 + In1S * 1;
-			in1_2 = In1 + In1S * 2;
-			in1_3 = In1 + In1S * 3;
-			In1 += In1S * 4;
+			in1_0 = In1 + In1s * 0;
+			in1_1 = In1 + In1s * 1;
+			in1_2 = In1 + In1s * 2;
+			in1_3 = In1 + In1s * 3;
+			In1 += In1s * 4;
 			for (j = N; j; j--) {
 				in1_0_0 = *(in1_0 + 0);
 				in1_0_1 = *(in1_0 + 1);
@@ -409,15 +409,15 @@ static NOINLINE void vmdot_product_4x4x4 (T* _Out,
 		h -= M;
 		Out += OutS * h;
 		In0 += In0S * h;
-		vmdot_product_2x2x2(Out, In0, In1, M, k, n, OutS, In0S, In0s, In1S);
+		vmdot_product_2x2x2(Out, In0, In1, M, k, n, OutS, In0S, In0s, In1s);
 		Out = _Out;
 		In0 = _In0;
 	}
 	if (K) {
 		i -= K;
 		In0 += In0s * i;
-		In1 += In1S * i;
-		vmdot_product_2x2x2(Out, In0, In1, h, K, n, OutS, In0S, In0s, In1S);
+		In1 += In1s * i;
+		vmdot_product_2x2x2(Out, In0, In1, h, K, n, OutS, In0S, In0s, In1s);
 		In0 = _In0;
 		In1 = _In1;
 	}
@@ -425,7 +425,7 @@ static NOINLINE void vmdot_product_4x4x4 (T* _Out,
 		j -= N;
 		Out += j;
 		In1 += j;
-		vmdot_product_2x2x2(Out, In0, In1, h, i, N, OutS, In0S, In0s, In1S);
+		vmdot_product_2x2x2(Out, In0, In1, h, i, N, OutS, In0S, In0s, In1s);
 	}
 }
 

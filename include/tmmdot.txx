@@ -4,23 +4,33 @@
 # ifndef tmmdot_txx
 # define tmmdot_txx
 
-// A possible vmdot read cache scheme (for thread-safety do not cache Out):
-// Fast: In0 (8x64x2)    , In1T (64x8)      - 12288
-// Slow: In0 ([_8x8x64x2), In1T (64x[8x_8]) - 98304
+// A double-precision read cache scheme (for thread-safety do not cache Out):
+// Fast: In0 (8x64)    , In1T (64x8)      - 8192  bytes
+// Slow: In0 ([_8x8x64), In1T (64x[8x_8]) - 65536 bytes
 // Shared: In1
-//
-// Double length:	pre-aligned  12320 
-//								post-aligned 12288
 
-# define CACHE_DOUBLE_LENGTH 		12800
+//------------------------------------------------------------------------------
+// Minimum double length:	pre-outer-aligned  8192 
+//												post-outer-aligned 8256 (for 2 outer-aligned caches)
+# define CACHE_DOUBLE_LENGTH 		8256
 # define CACHE_OUTER_ALIGNMENT 	256
 # define CACHE_INNER_ALIGNMENT 	64
 
+//------------------------------------------------------------------------------
+# ifndef HAVE_ARCHITECTURE // calling template C++ code
+# define THIS_DOUBLE_MKN this -> mkn
+# define THIS_DOUBLE_MKN_4x4x4 this -> mkn_4x4x4
+# define DOT_PRODUCT_DOUBLE_MKN_4x4x4 dot_product_mkn_4x4x4
+# else                     // calling assembler
+# define THIS_DOUBLE_MKN this -> double_mkn
+# define THIS_DOUBLE_MKN_4x4x4 this -> this -> double_mkn_4x4x4
+# define DOT_PRODUCT_DOUBLE_MKN_4x4x4_DOUBLE dot_product_double_mkn
+# endif
 
 //------------------------------------------------------------------------------
 # include "mcache.txx"
-# include "_dot_product.txx"
-# include "_vmdot_product_m.txx"
+# include "_dot_product_mnk.txx"
+# include "_dot_product_mkn.txx"
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -32,26 +42,35 @@ class tmmdot {
 		tmmdot(	T* _OP, T* _I0 = (T*)0, T* _I1 = (T*)0,
 						U _m = (U)0, U _k = (U)0, U _n = (U)0,
 						bool _OPT = false, bool _I0T = false, bool _I1T = false, 
-						bool _ColM = false, T* _I2 = (T*)0);
+						bool _ColM = false, T* _I2 = (T*)0, U _Arch = (U)0);
 		~tmmdot<T, U>();
 		void init(T* _OP = (T*)0 , T* _I0 = (T*)0, T* _I1 = (T*)0,
 							U _m = (U)0, U _k = (U)0, U _n = (U)0,
 							bool _OPT = false, bool _I0T = false, bool _I1T = false, 
-							bool _ColM = false, T* _I2 = (T*)0);
+							bool _ColM = false, T* _I2 = (T*)0, U _Arch = (U)0);
 		void setAln(U al0 = (U)CACHE_OUTER_ALIGNMENT, U al1 = (U)CACHE_INNER_ALIGNMENT);
 		void setPtr(T* _OP = (T*)0 , T* _I0 = (T*)0, T* _I1 = (T*)0, T* _I2 = (T*)0);
 		void setDim(U _m = (U)0, U _k = (U)0, U _n = (U)0);
 		void setCmj(bool _OPT = false, bool _I0T = false, bool _I1T = false, bool _ColM = false);
 		void setStr(U _OPS = (U)0, U _I0S = (U)0, U _I1S = (U)0,
 								U _OPs = (U)0, U _I0s = (U)0, U _I1s = (U)0);
+		void setArch(U _Arch = (U)0);
 		void exec();
 		void mkn();
+		void mkn_kmn_64x64x64(T* _OP, T* _I0, T* _I1, U M, U K, U N); // an experiment
 		void mkn_64x64x64(T* _OP, T* _I0, T* _I1, U M, U K, U N);
 		void mkn_64x8x64(T* _OP, T* _I0, T* _I1, U M, U K, U N);
 		void mkn_8x64x8(T* _OP, T* _I0, T* _I1, U M, U K, U N);
 		void mkn_8x8x8(T* _OP, T* _I0, T* _I1, U M, U K, U N);
 		void mkn_4x4x4(T* _OP, T* _I0, T* _I1, U M, U K, U N);
-		void mkn_kmn_64x64x64(T* _OP, T* _I0, T* _I1, U M, U K, U N);
+		void mkn_1x1x8(T* _OP, T* _I0, T* _I1, U M, U K, U N);
+		void double_mkn();
+		void double_mkn_64x64x64(T* _OP, T* _I0, T* _I1, U M, U K, U N);
+		void double_mkn_64x8x64(T* _OP, T* _I0, T* _I1, U M, U K, U N);
+		void double_mkn_8x64x8(T* _OP, T* _I0, T* _I1, U M, U K, U N);
+		void double_mkn_8x8x8(T* _OP, T* _I0, T* _I1, U M, U K, U N);
+		void double_mkn_4x4x4(T* _OP, T* _I0, T* _I1, U M, U K, U N);
+		void double_mkn_1x1x8(T* _OP, T* _I0, T* _I1, U M, U K, U N);
 	protected:
 		T* OP;
 		T* I0;
@@ -69,6 +88,7 @@ class tmmdot {
 		U OPs;
 		U I0s;
 		U I1s;
+		U Arch;
 		mcache<T, U> cacher;
 	private:
 };
@@ -85,9 +105,9 @@ tmmdot<T, U>::tmmdot() {
 //---------------------------------------------------------------------------
 template <class T, class U>
 tmmdot<T, U>::tmmdot( T* _OP, T* _I0, T* _I1, U _m, U _k, U _n,
-											bool _OPT, bool _I0T, bool _I1T, bool _ColM, T* _I2) {
-
-	this -> init(	_OP, _I0, _I1, _m, _k, _n, _OPT, _I0T, _I1T, _ColM, _I2);
+											bool _OPT, bool _I0T, bool _I1T, 
+											bool _ColM, T* _I2, U _Arch) {
+	this -> init(	_OP, _I0, _I1, _m, _k, _n, _OPT, _I0T, _I1T, _ColM, _I2, _Arch);
 }
 
 //---------------------------------------------------------------------------
@@ -100,10 +120,12 @@ tmmdot<T, U>::~tmmdot() {
 //---------------------------------------------------------------------------
 template <class T, class U>
 void tmmdot<T, U>::init(T* _OP, T* _I0, T* _I1, U _m, U _k, U _n,
-												bool _OPT, bool _I0T, bool _I1T, bool _ColM, T* _I2) {
+												bool _OPT, bool _I0T, bool _I1T, 
+												bool _ColM, T* _I2, U _Arch) {
 	this -> setPtr(_OP, _I0, _I1, _I2);
 	this -> setDim(_m, _k, _n);
 	this -> setCmj(_OPT, _I0T, _I1T, _ColM);
+	this -> setArch(_Arch);
 }
 
 //---------------------------------------------------------------------------
@@ -186,7 +208,12 @@ void tmmdot<T, U>::setStr(U _OPS, U _I0S, U _I1S,
 			this -> I1s = this -> n;
 		}
 	}
+}
 
+//---------------------------------------------------------------------------
+template <class T, class U>
+void tmmdot<T, U>::setArch(U _Arch) {
+	this -> Arch = _Arch;
 }
 
 //---------------------------------------------------------------------------
@@ -202,12 +229,20 @@ void tmmdot<T, U>::exec() {
 								this -> I2, (U)0, (U)1, (U)1);
 		}
 	}
-	this -> mkn();
+	if (this->Arch == (U)1) {return this -> mkn();}
+	switch (sizeof(T)) {
+		case (U)8: {return THIS_DOUBLE_MKN();}
+		default: {return this -> mkn();}
+	}
 }
 //---------------------------------------------------------------------------
 template <class T, class U>
 void tmmdot<T, U>::mkn() {
 	U r = this -> m <= this -> n ? this -> m : this -> n;
+	if (this -> m < (U)1) {
+		this -> mkn_1x1x8    (this -> OP, this -> I0, this -> I1, 
+													this -> m,  this -> k,  this -> n);
+	}
 	if (this -> k < (U)8 || r < (U)8) {
 		this -> mkn_4x4x4    (this -> OP, this -> I0, this -> I1, 
 													this -> m,  this -> k,  this -> n);
@@ -228,6 +263,41 @@ void tmmdot<T, U>::mkn() {
 		this -> mkn_64x64x64 (this -> OP, this -> I0, this -> I1, 
 													this -> m,  this -> k,  this -> n);
 	}
+}
+
+//---------------------------------------------------------------------------
+template <class T, class U>
+void tmmdot<T, U>::double_mkn() {
+		THIS_DOUBLE_MKN_4x4x4 (this -> OP, this -> I0, this -> I1, 
+													this -> m,  this -> k,  this -> n);
+
+	/*
+	U r = this -> m <= this -> n ? this -> m : this -> n;
+	if (this -> m < (U)1) {
+		this -> mkn_1x1x8    (this -> OP, this -> I0, this -> I1, 
+													this -> m,  this -> k,  this -> n);
+	}
+	if (this -> k < (U)8 || r < (U)8) {
+		this -> mkn_4x4x4    (this -> OP, this -> I0, this -> I1, 
+													this -> m,  this -> k,  this -> n);
+	}
+	else if (this -> k < (U)64 || r < (U)64) {
+		this -> mkn_8x8x8    (this -> OP, this -> I0, this -> I1, 
+													this -> m,  this -> k,  this -> n);
+	}
+	else if (r < (U)64) {
+		this -> mkn_8x64x8   (this -> OP, this -> I0, this -> I1, 
+													this -> m,  this -> k,  this -> n);
+	}
+	else if (this -> k < (U)64) {
+		this -> mkn_64x8x64  (this -> OP, this -> I0, this -> I1, 
+													this -> m,  this -> k,  this -> n);
+	}
+	else {
+		this -> mkn_64x64x64 (this -> OP, this -> I0, this -> I1, 
+													this -> m,  this -> k,  this -> n);
+	}
+	*/
 }
 
 //---------------------------------------------------------------------------
@@ -490,10 +560,22 @@ void tmmdot<T, U>::mkn_8x8x8(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
 //---------------------------------------------------------------------------
 template <class T, class U>
 void tmmdot<T, U>::mkn_4x4x4(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
-	vmdot_product_4x4x4(_OP, _I0, _I1, _M, _K, _N, 
+	dot_product_mkn_4x4x4(_OP, _I0, _I1, _M, _K, _N, 
 	this -> OPS, this -> I0S, this -> I0s, this -> I1S);
 }
 
+//---------------------------------------------------------------------------
+template <class T, class U>
+void tmmdot<T, U>::double_mkn_4x4x4(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
+	DOT_PRODUCT_DOUBLE_MKN_4x4x4(_OP, _I0, _I1, _M, _K, _N, 
+	this -> OPS, this -> I0S, this -> I0s, this -> I1S);
+}
+//---------------------------------------------------------------------------
+template <class T, class U>
+void tmmdot<T, U>::mkn_1x1x8(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
+	dot_product_mkn_1x1x8(_OP, _I0, _I1, _M, _K, _N, 
+	this -> OPS, this -> I0S, this -> I0s, this -> I1S);
+}
 //---------------------------------------------------------------------------
 template <class T, class U>
 void tmmdot<T, U>::mkn_kmn_64x64x64(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
