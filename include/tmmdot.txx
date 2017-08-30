@@ -4,6 +4,11 @@
 # ifndef tmmdot_txx
 # define tmmdot_txx
 
+# include <iostream>
+using namespace std;
+
+//------------------------------------------------------------------------------
+
 // A double-precision read cache scheme (for thread-safety do not cache Out):
 // Fast: In0 (8x64)    , In1T (64x8)      - 8192  bytes
 // Slow: In0 ([_8x8x64), In1T (64x[8x_8]) - 65536 bytes
@@ -17,14 +22,28 @@
 # define CACHE_INNER_ALIGNMENT 	64
 
 //------------------------------------------------------------------------------
-# ifndef HAVE_ARCHITECTURE // calling template C++ code
+# ifndef HAVE_ARCHITECTURE 							// calling template C++ code
 # define THIS_DOUBLE_MKN this -> mkn
-# define THIS_DOUBLE_MKN_4x4x4 this -> mkn_4x4x4
+# define THIS_DOUBLE_MKN_1X1X8 this -> mkn_1x1x8
+# define THIS_DOUBLE_MKN_4X4X4 this -> mkn_4x4x4
+# define THIS_DOUBLE_MKN_8X8X8 this -> mkn_8x8x8
+# define THIS_DOUBLE_MKN_8X64X8 this -> mkn_8x64x8
+# define THIS_DOUBLE_MKN_64X8X64 this -> mkn_64x8x64
+# define THIS_DOUBLE_MKN_64X64X64 this -> mkn_64x64x64
 # define DOT_PRODUCT_DOUBLE_MKN_4x4x4 dot_product_mkn_4x4x4
-# else                     // calling assembler
+# define DOT_PRODUCT_DOUBLE_MNK_8x8x8 dot_product_MNK_8x8x8
+# else                     							// calling wrapper C and assembler
+# include "dot_product_double_mkn.c" 
+# include "dot_product_double_mnk.c" 
 # define THIS_DOUBLE_MKN this -> double_mkn
-# define THIS_DOUBLE_MKN_4x4x4 this -> this -> double_mkn_4x4x4
-# define DOT_PRODUCT_DOUBLE_MKN_4x4x4_DOUBLE dot_product_double_mkn
+# define THIS_DOUBLE_MKN_1X1X8 this -> double_mkn_1x1x8
+# define THIS_DOUBLE_MKN_4X4X4 this -> double_mkn_4x4x4
+# define THIS_DOUBLE_MKN_8X8X8 this -> double_mkn_8x8x8
+# define THIS_DOUBLE_MKN_8X64X8 this -> double_mkn_8x64x8
+# define THIS_DOUBLE_MKN_64X8X64 this -> double_mkn_64x8x64
+# define THIS_DOUBLE_MKN_64X64X64 this -> double_mkn_64x64x64
+# define DOT_PRODUCT_DOUBLE_MKN_4X4X4 dot_product_double_mkn_4x4x4
+# define DOT_PRODUCT_DOUBLE_MNK_8X8X8 dot_product_double_MNK_8x8x8
 # endif
 
 //------------------------------------------------------------------------------
@@ -146,9 +165,9 @@ void tmmdot<T, U>::setPtr(T* _OP, T* _I0, T* _I1, T* _I2) {
 //---------------------------------------------------------------------------
 template <class T, class U>
 void tmmdot<T, U>::setDim(U _m, U _k, U _n) {
-	this -> m   = _m;
-	this -> k   = _k;
-	this -> n   = _n;
+	this -> m = _m;
+	this -> k = _k;
+	this -> n = _n;
 }
 
 //---------------------------------------------------------------------------
@@ -239,7 +258,7 @@ void tmmdot<T, U>::exec() {
 template <class T, class U>
 void tmmdot<T, U>::mkn() {
 	U r = this -> m <= this -> n ? this -> m : this -> n;
-	if (this -> m < (U)1) {
+	if (this -> m == (U)1) {
 		this -> mkn_1x1x8    (this -> OP, this -> I0, this -> I1, 
 													this -> m,  this -> k,  this -> n);
 	}
@@ -268,38 +287,34 @@ void tmmdot<T, U>::mkn() {
 //---------------------------------------------------------------------------
 template <class T, class U>
 void tmmdot<T, U>::double_mkn() {
-		THIS_DOUBLE_MKN_4x4x4 (this -> OP, this -> I0, this -> I1, 
-													this -> m,  this -> k,  this -> n);
-
-	/*
 	U r = this -> m <= this -> n ? this -> m : this -> n;
-	if (this -> m < (U)1) {
-		this -> mkn_1x1x8    (this -> OP, this -> I0, this -> I1, 
-													this -> m,  this -> k,  this -> n);
+	if (this -> m == (U)1) {
+		THIS_DOUBLE_MKN_1X1X8  (this -> OP, this -> I0, this -> I1, 
+														this -> m,  this -> k,  this -> n);
 	}
 	if (this -> k < (U)8 || r < (U)8) {
-		this -> mkn_4x4x4    (this -> OP, this -> I0, this -> I1, 
-													this -> m,  this -> k,  this -> n);
+		THIS_DOUBLE_MKN_4X4X4  (this -> OP, this -> I0, this -> I1, 
+														this -> m,  this -> k,  this -> n);
 	}
 	else if (this -> k < (U)64 || r < (U)64) {
-		this -> mkn_8x8x8    (this -> OP, this -> I0, this -> I1, 
-													this -> m,  this -> k,  this -> n);
+		THIS_DOUBLE_MKN_8X8X8  (this -> OP, this -> I0, this -> I1, 
+														this -> m,  this -> k,  this -> n);
 	}
 	else if (r < (U)64) {
-		this -> mkn_8x64x8   (this -> OP, this -> I0, this -> I1, 
-													this -> m,  this -> k,  this -> n);
+		THIS_DOUBLE_MKN_8X64X8 (this -> OP, this -> I0, this -> I1, 
+														this -> m,  this -> k,  this -> n);
 	}
 	else if (this -> k < (U)64) {
-		this -> mkn_64x8x64  (this -> OP, this -> I0, this -> I1, 
-													this -> m,  this -> k,  this -> n);
+		THIS_DOUBLE_MKN_64X8X64(this -> OP, this -> I0, this -> I1, 
+														this -> m,  this -> k,  this -> n);
 	}
 	else {
-		this -> mkn_64x64x64 (this -> OP, this -> I0, this -> I1, 
-													this -> m,  this -> k,  this -> n);
+		THIS_DOUBLE_MKN_64X64X64	(this -> OP, this -> I0, this -> I1, 
+															this -> m,  this -> k,  this -> n);
 	}
-	*/
 }
 
+//---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 template <class T, class U>
 void tmmdot<T, U>::mkn_64x64x64(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
@@ -312,10 +327,10 @@ void tmmdot<T, U>::mkn_64x64x64(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
 	Ns = (U)64;
 
 	if (_M < Ms || _N < Ns) {
-		return mkn_8x64x8(_OP, _I0, _I1, _M, _K, _N);
+		return this -> mkn_8x64x8(_OP, _I0, _I1, _M, _K, _N);
 	}
 	else if (_K < Ks) {
-		return mkn_64x8x64(_OP, _I0, _I1, _M, _K, _N);
+		return this -> mkn_64x8x64(_OP, _I0, _I1, _M, _K, _N);
 	}
 
 	M = _M & (U)-Ms;
@@ -337,7 +352,7 @@ void tmmdot<T, U>::mkn_64x64x64(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
 			for (g = 0; g < N; g += Ns) {
 				Out = _Out + g * this -> OPs;
 				cacher.retUnit((U)1).copyFr(_In1 + g * this -> I1s, this -> I1S, this -> I1s);
-				dot_product_mnk_1x8x8(Out, In0, In1, Ms, Ks, Ns, this -> OPS);
+				dot_product_MNK_8x8x8(Out, In0, In1, Ms, Ks, Ns, this -> OPS, this -> Arch);
 			}
 		}
 	}
@@ -376,10 +391,10 @@ void tmmdot<T, U>::mkn_64x8x64(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
 	Ns = (U)64;
 
 	if (_M < Ms || _N < Ns) {
-		return mkn_8x8x8(_OP, _I0, _I1, _M, _K, _N);
+		return this -> mkn_8x8x8(_OP, _I0, _I1, _M, _K, _N);
 	}
 	else if (_K < Ks) {
-		return mkn_4x4x4(_OP, _I0, _I1, _M, _K, _N);
+		return this -> mkn_4x4x4(_OP, _I0, _I1, _M, _K, _N);
 	}
 
 	M = _M & (U)-Ms;
@@ -401,7 +416,7 @@ void tmmdot<T, U>::mkn_64x8x64(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
 			for (g = 0; g < N; g += Ns) {
 				Out = _Out + g * this -> OPs;
 				cacher.retUnit((U)1).copyFr(_In1 + g * this -> I1s, this -> I1S, this -> I1s);
-				dot_product_mnk_1x8x8(Out, In0, In1, Ms, Ks, Ns, this -> OPS);
+				dot_product_MNK_8x8x8(Out, In0, In1, Ms, Ks, Ns, this -> OPS, this -> Arch);
 			}
 		}
 	}
@@ -440,10 +455,10 @@ void tmmdot<T, U>::mkn_8x64x8(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
 	Ns = (U)8;
 
 	if (_M < Ms || _N < Ns) {
-		return mkn_4x4x4(_OP, _I0, _I1, _M, _K, _N);
+		return this -> mkn_4x4x4(_OP, _I0, _I1, _M, _K, _N);
 	}
 	else if (_K < Ks) {
-		return mkn_8x8x8(_OP, _I0, _I1, _M, _K, _N);
+		return this -> mkn_8x8x8(_OP, _I0, _I1, _M, _K, _N);
 	}
 
 	M = _M & (U)-Ms;
@@ -465,7 +480,7 @@ void tmmdot<T, U>::mkn_8x64x8(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
 			for (g = 0; g < N; g += Ns) {
 				Out = _Out + g * this -> OPs;
 				cacher.retUnit((U)1).copyFr(_In1 + g * this -> I1s, this -> I1S, this -> I1s);
-				dot_product_mnk_1x8x8(Out, In0, In1, Ms, Ks, Ns, this -> OPS);
+				dot_product_MNK_8x8x8(Out, In0, In1, Ms, Ks, Ns, this -> OPS, this -> Arch);
 			}
 		}
 	}
@@ -504,10 +519,10 @@ void tmmdot<T, U>::mkn_8x8x8(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
 	Ns = (U)8;
 
 	if (_M < Ms || _N < Ns) {
-		return mkn_4x4x4(_OP, _I0, _I1, _M, _K, _N);
+		return this -> mkn_4x4x4(_OP, _I0, _I1, _M, _K, _N);
 	}
 	else if (_K < Ks) {
-		return mkn_4x4x4(_OP, _I0, _I1, _M, _K, _N);
+		return this -> mkn_4x4x4(_OP, _I0, _I1, _M, _K, _N);
 	}
 
 	M = _M & (U)-Ms;
@@ -529,7 +544,7 @@ void tmmdot<T, U>::mkn_8x8x8(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
 			for (g = 0; g < N; g += Ns) {
 				Out = _Out + g * this -> OPs;
 				cacher.retUnit((U)1).copyFr(_In1 + g * this -> I1s, this -> I1S, this -> I1s);
-				dot_product_mnk_1x8x8(Out, In0, In1, Ms, Ks, Ns, this -> OPS);
+				dot_product_MNK_8x8x8(Out, In0, In1, Ms, Ks, Ns, this -> OPS, this -> Arch);
 			}
 		}
 	}
@@ -566,16 +581,287 @@ void tmmdot<T, U>::mkn_4x4x4(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
 
 //---------------------------------------------------------------------------
 template <class T, class U>
-void tmmdot<T, U>::double_mkn_4x4x4(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
-	DOT_PRODUCT_DOUBLE_MKN_4x4x4(_OP, _I0, _I1, _M, _K, _N, 
-	this -> OPS, this -> I0S, this -> I0s, this -> I1S);
-}
-//---------------------------------------------------------------------------
-template <class T, class U>
 void tmmdot<T, U>::mkn_1x1x8(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
 	dot_product_mkn_1x1x8(_OP, _I0, _I1, _M, _K, _N, 
 	this -> OPS, this -> I0S, this -> I0s, this -> I1S);
 }
+
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+template <class T, class U>
+void tmmdot<T, U>::double_mkn_64x64x64(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
+	U e, f, g, F;
+	T *_Out, *_In0, *_In1, *Out, *In0, *In1;
+	U Ms, Ks, Ns, M, K, N;
+
+	Ms = (U)64;
+	Ks = (U)64;
+	Ns = (U)64;
+
+	if (_M < Ms || _N < Ns) {
+		return this -> double_mkn_8x64x8(_OP, _I0, _I1, _M, _K, _N);
+	}
+	else if (_K < Ks) {
+		return this -> double_mkn_64x8x64(_OP, _I0, _I1, _M, _K, _N);
+	}
+
+	M = _M & (U)-Ms;
+	K = _K & (U)-Ks;
+	N = _N & (U)-Ns;
+
+	In0 = this -> cacher.setUnit((U)0, Ms, Ks);
+	In1 = this -> cacher.setUnit((U)1, Ks, Ns);
+	
+	this -> cacher.retUnit((U)0).prefetch((U)1, (U)2);
+	this -> cacher.retUnit((U)1).prefetch((U)1, (U)2);
+
+	for (e = 0; e < M; e += Ms) {
+		_Out = _OP + e * this -> OPS;
+		_In0 = _I0 + e * this -> I0S;
+		for (f = 0; f < K; f += Ks) {
+			cacher.retUnit((U)0).copyFr(_In0 + f * this -> I0s, this -> I0S, this -> I0s);
+			_In1 = _I1 + f * this -> I1S;
+			for (g = 0; g < N; g += Ns) {
+				Out = _Out + g * this -> OPs;
+				cacher.retUnit((U)1).copyFr(_In1 + g * this -> I1s, this -> I1S, this -> I1s);
+				DOT_PRODUCT_DOUBLE_MNK_8X8X8(Out, In0, In1, Ms, Ks, Ns, this -> OPS, this -> Arch);
+				//DOT_PRODUCT_DOUBLE_MKN_4X4X4(Out, In0, In1, Ms, Ks, Ns, this -> OPS, Ks, (U)1, Ns, this -> Arch);
+			}
+		}
+	}
+
+	if (K < _K) {
+		_Out = _OP; 
+		_In0 = _I0 + K * this -> I0s;
+		_In1 = _I1 + K * this -> I1S;
+		this -> double_mkn_64x8x64(_Out, _In0, _In1, M, _K - K, N);
+	}
+
+	if (N < _N) {
+		_Out = _OP + N * this -> OPs;
+		_In0 = _I0;
+		_In1 = _I1 + N * this -> I1s;
+		this -> double_mkn_8x64x8(_Out, _In0, _In1, M, _K, _N - N);
+	}
+
+	if (M < _M) {
+		_Out = _OP + M * this -> OPS;
+		_In0 = _I0 + M * this -> I0S;
+		_In1 = _I1;
+		this -> double_mkn_8x64x8(_Out, _In0, _In1, _M - M, _K, _N);
+	}
+}
+
+//---------------------------------------------------------------------------
+template <class T, class U>
+void tmmdot<T, U>::double_mkn_64x8x64(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
+	U e, f, g, F;
+	T *_Out, *_In0, *_In1, *Out, *In0, *In1;
+	U Ms, Ks, Ns, M, K, N;
+
+	Ms = (U)64;
+	Ks = (U)8;
+	Ns = (U)64;
+
+	if (_M < Ms || _N < Ns) {
+		return this -> mkn_8x8x8(_OP, _I0, _I1, _M, _K, _N);
+	}
+	else if (_K < Ks) {
+		return this -> mkn_4x4x4(_OP, _I0, _I1, _M, _K, _N);
+	}
+
+	M = _M & (U)-Ms;
+	K = _K & (U)-Ks;
+	N = _N & (U)-Ns;
+
+	In0 = this -> cacher.setUnit((U)0, Ms, Ks);
+	In1 = this -> cacher.setUnit((U)1, Ks, Ns);
+	
+	this -> cacher.retUnit((U)0).prefetch((U)1, (U)3);
+	this -> cacher.retUnit((U)1).prefetch((U)1, (U)3);
+
+	for (e = 0; e < M; e += Ms) {
+		_Out = _OP + e * this -> OPS;
+		_In0 = _I0 + e * this -> I0S;
+		for (f = 0; f < K; f += Ks) {
+			cacher.retUnit((U)0).copyFr(_In0 + f * this -> I0s, this -> I0S, this -> I0s);
+			_In1 = _I1 + f * this -> I1S;
+			for (g = 0; g < N; g += Ns) {
+				Out = _Out + g * this -> OPs;
+				cacher.retUnit((U)1).copyFr(_In1 + g * this -> I1s, this -> I1S, this -> I1s);
+				DOT_PRODUCT_DOUBLE_MNK_8X8X8(Out, In0, In1, Ms, Ks, Ns, this -> OPS, this -> Arch);
+			}
+		}
+	}
+
+	if (K < _K) {
+		_Out = _OP; 
+		_In0 = _I0 + K * this -> I0s;
+		_In1 = _I1 + K * this -> I1S;
+		this -> double_mkn_4x4x4(_Out, _In0, _In1, M, _K - K, N);
+	}
+
+	if (N < _N) {
+		_Out = _OP + N * this -> OPs;
+		_In0 = _I0;
+		_In1 = _I1 + N * this -> I1s;
+		this -> double_mkn_8x8x8(_Out, _In0, _In1, M, _K, _N - N);
+	}
+
+	if (M < _M) {
+		_Out = _OP + M * this -> OPS;
+		_In0 = _I0 + M * this -> I0S;
+		_In1 = _I1;
+		this -> double_mkn_8x8x8(_Out, _In0, _In1, _M - M, _K, _N);
+	}
+}
+
+//---------------------------------------------------------------------------
+template <class T, class U>
+void tmmdot<T, U>::double_mkn_8x64x8(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
+	U e, f, g, F;
+	T *_Out, *_In0, *_In1, *Out, *In0, *In1;
+	U Ms, Ks, Ns, M, K, N;
+
+	Ms = (U)8;
+	Ks = (U)64;
+	Ns = (U)8;
+
+	if (_M < Ms || _N < Ns) {
+		return this -> double_mkn_4x4x4(_OP, _I0, _I1, _M, _K, _N);
+	}
+	else if (_K < Ks) {
+		return this -> double_mkn_8x8x8(_OP, _I0, _I1, _M, _K, _N);
+	}
+
+	M = _M & (U)-Ms;
+	K = _K & (U)-Ks;
+	N = _N & (U)-Ns;
+
+	In0 = this -> cacher.setUnit((U)0, Ms, Ks);
+	In1 = this -> cacher.setUnit((U)1, Ks, Ns);
+	
+	this -> cacher.retUnit((U)0).prefetch((U)1, (U)3);
+	this -> cacher.retUnit((U)1).prefetch((U)1, (U)3);
+
+	for (e = 0; e < M; e += Ms) {
+		_Out = _OP + e * this -> OPS;
+		_In0 = _I0 + e * this -> I0S;
+		for (f = 0; f < K; f += Ks) {
+			cacher.retUnit((U)0).copyFr(_In0 + f * this -> I0s, this -> I0S, this -> I0s);
+			_In1 = _I1 + f * this -> I1S;
+			for (g = 0; g < N; g += Ns) {
+				Out = _Out + g * this -> OPs;
+				cacher.retUnit((U)1).copyFr(_In1 + g * this -> I1s, this -> I1S, this -> I1s);
+				DOT_PRODUCT_DOUBLE_MNK_8X8X8(Out, In0, In1, Ms, Ks, Ns, this -> OPS, this -> Arch);
+			}
+		}
+	}
+
+	if (K < _K) {
+		_Out = _OP; 
+		_In0 = _I0 + K * this -> I0s;
+		_In1 = _I1 + K * this -> I1S;
+		this -> double_mkn_8x8x8(_Out, _In0, _In1, M, _K - K, N);
+	}
+
+	if (N < _N) {
+		_Out = _OP + N * this -> OPs;
+		_In0 = _I0;
+		_In1 = _I1 + N * this -> I1s;
+		this -> double_mkn_4x4x4(_Out, _In0, _In1, M, _K, _N - N);
+	}
+
+	if (M < _M) {
+		_Out = _OP + M * this -> OPS;
+		_In0 = _I0 + M * this -> I0S;
+		_In1 = _I1;
+		this -> double_mkn_4x4x4(_Out, _In0, _In1, _M - M, _K, _N);
+	}
+}
+
+//---------------------------------------------------------------------------
+template <class T, class U>
+void tmmdot<T, U>::double_mkn_8x8x8(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
+	U e, f, g, F;
+	T *_Out, *_In0, *_In1, *Out, *In0, *In1;
+	U Ms, Ks, Ns, M, K, N;
+
+	Ms = (U)8;
+	Ks = (U)8;
+	Ns = (U)8;
+
+	if (_M < Ms || _N < Ns) {
+		return this -> double_mkn_4x4x4(_OP, _I0, _I1, _M, _K, _N);
+	}
+	else if (_K < Ks) {
+		return this -> double_mkn_4x4x4(_OP, _I0, _I1, _M, _K, _N);
+	}
+
+	M = _M & (U)-Ms;
+	K = _K & (U)-Ks;
+	N = _N & (U)-Ns;
+
+	In0 = this -> cacher.setUnit((U)0, Ms, Ks);
+	In1 = this -> cacher.setUnit((U)1, Ks, Ns);
+	
+	this -> cacher.retUnit((U)0).prefetch((U)1, (U)3);
+	this -> cacher.retUnit((U)1).prefetch((U)1, (U)3);
+
+	for (e = 0; e < M; e += Ms) {
+		_Out = _OP + e * this -> OPS;
+		_In0 = _I0 + e * this -> I0S;
+		for (f = 0; f < K; f += Ks) {
+			cacher.retUnit((U)0).copyFr(_In0 + f * this -> I0s, this -> I0S, this -> I0s);
+			_In1 = _I1 + f * this -> I1S;
+			for (g = 0; g < N; g += Ns) {
+				Out = _Out + g * this -> OPs;
+				cacher.retUnit((U)1).copyFr(_In1 + g * this -> I1s, this -> I1S, this -> I1s);
+				DOT_PRODUCT_DOUBLE_MNK_8X8X8(Out, In0, In1, Ms, Ks, Ns, this -> OPS, this -> Arch);
+			}
+		}
+	}
+
+	if (K < _K) {
+		_Out = _OP; 
+		_In0 = _I0 + K * this -> I0s;
+		_In1 = _I1 + K * this -> I1S;
+		this -> double_mkn_4x4x4(_Out, _In0, _In1, M, _K - K, N);
+	}
+
+
+	if (N < _N) {
+		_Out = _OP + N * this -> OPs;
+		_In0 = _I0;
+		_In1 = _I1 + N * this -> I1s;
+		this -> double_mkn_4x4x4(_Out, _In0, _In1, M, _K, _N - N);
+	}
+
+	if (M < _M) {
+		_Out = _OP + M * this -> OPS;
+		_In0 = _I0 + M * this -> I0S;
+		_In1 = _I1;
+		this -> double_mkn_4x4x4(_Out, _In0, _In1, _M - M, _K, _N);
+	}
+}
+
+//---------------------------------------------------------------------------
+template <class T, class U>
+void tmmdot<T, U>::double_mkn_4x4x4(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
+	DOT_PRODUCT_DOUBLE_MKN_4X4X4(_OP, _I0, _I1, _M, _K, _N, 
+	this -> OPS, this -> I0S, this -> I0s, this -> I1S, this -> Arch);
+}
+
+//---------------------------------------------------------------------------
+template <class T, class U>
+void tmmdot<T, U>::double_mkn_1x1x8(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
+	dot_product_mkn_1x1x8(_OP, _I0, _I1, _M, _K, _N, 
+	this -> OPS, this -> I0S, this -> I0s, this -> I1S);
+}
+
+//---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 template <class T, class U>
 void tmmdot<T, U>::mkn_kmn_64x64x64(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
@@ -629,6 +915,20 @@ static inline void dot_product_mkn (T* _OP,
 	tmmdot<T, U> mkn;
 	mkn.init(_OP, _I0, _I1, _m, _k, _n);
   mkn.exec();
+}
+
+//---------------------------------------------------------------------------
+
+template <class T, class U>
+static inline void dot_product_mnk (T* _OP, 
+																		T* _I0, 
+																		T* _I1, 
+																		volatile const U _m, 
+																		volatile const U _k,
+																		volatile const U _n) {
+	//dot_product_double_mnk_1x8x8_sse4(_OP, _I0, _I1, _m, _k, _n, _n, _k, _n);
+	dot_product_double_mnk_2x1x8_sse4(_OP, _I0, _I1, _m, _k, _n, _n, _k, _n);
+
 }
 
 //---------------------------------------------------------------------------

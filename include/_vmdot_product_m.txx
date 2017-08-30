@@ -2,10 +2,7 @@
 # define _vmdot_product_mkn_txx
 
 //------------------------------------------------------------------------------
-# include "clas_defs.h"
-
-# include <iostream>
-using namespace std;
+# include "clas.txx"
 
 //------------------------------------------------------------------------------
 template <class T, class U>

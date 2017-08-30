@@ -2,7 +2,6 @@
 #define products_hxx
 
 # include "clas.hxx"
-# include "clas.txx"
 
 namespace clas {
 //------------------------------------------------------------------------------

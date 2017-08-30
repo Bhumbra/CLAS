@@ -1,19 +1,19 @@
 # SSE4 plan for dot_product_double_mkn
 
-# RAX	out_0 and h
-# RBX	out_1
-# RCX	out_2
+# RAX	out_0 and N
+# RBX	out_1 and address offset
+# RCX	out_2 and h and address offset
 # RDX	out_3 
-# RSI	i
-# RDI	j
+# RSI	i and OutS and In0S
+# RDI	j and In0s and In1s
 # R08	in0_0 
 # R09	in0_1
-# R10	in0_2 and subtrahend
-# R11	in0_3 and minuend
-# R12	in1_0
-# R13	in1_1
-# R14	in1_2
-# R15	in1_3
+# R10	in0_2 
+# R11	in0_3 
+# R12	in1_0 
+# R13	in1_1 
+# R14	in1_2 and M
+# R15	in1_3 and K
 
 # SIMD register plan
 
@@ -21,48 +21,10 @@
 # xmm4-7:	in0
 # xmm8-15:	in1
 
-# Stack allocation of 256 bytes (no red zone)
+# Gary Bhumbra
 
-# 0x08(%rsp)	h
-# 0x10(%rsp)	_Out
-# 0x18(%rsp)	_In0 
-# 0x20(%rsp)	_In1 
-# 0x28(%rsp)	m
-# 0x30(%rsp)	k
-# 0x38(%rsp)	n
-
-# 0x40(%rsp)	OutS
-# 0x48(%rsp)	Outs 
-# 0x50(%rsp)	In0S 
-# 0x58(%rsp)	In0s 
-# 0x60(%rsp)	In1S 
-# 0x68(%rsp)	In1s 
-# 0x70(%rsp)	Out 
-# 0x78(%rsp)	In0 
-
-# 0x80(%rsp)	In1 
-# 0x88(%rsp)	M
-# 0x90(%rsp)	K 
-# 0x98(%rsp)	N 
-
-# 0xA0(%rsp)	Out_0
-# 0xA8(%rsp)	Out_1
-# 0xB0(%rsp)	Out_2
-# 0xB8(%rsp)	Out_3
-
-# 0xC0(%rsp)	in0_0
-# 0xC8(%rsp)	in0_1
-# 0xD0(%rsp)	in0_2
-# 0xD8(%rsp)	in0_3
-
-# 0xE0(%rsp)	in1_0
-# 0xE8(%rsp)	in1_1
-# 0xF0(%rsp)	in1_2
-# 0xF8(%rsp)	in1_3
-
-# 0x100(%rsp)	in0_0_0
-# ...
-# 0x1F8(%rsp)	in0_3_3
+//------------------------------------------------------------------------------
+# include "common_sse4.S"
 
 //------------------------------------------------------------------------------
 	.globl dot_product_double_mkn_1x1x1_sse4
@@ -92,104 +54,680 @@ dot_product_double_mkn_1x1x1_sse4:
 	mov 0x10(%rax), %r11
 	mov 0x18(%rax), %r12
 	mov 0x20(%rax), %r13
-	# Out _In0 _In1 m   k   n  OutS In0S In0s In1S
-	# rdi rsi  rdx  rcx r8  r9 r10  r11  r12  r13
+	# _Out _In0 _In1 m   k   n  OutS In0S In0s In1S
+	# rdi  rsi  rdx  rcx r8  r9 r10  r11  r12  r13
 
-	movq %rdi, 0x10(%rsp) 	# _Out
-	movq %rsi, 0x18(%rsp) 	# _In0
-	movq %rdx, 0x20(%rsp) 	# _In1
-	movq %rcx, 0x28(%rsp) 	# m
-	movq %r8,  0x30(%rsp) 	# k
-	movq %r9,  0x38(%rsp) 	# n
-	shlq $3, %r10		# OutS
-	movq %r10, 0x40(%rsp)
-	shlq $3, %r11		# In0S
-	movq %r11, 0x50(%rsp)
-	shlq $3, %r12		# In0s
-	movq %r12, 0x58(%rsp)
-	shlq $3, %r13		# In1S
-	movq %r13, 0x60(%rsp)
+	movq %rdi, RSP_Out_     # _Out
+	movq %rsi, RSP_In0_     # _In0
+	movq %rdx, RSP_In1_     # _In1
+	movq %rcx, RSP_m        # m
+	movq %r8, RSP_k	        # k
+	movq %r9, RSP_n	        # n
 
-	movq 0x10(%rsp), %rax	# Out = _Out;
-	movq %rax, 0x70(%rsp)
-	movq 0x18(%rsp), %r8	# In0 = _In0;
-	movq %r8, 0x78(%rsp)
+	xorq %r14, %r14
+	addq $1, %r14
 
-	movq 0x28(%rsp), %rax 	# for (h = m; h; h--) {
-	test %rax, %rax
+	testq %r10, %r10      # if (!OutS) {OutS = n;}
+	cmove %r9, %r10
+	shlq $3, %r10
+	movq %r10, RSP_OutS
+	testq %r11, %r11      # if (!In0S) {In0S = k;}
+	cmove %r8, %r11
+	shlq $3, %r11
+	movq %r11, RSP_In0S
+	testq %r12, %r12      # if (!In0s) {In1S = 1;}
+	cmove %r14, %r12
+	shlq $3, %r12
+	movq %r12, RSP_In0s
+	testq %r13, %r13      # if (!In1S) {In1S = n;}
+	cmove %r9, %r13
+	shlq $3, %r13
+	movq %r13, RSP_In1S
+
+	movq %rcx, RSP_M      # M = m;
+	movq %r8, RSP_K       # K = k;
+	movq %r9, RSP_N       # N = n;
+
+	movq %rdi, RSP_Out    # Out = _Out; 
+	movq %rsi, RSP_In0    # In0 = _In0; 
+
+	test %rcx, %rcx       # for (h = M; h; h--) {
 	je 5f
 
-	.p2align 3,,4
-	.p2align 4
 0:
-	movq %rax, 0x08(%rsp)	# h
+	movq %rcx, RSP_h
+	movq RSP_Out, %rax    # Out_0 = Out + OutS * 0;
+	movq RSP_OutS, %rsi
+	movq %rax, RSP_Out_0
+	addq %rax, %rsi       # Out += OutS * 1;
+	movq %rsi, RSP_Out
+	movq RSP_In0, %r8     # in0_0 = In0 + In0S * 0;
+	movq RSP_In0S, %rsi
+	movq %r8, RSP_in0_0
+	addq %r8, %rsi        # In0 += In0S * 1;
+	movq %rsi, RSP_In0
+	movq RSP_In1_, %r12   # In1 = _In1;
+	movq %r12, RSP_In1
 
-	movq 0x70(%rsp), %rax	# Out_0 = Out + OutS * 0;
-	movq 0x40(%rsp), %rcx
-	movq %rax, 0xA0(%rsp)
-	addq %rcx, %rax		# Out += OutS;
-	movq %rax, 0x70(%rsp)
-	movq 0x78(%rsp), %r8	# in0_0 = In0 + In0S * 0;
-	movq 0x50(%rsp), %r10
-	movq %r8, 0xC0(%rsp)
-	addq %r10, %r8		# In0 += In0S;
-	movq %r8, 0x78(%rsp)
-	movq 0x20(%rsp), %r12	# In1 = _In1;
-	movq %r12, 0x80(%rsp)
-	
-	movq 0x30(%rsp), %rsi 	# for (i = k; i; i--) {
-	test %rsi, %rsi
+	movq RSP_K, %rsi      # for (i = K; i; i--) {
+	testq %rsi, %rsi
 	je 4f
 
-	.p2align 4,,8
-	.p2align 5
 1:
-	movq 0xA0(%rsp), %rax	# out_0 = Out_0;
-	movq 0xC0(%rsp), %r8	# in0_0_0 = *(in0_0 + In0s * 0);
-	movq 0x58(%rsp), %r10
+	movq RSP_Out_0, %rax     # out_0 = Out_0;
+	movq RSP_in0_0, %r8      # in0_0_0 = *(in0_0 + In0s * 0);
+	movq RSP_In0s, %rdi
 	movsd 0x000(%r8), %xmm12
-	addq %r10, %r8		# in0_0 += In0s * 1;
-	movq %r8, 0xC0(%rsp)
-	movq 0x80(%rsp), %r12	# in1_0 = In1 + In1S * 0;
-	movq 0x60(%rsp), %r11
-	addq %r12, %r11		# In1 += In1S * 1;
-	movq %r11, 0x80(%rsp)
-
-	movq 0x38(%rsp), %rdi	# for (j = n; j; j--) {
-	test %rdi, %rdi
+	addq %r8, %rdi           # in0_0 += In0s * 1;
+	movq %rdi, RSP_in0_0
+	movq RSP_In1, %r12       # in1_0 = In1 + In1S * 0;
+	movq RSP_In1S, %rdi
+	addq %r12, %rdi          # In1 += In1S * 1;
+	movq %rdi, RSP_In1
+	
+	movq RSP_N, %rdi         # for (j = N; j; j--) {
+	testq %rdi, %rdi
 	je 3f
 
-	.p2align 5,,16
-	.p2align 6
 2:
-	# in1_0_0 = *(in1_0 + 0);
-	movsd 0x000(%r12), %xmm8
-	# in1_0 += 1;
-	addq $8, %r12
-	# i0 = in0_0_0;
-	movapd %xmm12, %xmm4
-	# o0  = i0 * in1_0_0;
-	mulsd %xmm8, %xmm4
-	# *(out_0 + 0) += o0;
-	movsd 0x000(%rax), %xmm0
+	movsd 0x000(%r12), %xmm8 # in1_0_0 = *(in1_0 + 0);
+	addq $8, %r12            # in1_0 += 1;
+	movsd %xmm12, %xmm4      # i0 = in0_0_0;
+	mulsd %xmm8, %xmm4       # o0 = i0 * in1_0_0;
+	movsd 0x000(%rax), %xmm0 # *(out_0 + 0) += o0;
 	addsd %xmm4, %xmm0
 	movsd %xmm0, 0x000(%rax)
-	# out_0 += 1;
-	addq $8, %rax
+	addq $8, %rax            # out_0 += 1;
 
-	subq $1, %rdi		# } // for (j = n; j; j--) {
-	jnz 2b
+	subq $1, %rdi            # } // for (j = N; j; j--) {
+	jne 2b
 
 3:
-	subq $1, %rsi		# } // for (i = k; i; i--) {
-	jnz 1b
+	subq $1, %rsi            # } // for (i = K; k; k--) {
+	jne 1b
 
 4:
-	movq 0x08(%rsp), %rax	# } // for (h = m; h; h--) {
-	subq $1, %rax
-	jnz 0b
+	movq RSP_h, %rcx         # } // for (h = M; h; h--) {
+	subq $1, %rcx
+	jne 0b
 
 5:
+	movq %rbp, %rsp
+	pop %r15
+	pop %r14
+	pop %r13
+	pop %r12
+	pop %rbx
+	pop %rbp
+	pop %rsp
+	ret
+
+//------------------------------------------------------------------------------
+dot_product_double_mkn_1x1x2_sse4:
+	mov %rsp, %rax
+	push %rsp
+	push %rbp
+	push %rbx
+	push %r12
+	push %r13
+	push %r14
+	push %r15
+	movq %rsp, %rbp
+	subq $640, %rsp
+	andq $-64, %rsp
+
+	mov 0x08(%rax), %r10
+	mov 0x10(%rax), %r11
+	mov 0x18(%rax), %r12
+	mov 0x20(%rax), %r13
+	# _Out _In0 _In1 m   k   n  OutS In0S In0s In1S
+	# rdi  rsi  rdx  rcx r8  r9 r10  r11  r12  r13
+
+	movq %rdi, RSP_Out_     # _Out
+	movq %rsi, RSP_In0_     # _In0
+	movq %rdx, RSP_In1_     # _In1
+	movq %rcx, RSP_m        # m
+	movq %r8, RSP_k	        # k
+	movq %r9, RSP_n	        # n
+
+	xorq %r14, %r14
+	addq $1, %r14
+
+	testq %r10, %r10      # if (!OutS) {OutS = n;}
+	cmove %r9, %r10
+	shlq $3, %r10
+	movq %r10, RSP_OutS
+	testq %r11, %r11      # if (!In0S) {In0S = k;}
+	cmove %r8, %r11
+	shlq $3, %r11
+	movq %r11, RSP_In0S
+	testq %r12, %r12      # if (!In0s) {In1S = 1;}
+	cmove %r14, %r12
+	shlq $3, %r12
+	movq %r12, RSP_In0s
+	testq %r13, %r13      # if (!In1S) {In1S = n;}
+	cmove %r9, %r13
+	shlq $3, %r13
+	movq %r13, RSP_In1S
+
+	movq %rcx, RSP_M      # M = m;
+	movq %r8, RSP_K       # K = k;
+	shrq $1, %r9          # N = n >> 1
+	movq %r9, RSP_N 
+
+	movq %rdi, RSP_Out    # Out = _Out; 
+	movq %rsi, RSP_In0    # In0 = _In0; 
+
+	test %rcx, %rcx       # for (h = M; h; h--) {
+	je 5f
+
+0:
+	movq %rcx, RSP_h
+	movq RSP_Out, %rax    # Out_0 = Out + OutS * 0;
+	movq RSP_OutS, %rsi
+	movq %rax, RSP_Out_0
+	addq %rax, %rsi       # Out += OutS * 1;
+	movq %rsi, RSP_Out
+	movq RSP_In0, %r8     # in0_0 = In0 + In0S * 0;
+	movq RSP_In0S, %rsi
+	movq %r8, RSP_in0_0
+	addq %r8, %rsi        # In0 += In0S * 1;
+	movq %rsi, RSP_In0
+	movq RSP_In1_, %r12   # In1 = _In1;
+	movq %r12, RSP_In1
+
+	movq RSP_K, %rsi      # for (i = K; i; i--) {
+	testq %rsi, %rsi
+	je 4f
+
+1:
+	movq RSP_Out_0, %rax     # out_0 = Out_0;
+	movq RSP_in0_0, %r8      # in0_0_0 = *(in0_0 + In0s * 0);
+	movq RSP_In0s, %rdi
+	movddup 0x000(%r8), %xmm12
+	addq %r8, %rdi           # in0_0 += In0s * 1;
+	movq %rdi, RSP_in0_0
+	movq RSP_In1, %r12       # in1_0 = In1 + In1S * 0;
+	movq RSP_In1S, %rdi
+	addq %r12, %rdi          # In1 += In1S * 1;
+	movq %rdi, RSP_In1
+	
+	movq RSP_N, %rdi         # for (j = N; j; j--) {
+	testq %rdi, %rdi
+	je 3f
+
+2:
+	# in1_0_0 = *(in1_0 + 0);
+	# in1_0_1 = *(in1_0 + 1);
+	# in1_0 += 2;
+	movupd 0x000(%r12), %xmm8 
+	addq $16, %r12
+	# i0 = in0_0_0;
+	# o0 = i0 * in1_0_0
+	# o1 = i0 * in1_0_1
+	movapd %xmm12, %xmm4
+	mulpd %xmm8, %xmm4
+	# *(out_0 + 0) += o0;
+	# *(out_0 + 1) += o1;
+	# out_0 += 2;
+	movupd 0x000(%rax), %xmm0
+	addpd %xmm4, %xmm0
+	movupd %xmm0, 0x000(%rax)
+	addq $16, %rax
+
+	subq $1, %rdi            # } // for (j = N; j; j--) {
+	jne 2b
+
+3:
+	subq $1, %rsi            # } // for (i = K; k; k--) {
+	jne 1b
+
+4:
+	movq RSP_h, %rcx         # } // for (h = M; h; h--) {
+	subq $1, %rcx
+	jne 0b
+
+5:
+	# _Out _In0 _In1 m   k   n  OutS In0S In0s In1S
+	# rdi  rsi  rdx  rcx r8  r9 r10  r11  r12  r13
+	movq RSP_Out_, %rdi      # Out = _Out;
+	movq RSP_In0_, %rsi      # In0 = _In0;
+	movq RSP_In1_, %rdx      # In1 = _In1;
+	movq RSP_m, %rcx         # m
+	movq RSP_k, %r8          # k
+	movq RSP_n, %r9          # n
+	movq RSP_OutS, %r10      # OutS
+	shrq $3, %r10
+	movq %r10, 0x08(%rsp)
+	movq RSP_In0S, %r11      # In0S
+	shrq $3, %r11
+	movq %r11, 0x10(%rsp)
+	movq RSP_In0s, %r12      # In0s
+	shrq $3, %r12
+	movq %r12, 0x18(%rsp)
+	movq RSP_In1S, %r13      # In1S
+	shrq $3, %r13
+	movq %r13, 0x20(%rsp)
+
+	movq %r9, %rbx           # j = n;
+	movq RSP_N, %rax         # N <<= 1
+	shlq $1, %rax
+	cmpq %r9, %rax           # if (N < n) {
+	jge 6f
+
+	movq %r9, %rax           # N = n & 1;
+	andq $1, %rax
+	subq %rax, %rbx          # j -= N;
+	shlq $3, %rbx
+	addq %rbx, %rdi          # Out += j;
+	addq %rbx, %rdx          # In1 += j;
+	# dot_product_mkn_1x1x1(Out, In0, In1, m, k, N, OutS, In0S, In0s, In1s);
+	movq %rax, %r9
+	addq $8, %rsp
+	call dot_product_double_mkn_1x1x1_sse4
+	subq $8, %rsp
+
+6:                               # } // if (N < n) {
+	movq %rbp, %rsp
+	pop %r15
+	pop %r14
+	pop %r13
+	pop %r12
+	pop %rbx
+	pop %rbp
+	pop %rsp
+	ret
+
+//------------------------------------------------------------------------------
+dot_product_double_mkn_1x1x4_sse4:
+	mov %rsp, %rax
+	push %rsp
+	push %rbp
+	push %rbx
+	push %r12
+	push %r13
+	push %r14
+	push %r15
+	movq %rsp, %rbp
+	subq $640, %rsp
+	andq $-64, %rsp
+
+	mov 0x08(%rax), %r10
+	mov 0x10(%rax), %r11
+	mov 0x18(%rax), %r12
+	mov 0x20(%rax), %r13
+	# _Out _In0 _In1 m   k   n  OutS In0S In0s In1S
+	# rdi  rsi  rdx  rcx r8  r9 r10  r11  r12  r13
+
+	movq %rdi, RSP_Out_     # _Out
+	movq %rsi, RSP_In0_     # _In0
+	movq %rdx, RSP_In1_     # _In1
+	movq %rcx, RSP_m        # m
+	movq %r8, RSP_k	        # k
+	movq %r9, RSP_n	        # n
+
+	xorq %r14, %r14
+	addq $1, %r14
+
+	testq %r10, %r10      # if (!OutS) {OutS = n;}
+	cmove %r9, %r10
+	shlq $3, %r10
+	movq %r10, RSP_OutS
+	testq %r11, %r11      # if (!In0S) {In0S = k;}
+	cmove %r8, %r11
+	shlq $3, %r11
+	movq %r11, RSP_In0S
+	testq %r12, %r12      # if (!In0s) {In1S = 1;}
+	cmove %r14, %r12
+	shlq $3, %r12
+	movq %r12, RSP_In0s
+	testq %r13, %r13      # if (!In1S) {In1S = n;}
+	cmove %r9, %r13
+	shlq $3, %r13
+	movq %r13, RSP_In1S
+
+	movq %rcx, RSP_M      # M = m;
+	movq %r8, RSP_K       # K = k;
+	shrq $2, %r9          # N = n >> 2
+	movq %r9, RSP_N 
+
+	movq %rdi, RSP_Out    # Out = _Out; 
+	movq %rsi, RSP_In0    # In0 = _In0; 
+
+	test %rcx, %rcx       # for (h = M; h; h--) {
+	je 5f
+
+0:
+	movq %rcx, RSP_h
+	movq RSP_Out, %rax    # Out_0 = Out + OutS * 0;
+	movq RSP_OutS, %rsi
+	movq %rax, RSP_Out_0
+	addq %rax, %rsi       # Out += OutS * 1;
+	movq %rsi, RSP_Out
+	movq RSP_In0, %r8     # in0_0 = In0 + In0S * 0;
+	movq RSP_In0S, %rsi
+	movq %r8, RSP_in0_0
+	addq %r8, %rsi        # In0 += In0S * 1;
+	movq %rsi, RSP_In0
+	movq RSP_In1_, %r12   # In1 = _In1;
+	movq %r12, RSP_In1
+
+	movq RSP_K, %rsi      # for (i = K; i; i--) {
+	testq %rsi, %rsi
+	je 4f
+
+1:
+	movq RSP_Out_0, %rax     # out_0 = Out_0;
+	movq RSP_in0_0, %r8      # in0_0_0 = *(in0_0 + In0s * 0);
+	movq RSP_In0s, %rdi
+	movddup 0x000(%r8), %xmm12
+	addq %r8, %rdi           # in0_0 += In0s * 1;
+	movq %rdi, RSP_in0_0
+	movq RSP_In1, %r12       # in1_0 = In1 + In1S * 0;
+	movq RSP_In1S, %rdi
+	addq %r12, %rdi          # In1 += In1S * 1;
+	movq %rdi, RSP_In1
+	
+	movq RSP_N, %rdi         # for (j = N; j; j--) {
+	testq %rdi, %rdi
+	je 3f
+
+2:
+	# in1_0_0 = *(in1_0 + 0);
+	# in1_0_1 = *(in1_0 + 1);
+	# in1_0_2 = *(in1_0 + 2);
+	# in1_0_3 = *(in1_0 + 3);
+	# in1_0 += 4;
+	movupd 0x000(%r12), %xmm8 
+	movupd 0x010(%r12), %xmm9 
+	addq $32, %r12
+	# i0 = in0_0_0;
+	# o0 = i0 * in1_0_0
+	# o1 = i0 * in1_0_1
+	# o2 = i0 * in1_0_2
+	# o3 = i0 * in1_0_3
+	movapd %xmm12, %xmm4
+	movapd %xmm12, %xmm5
+	mulpd %xmm8, %xmm4
+	mulpd %xmm9, %xmm5
+	# *(out_0 + 0) += o0;
+	# *(out_0 + 1) += o1;
+	# *(out_0 + 2) += o2;
+	# *(out_0 + 3) += o3;
+	# out_0 += 4;
+	movupd 0x000(%rax), %xmm0
+	movupd 0x010(%rax), %xmm1
+	addpd %xmm4, %xmm0
+	addpd %xmm5, %xmm1
+	movupd %xmm0, 0x000(%rax)
+	movupd %xmm1, 0x010(%rax)
+	addq $32, %rax
+
+	subq $1, %rdi            # } // for (j = N; j; j--) {
+	jne 2b
+
+3:
+	subq $1, %rsi            # } // for (i = K; k; k--) {
+	jne 1b
+
+4:
+	movq RSP_h, %rcx         # } // for (h = M; h; h--) {
+	subq $1, %rcx
+	jne 0b
+
+5:
+	# _Out _In0 _In1 m   k   n  OutS In0S In0s In1S
+	# rdi  rsi  rdx  rcx r8  r9 r10  r11  r12  r13
+	movq RSP_Out_, %rdi      # Out = _Out;
+	movq RSP_In0_, %rsi      # In0 = _In0;
+	movq RSP_In1_, %rdx      # In1 = _In1;
+	movq RSP_m, %rcx         # m
+	movq RSP_k, %r8          # k
+	movq RSP_n, %r9          # n
+	movq RSP_OutS, %r10      # OutS
+	shrq $3, %r10
+	movq %r10, 0x08(%rsp)
+	movq RSP_In0S, %r11      # In0S
+	shrq $3, %r11
+	movq %r11, 0x10(%rsp)
+	movq RSP_In0s, %r12      # In0s
+	shrq $3, %r12
+	movq %r12, 0x18(%rsp)
+	movq RSP_In1S, %r13      # In1S
+	shrq $3, %r13
+	movq %r13, 0x20(%rsp)
+
+	movq %r9, %rbx           # j = n;
+	movq RSP_N, %rax         # N <<= 2
+	shlq $2, %rax
+	cmpq %r9, %rax           # if (N < n) {
+	jge 6f
+
+	movq %r9, %rax           # N = n & 3;
+	andq $3, %rax
+	subq %rax, %rbx          # j -= N;
+	shlq $3, %rbx
+	addq %rbx, %rdi          # Out += j;
+	addq %rbx, %rdx          # In1 += j;
+	# dot_product_mkn_1x1x2(Out, In0, In1, m, k, N, OutS, In0S, In0s, In1s);
+	movq %rax, %r9
+	addq $8, %rsp
+	call dot_product_double_mkn_1x1x2_sse4
+	subq $8, %rsp
+
+6:                               # } // if (N < n) {
+	movq %rbp, %rsp
+	pop %r15
+	pop %r14
+	pop %r13
+	pop %r12
+	pop %rbx
+	pop %rbp
+	pop %rsp
+	ret
+
+//------------------------------------------------------------------------------
+dot_product_double_mkn_1x1x8_sse4:
+	mov %rsp, %rax
+	push %rsp
+	push %rbp
+	push %rbx
+	push %r12
+	push %r13
+	push %r14
+	push %r15
+	movq %rsp, %rbp
+	subq $640, %rsp
+	andq $-64, %rsp
+
+	mov 0x08(%rax), %r10
+	mov 0x10(%rax), %r11
+	mov 0x18(%rax), %r12
+	mov 0x20(%rax), %r13
+	# _Out _In0 _In1 m   k   n  OutS In0S In0s In1S
+	# rdi  rsi  rdx  rcx r8  r9 r10  r11  r12  r13
+
+	movq %rdi, RSP_Out_     # _Out
+	movq %rsi, RSP_In0_     # _In0
+	movq %rdx, RSP_In1_     # _In1
+	movq %rcx, RSP_m        # m
+	movq %r8, RSP_k	        # k
+	movq %r9, RSP_n	        # n
+
+	xorq %r14, %r14
+	addq $1, %r14
+
+	testq %r10, %r10      # if (!OutS) {OutS = n;}
+	cmove %r9, %r10
+	shlq $3, %r10
+	movq %r10, RSP_OutS
+	testq %r11, %r11      # if (!In0S) {In0S = k;}
+	cmove %r8, %r11
+	shlq $3, %r11
+	movq %r11, RSP_In0S
+	testq %r12, %r12      # if (!In0s) {In1S = 1;}
+	cmove %r14, %r12
+	shlq $3, %r12
+	movq %r12, RSP_In0s
+	testq %r13, %r13      # if (!In1S) {In1S = n;}
+	cmove %r9, %r13
+	shlq $3, %r13
+	movq %r13, RSP_In1S
+
+	movq %rcx, RSP_M      # M = m;
+	movq %r8, RSP_K       # K = k;
+	shrq $3, %r9          # N = n >> 3
+	movq %r9, RSP_N 
+
+	movq %rdi, RSP_Out    # Out = _Out; 
+	movq %rsi, RSP_In0    # In0 = _In0; 
+
+	test %rcx, %rcx       # for (h = M; h; h--) {
+	je 5f
+
+0:
+	movq %rcx, RSP_h
+	movq RSP_Out, %rax    # Out_0 = Out + OutS * 0;
+	movq RSP_OutS, %rsi
+	movq %rax, RSP_Out_0
+	addq %rax, %rsi       # Out += OutS * 1;
+	movq %rsi, RSP_Out
+	movq RSP_In0, %r8     # in0_0 = In0 + In0S * 0;
+	movq RSP_In0S, %rsi
+	movq %r8, RSP_in0_0
+	addq %r8, %rsi        # In0 += In0S * 1;
+	movq %rsi, RSP_In0
+	movq RSP_In1_, %r12   # In1 = _In1;
+	movq %r12, RSP_In1
+
+	movq RSP_K, %rsi      # for (i = K; i; i--) {
+	testq %rsi, %rsi
+	je 4f
+
+1:
+	movq RSP_Out_0, %rax     # out_0 = Out_0;
+	movq RSP_in0_0, %r8      # in0_0_0 = *(in0_0 + In0s * 0);
+	movq RSP_In0s, %rdi
+	movddup 0x000(%r8), %xmm12
+	addq %r8, %rdi           # in0_0 += In0s * 1;
+	movq %rdi, RSP_in0_0
+	movq RSP_In1, %r12       # in1_0 = In1 + In1S * 0;
+	movq RSP_In1S, %rdi
+	addq %r12, %rdi          # In1 += In1S * 1;
+	movq %rdi, RSP_In1
+	
+	movq RSP_N, %rdi         # for (j = N; j; j--) {
+	testq %rdi, %rdi
+	je 3f
+
+2:
+	# in1_0_0 = *(in1_0 + 0);
+	# in1_0_1 = *(in1_0 + 1);
+	# in1_0_2 = *(in1_0 + 2);
+	# in1_0_3 = *(in1_0 + 3);
+	# in1_0_4 = *(in1_0 + 4);
+	# in1_0_5 = *(in1_0 + 5);
+	# in1_0_6 = *(in1_0 + 6);
+	# in1_0_7 = *(in1_0 + 7);
+	# in1_0 += 8;
+	movupd 0x000(%r12), %xmm8 
+	movupd 0x010(%r12), %xmm9 
+	movupd 0x020(%r12), %xmm10 
+	movupd 0x030(%r12), %xmm11 
+	addq $64, %r12
+	# i0 = in0_0_0;
+	# o0 = i0 * in1_0_0
+	# o1 = i0 * in1_0_1
+	# o2 = i0 * in1_0_2
+	# o3 = i0 * in1_0_3
+	# o4 = i0 * in1_0_4
+	# o5 = i0 * in1_0_5
+	# o6 = i0 * in1_0_6
+	# o7 = i0 * in1_0_7
+	movapd %xmm12, %xmm4
+	movapd %xmm12, %xmm5
+	movapd %xmm12, %xmm6
+	movapd %xmm12, %xmm7
+	mulpd %xmm8, %xmm4
+	mulpd %xmm9, %xmm5
+	mulpd %xmm10, %xmm6
+	mulpd %xmm11, %xmm7
+	# *(out_0 + 0) += o0;
+	# *(out_0 + 1) += o1;
+	# *(out_0 + 2) += o2;
+	# *(out_0 + 3) += o3;
+	# *(out_0 + 4) += o4;
+	# *(out_0 + 5) += o5;
+	# *(out_0 + 6) += o6;
+	# *(out_0 + 7) += o7;
+	# out_0 += 8;
+	movupd 0x000(%rax), %xmm0
+	movupd 0x010(%rax), %xmm1
+	movupd 0x020(%rax), %xmm2
+	movupd 0x030(%rax), %xmm3
+	addpd %xmm4, %xmm0
+	addpd %xmm5, %xmm1
+	addpd %xmm6, %xmm2
+	addpd %xmm7, %xmm3
+	movupd %xmm0, 0x000(%rax)
+	movupd %xmm1, 0x010(%rax)
+	movupd %xmm2, 0x020(%rax)
+	movupd %xmm3, 0x030(%rax)
+	addq $64, %rax
+
+	subq $1, %rdi            # } // for (j = N; j; j--) {
+	jne 2b
+
+3:
+	subq $1, %rsi            # } // for (i = K; k; k--) {
+	jne 1b
+
+4:
+	movq RSP_h, %rcx         # } // for (h = M; h; h--) {
+	subq $1, %rcx
+	jne 0b
+
+5:
+	# _Out _In0 _In1 m   k   n  OutS In0S In0s In1S
+	# rdi  rsi  rdx  rcx r8  r9 r10  r11  r12  r13
+	movq RSP_Out_, %rdi      # Out = _Out;
+	movq RSP_In0_, %rsi      # In0 = _In0;
+	movq RSP_In1_, %rdx      # In1 = _In1;
+	movq RSP_m, %rcx         # m
+	movq RSP_k, %r8          # k
+	movq RSP_n, %r9          # n
+	movq RSP_OutS, %r10      # OutS
+	shrq $3, %r10
+	movq %r10, 0x08(%rsp)
+	movq RSP_In0S, %r11      # In0S
+	shrq $3, %r11
+	movq %r11, 0x10(%rsp)
+	movq RSP_In0s, %r12      # In0s
+	shrq $3, %r12
+	movq %r12, 0x18(%rsp)
+	movq RSP_In1S, %r13      # In1S
+	shrq $3, %r13
+	movq %r13, 0x20(%rsp)
+
+	movq %r9, %rbx           # j = n;
+	movq RSP_N, %rax         # N <<= 3
+	shlq $3, %rax
+	cmpq %r9, %rax           # if (N < n) {
+	jge 6f
+
+	movq %r9, %rax           # N = n & 7;
+	andq $7, %rax
+	subq %rax, %rbx          # j -= N;
+	shlq $3, %rbx
+	addq %rbx, %rdi          # Out += j;
+	addq %rbx, %rdx          # In1 += j;
+	# dot_product_mkn_1x1x4(Out, In0, In1, m, k, N, OutS, In0S, In0s, In1s);
+	movq %rax, %r9
+	addq $8, %rsp
+	call dot_product_double_mkn_1x1x4_sse4
+	subq $8, %rsp
+
+6:                               # } // if (N < n) {
 	movq %rbp, %rsp
 	pop %r15
 	pop %r14
@@ -218,300 +756,277 @@ dot_product_double_mkn_2x2x2_sse4:
 	mov 0x10(%rax), %r11
 	mov 0x18(%rax), %r12
 	mov 0x20(%rax), %r13
-	# Out _In0 _In1 m   k   n  OutS In0S In0s In1S
-	# rdi rsi  rdx  rcx r8  r9 r10  r11  r12  r13
+	# _Out _In0 _In1 m   k   n  OutS In0S In0s In1S
+	# rdi  rsi  rdx  rcx r8  r9 r10  r11  r12  r13
 
-	movq %rdi, 0x10(%rsp) 	# _Out
-	movq %rsi, 0x18(%rsp) 	# _In0
-	movq %rdx, 0x20(%rsp) 	# _In1
-	movq %rcx, 0x28(%rsp) 	# m
-	movq %r8,  0x30(%rsp) 	# k
-	movq %r9,  0x38(%rsp) 	# n
-	shlq $3, %r10		# OutS
-	movq %r10, 0x40(%rsp)
-	shlq $3, %r11		# In0S
-	movq %r11, 0x50(%rsp)
-	shlq $3, %r12		# In0s
-	movq %r12, 0x58(%rsp)
-	shlq $3, %r13		# In1S
-	movq %r13, 0x60(%rsp)
+	movq %rdi, RSP_Out_     # _Out
+	movq %rsi, RSP_In0_     # _In0
+	movq %rdx, RSP_In1_     # _In1
+	movq %rcx, RSP_m        # m
+	movq %r8, RSP_k	        # k
+	movq %r9, RSP_n	        # n
 
-	movq 0x28(%rsp), %rdx	# M = m >> 1
-	shrq $1, %rdx
-	movq %rdx, 0x88(%rsp)
-	movq 0x30(%rsp), %rsi	# K = k >> 1
-	shrq $1, %rsi
-	movq %rsi, 0x90(%rsp)
-	movq 0x38(%rsp), %rdi	# N = n >> 1
-	shrq $1, %rdi
-	movq %rdi, 0x98(%rsp)
+	xorq %r14, %r14
+	addq $1, %r14
 
-	movq 0x10(%rsp), %rax	# Out = _Out;
-	movq %rax, 0x70(%rsp)
-	movq 0x18(%rsp), %r8	# In0 = _In0;
-	movq %r8, 0x78(%rsp)
+	testq %r10, %r10      # if (!OutS) {OutS = n;}
+	cmove %r9, %r10
+	shlq $3, %r10
+	movq %r10, RSP_OutS
+	testq %r11, %r11      # if (!In0S) {In0S = k;}
+	cmove %r8, %r11
+	shlq $3, %r11
+	movq %r11, RSP_In0S
+	testq %r12, %r12      # if (!In0s) {In1S = 1;}
+	cmove %r14, %r12
+	shlq $3, %r12
+	movq %r12, RSP_In0s
+	testq %r13, %r13      # if (!In1S) {In1S = n;}
+	cmove %r9, %r13
+	shlq $3, %r13
+	movq %r13, RSP_In1S
 
-	movq 0x88(%rsp), %rax 	# for (h = m; h; h--) {
-	test %rax, %rax
+	shrq $1, %rcx         # M = m >> 1;
+	movq %rcx, RSP_M
+	shrq $1, %r8          # K = k >> 1;
+	movq %r8, RSP_K
+	shrq $1, %r9          # N = n >> 1
+	movq %r9, RSP_N 
+
+	movq %rdi, RSP_Out    # Out = _Out; 
+	movq %rsi, RSP_In0    # In0 = _In0; 
+
+	test %rcx, %rcx       # for (h = M; h; h--) {
 	je 5f
 
-	.p2align 3,,4
-	.p2align 4
 0:
-	movq %rax, 0x08(%rsp)	# h
+	movq %rcx, RSP_h
+	movq RSP_Out, %rax       # Out_0 = Out + OutS * 0;
+	movq RSP_OutS, %rsi
+	movq %rax, RSP_Out_0
+	leaq 0(%rax, %rsi), %rbx # Out_1 = Out + Outs * 1;
+	movq %rbx, RSP_Out_1
+	addq %rbx, %rsi          # Out += OutS * 2;
+	movq %rsi, RSP_Out
+	movq RSP_In0, %r8        # in0_0 = In0 + In0S * 0;
+	movq RSP_In0S, %rsi
+	movq %r8, RSP_in0_0
+	leaq 0(%r8, %rsi), %r9   # in0_1 = In0 + In1S * 1; 
+	movq %r9, RSP_in0_1
+	addq %r9, %rsi           # In0 += In0S * 2;
+	movq %rsi, RSP_In0
+	movq RSP_In1_, %r12      # In1 = _In1;
+	movq %r12, RSP_In1
 
-	movq 0x70(%rsp), %rax	# Out_0 = Out + OutS * 0;
-	movq 0x40(%rsp), %rcx
-	movq %rax, 0xA0(%rsp)
-	leaq (%rax, %rcx), %rbx # Out_1 = Out + OutS * 1
-	movq %rbx, 0xA8(%rsp)
-	addq %rcx, %rbx		# Out += OutS * 2;
-	movq %rbx, 0x70(%rsp)
-	movq 0x78(%rsp), %r8	# in0_0 = In0 + In0S * 0;
-	movq 0x50(%rsp), %r10
-	movq %r8, 0xC0(%rsp)
-	leaq (%r8, %r10), %r9	# in0_1 = In0 + In0S * 1
-	movq %r9, 0xC8(%rsp)
-	addq %r10, %r9		# In0 += In0S * 2;
-	movq %r9, 0x78(%rsp)
-	movq 0x20(%rsp), %r12	# In1 = _In1;
-	movq %r12, 0x80(%rsp)
-	
-	movq 0x90(%rsp), %rsi 	# for (i = K; i; i--) {
-	test %rsi, %rsi
+	movq RSP_K, %rsi         # for (i = K; i; i--) {
+	testq %rsi, %rsi
 	je 4f
 
-	.p2align 4,,8
-	.p2align 5
 1:
-	movq 0xA0(%rsp), %rax		# out_0 = Out_0;
-	movq 0xA8(%rsp), %rbx		# out_1 = Out_1;
-
-	movq 0xC0(%rsp), %r8		# in0_0_0 = *(in0_0 + In0s * 0);
-	movq 0x58(%rsp), %r10
+	movq RSP_Out_0, %rax     # out_0 = Out_0;
+	movq RSP_Out_1, %rbx     # out_1 = Out_1;
+	movq RSP_in0_0, %r8      # in0_0_0 = *(in0_0 + In0s * 0);
+	movq RSP_In0s, %rdi
 	movddup 0x000(%r8), %xmm12
-	movddup (%r8, %r10), %xmm13 	# in0_0_1 = *(in0_0 + In0s * 1)
-	leaq (%r8, %r10, 2), %r9	# in0_0 += In0s * 2
-	movq %r9, 0xC0(%rsp)
-
-	movq 0xC8(%rsp), %r8		# in0_1_0 = *(in0_1 + In0s * 0);
-	movddup 0x000(%r8), %xmm14
-	movddup (%r8, %r10), %xmm15	# in0_1_1 = *(in0_1 + In0s * 1)
-	leaq (%r8, %r10, 2), %r9	# in0_1 += In0s * 2
-	movq %r9, 0xC8(%rsp)
-
-	movq 0x80(%rsp), %r12		# in1_0 = In1 + In1S * 0;
-	movq 0x60(%rsp), %r11
-	leaq (%r12, %r11), %r13		# in1_1 = In1 + In1S * 1;
-	addq %r13, %r11
-	movq %r11, 0x80(%rsp)		# In1 += In1S * 2;
-
-	movq 0x98(%rsp), %rdi		# for (j = N; j; j--) {
-	test %rdi, %rdi
+	addq %rdi, %r8           # in0_0_1 = *(in0_0 + In0s * 1);
+	movddup 0x000(%r8), %xmm13
+	addq %rdi, %r8           # in0_0 += In0s * 2
+	movq %r8, RSP_in0_0
+	movq RSP_in0_1, %r9      # in0_1_0 = *(in0_1 + In0s * 0);
+	movddup 0x000(%r9), %xmm14
+	addq %rdi, %r9           # in0_1_1 = *(in0_1 + In0s * 1);
+	movddup 0x000(%r9), %xmm15
+	addq %rdi, %r9           # in0_1 += In0s * 2
+	movq %r9, RSP_in0_1
+	movq RSP_In1, %r12       # in1_0 = In1 + In1S * 0;
+	movq RSP_In1S, %rdi
+	leaq 0(%r12, %rdi), %r13 # in1_1 = In1 + In1S * 1;
+	addq %r13, %rdi          # In1 += In1S * 2;
+	movq %rdi, RSP_In1
+	
+	movq RSP_N, %rdi         # for (j = N; j; j--) {
+	testq %rdi, %rdi
 	je 3f
 
-	.p2align 5,,16
-	.p2align 6
 2:
 	# in1_0_0 = *(in1_0 + 0);
 	# in1_0_1 = *(in1_0 + 1);
-	movupd 0x000(%r12), %xmm8
 	# in1_0 += 2;
-	addq $16, %r12
 	# in1_1_0 = *(in1_1 + 0);
 	# in1_1_1 = *(in1_1 + 1);
-	movupd 0x000(%r13), %xmm9
 	# in1_1 += 2;
+	movupd 0x000(%r12), %xmm8 
+	addq $16, %r12
+	movupd 0x000(%r13), %xmm9 
 	addq $16, %r13
-
-	# i0 = in0_0_0;
-	# i1 = in0_0_1;
-	movapd %xmm12, %xmm4
-	movapd %xmm13, %xmm5
-	# o0  = i0 * in1_0_0;
-	# o1  = i0 * in1_0_1;
-	mulpd %xmm8, %xmm4
-	# o0  += i1 * in1_0_0;
-	# o1  += i1 * in1_0_1;
-	mulpd %xmm9, %xmm5
-	addpd %xmm5, %xmm4
+	# i0  = in0_0_0;
+	# i1  = in0_0_1;
+	# o0  = i0 * in1_0_0
+	# o1  = i0 * in1_0_1
+	# o0 += i1 * in1_0_0
+	# o1 += i1 * in1_0_1
 	# *(out_0 + 0) += o0;
 	# *(out_0 + 1) += o1;
+	# out_0 += 2;
+	movapd %xmm12, %xmm4
+	movapd %xmm13, %xmm5
+	mulpd %xmm8, %xmm4
+	mulpd %xmm9, %xmm5
+	addpd %xmm5, %xmm4
 	movupd 0x000(%rax), %xmm0
 	addpd %xmm4, %xmm0
 	movupd %xmm0, 0x000(%rax)
-	# out_0 += 2;
 	addq $16, %rax
-
-	# i0 = in0_1_0;
-	# i1 = in0_1_1;
-	movapd %xmm14, %xmm4
-	movapd %xmm15, %xmm5
-	# o0  = i0 * in1_0_0;
-	# o1  = i0 * in1_0_1;
-	mulpd %xmm8, %xmm4
-	# o0  += i1 * in1_0_0;
-	# o1  += i1 * in1_0_1;
-	mulpd %xmm9, %xmm5
-	addpd %xmm5, %xmm4
+	# i0  = in0_1_0;
+	# i1  = in0_1_1;
+	# o0  = i0 * in1_0_0
+	# o1  = i0 * in1_0_1
+	# o0 += i1 * in1_0_0
+	# o1 += i1 * in1_0_1
 	# *(out_1 + 0) += o0;
 	# *(out_1 + 1) += o1;
-	movupd 0x000(%rbx), %xmm0
-	addpd %xmm4, %xmm0
-	movupd %xmm0, 0x000(%rbx)
 	# out_1 += 2;
+	movapd %xmm14, %xmm6
+	movapd %xmm15, %xmm7
+	mulpd %xmm8, %xmm6
+	mulpd %xmm9, %xmm7
+	addpd %xmm7, %xmm6
+	movupd 0x000(%rbx), %xmm2
+	addpd %xmm6, %xmm2
+	movupd %xmm2, 0x000(%rbx)
 	addq $16, %rbx
 
-	subq $1, %rdi		# } // for (j = n; j; j--) {
-	jnz 2b
+	subq $1, %rdi            # } // for (j = N; j; j--) {
+	jne 2b
 
 3:
-	subq $1, %rsi		# } // for (i = k; i; i--) {
-	jnz 1b
+	subq $1, %rsi            # } // for (i = K; k; k--) {
+	jne 1b
 
 4:
-	movq 0x08(%rsp), %rax	# } // for (h = m; h; h--) {
-	subq $1, %rax
-	jnz 0b
+	movq RSP_h, %rcx         # } // for (h = M; h; h--) {
+	subq $1, %rcx
+	jne 0b
 
 5:
-
-	movq 0x10(%rsp), %rax	# Out = _Out
-	movq %rax, 0x70(%rsp)
-	movq 0x18(%rsp), %r8	# In0 = _In0
-	movq %r8,  0x78(%rsp)
-	movq 0x20(%rsp), %r12	# In1 = _In1
-	movq %r12, 0x80(%rsp)
-
-	movq 0x28(%rsp), %rax	# M = m & 1
-	andq $1, %rax
-	movq 0x30(%rsp), %r14	# K = k & 1
-	andq $1, %r14
-	movq 0x38(%rsp), %r15	# N = n & 1
-	andq $1, %r15
-
-	# Out _In0 _In1 m   k   n  OutS In0S In0s In1S
-	# rdi rsi  rdx  rcx r8  r9 r10  r11  r12  r13
-	movq 0x70(%rsp), %rdi	# Out
-	movq 0x78(%rsp), %rsi	# In0
-	movq 0x80(%rsp), %rdx	# In1
-	movq 0x28(%rsp), %rcx	# m
-	movq 0x30(%rsp), %r8	# k
-	movq 0x38(%rsp), %r9	# n
-	movq 0x40(%rsp), %r10	# OutS
+	# _Out _In0 _In1 m   k   n  OutS In0S In0s In1S
+	# rdi  rsi  rdx  rcx r8  r9 r10  r11  r12  r13
+	movq RSP_Out_, %rdi      # Out = _Out;
+	movq RSP_In0_, %rsi      # In0 = _In0;
+	movq RSP_In1_, %rdx      # In1 = _In1;
+	movq RSP_m, %rcx         # m
+	movq RSP_k, %r8          # k
+	movq RSP_n, %r9          # n
+	movq RSP_OutS, %r10      # OutS
 	shrq $3, %r10
 	movq %r10, 0x08(%rsp)
-	movq 0x50(%rsp), %r11	# In0S
+	movq RSP_In0S, %r11      # In0S
 	shrq $3, %r11
 	movq %r11, 0x10(%rsp)
-	movq 0x58(%rsp), %r12	# In0s
+	movq RSP_In0s, %r12      # In0s
 	shrq $3, %r12
 	movq %r12, 0x18(%rsp)
-	movq 0x60(%rsp), %r13	# In1S
+	movq RSP_In1S, %r13      # In1S
 	shrq $3, %r13
 	movq %r13, 0x20(%rsp)
 
-	movq %rcx, %r10		# h = m;
-	movq %r8, %r11		# i = k;
-	movq %r9, %r12		# j = n;
+	movq RSP_M, %r14         # M <<= 1
+	shlq $1, %r14
+	movq RSP_K, %r15         # K <<= 1
+	shlq $1, %r15
+	movq RSP_N, %rax         # N <<= 1
+	shlq $1, %rax
 
-	test %rax, %rax		# if (M) {
-	jz 6f
+	movq %r9, %rbx           # j = n;
+	cmpq %rbx, %rax          # if (N < j) {
+	jge 6f
 
-	subq %rax, %r10		# h -= M;
-	movq 0x40(%rsp), %rbx	# OutS
-	movq 0x50(%rsp), %r13	# In0S
-
-	imulq %r10, %rbx 	# Out += OutS * h
-	addq %rbx, %rdi
-	imulq %r10, %r13	# In0 += In0S * h
-	addq %r13, %rsi
-	movq %rax, %rcx		# M
-
-	# dot_product_mkn_1x1x1(Out, In0, In1, M, k, n, OutS, In0S, In0s, In1S);
-	movq %rax, 0xA0(%rsp)
-	movq %rcx, 0xA8(%rsp)
-	movq %rdx, 0xB0(%rsp)
-	movq %rsi, 0xB8(%rsp)
-	movq %rdi, 0xC0(%rsp)
-	movq %r8,  0xC8(%rsp)
-	movq %r9,  0xD0(%rsp)
-	movq %r10, 0xD8(%rsp)
-	movq %r11, 0xE0(%rsp)
+	movq %rbx, %rax          # N = j & 1;
+	andq $1, %rax
+	subq %rax, %rbx          # j -= N;
+	shlq $3, %rbx
+	addq %rbx, %rdi          # Out += j;
+	addq %rbx, %rdx          # In1 += j;
+	# dot_product_mkn_1x1x1(Out, In0, In1, M, K, N, OutS, In0S, In0s, In1s);
+	movq %r14, %rcx
+	movq %r15, %r8
+	movq %rax, %r9
 	addq $8, %rsp
 	call dot_product_double_mkn_1x1x1_sse4
 	subq $8, %rsp
-	movq 0xA0(%rsp), %rax
-	movq 0xA8(%rsp), %rcx
-	movq 0xB0(%rsp), %rdx
-	movq 0xB8(%rsp), %rsi
-	movq 0xC0(%rsp), %rdi
-	movq 0xC8(%rsp), %r8
-	movq 0xD0(%rsp), %r9
-	movq 0xD8(%rsp), %r10
-	movq 0xE0(%rsp), %r11
+	movq RSP_Out_, %rdi      # Out = _Out;
+	movq RSP_In0_, %rsi      # In0 = _In0;
+	movq RSP_In1_, %rdx      # In1 = _In1;
+	movq RSP_m, %rcx
+	movq RSP_k, %r8
+	movq RSP_n, %r9
+	movq 0x08(%rsp), %r10
+	movq 0x10(%rsp), %r11
+	movq 0x18(%rsp), %r12
+	movq 0x20(%rsp), %r13
 
-	movq 0x70(%rsp), %rdi	# Out = _Out
-	movq 0x78(%rsp), %rsi	# In0 = _In0
+6:                               # } // if (N < n) {
 
-6:
-	movq %r10, %rcx		# } h
-	test %r14, %r14		# if (K) {
-	jz 7f
+	movq %r8, %rbx           # i = k
+	cmpq %rbx, %r15          # if (K < i) {
+	jge 7f
 
-	subq %r14, %r11		# i -= K;
-	movq 0x58(%rsp), %rbx	# In0s
-	movq 0x60(%rsp), %r13	# In1S
-
-	imulq %r11, %rbx	# In0 += In0s * i	
-	addq %rbx, %rsi
-	imulq %r11, %r13	# In1 += In1S * i	
-	addq %r13, %rdx
-	movq %r14, %r8		# K
-
-	# dot_product_mkn_1x1x1(Out, In0, In1, h, K, n, OutS, In0S, In0s, In1S);
-	movq %rax, 0xA0(%rsp)
-	movq %rcx, 0xA8(%rsp)
-	movq %rdx, 0xB0(%rsp)
-	movq %rsi, 0xB8(%rsp)
-	movq %rdi, 0xC0(%rsp)
-	movq %r8,  0xC8(%rsp)
-	movq %r9,  0xD0(%rsp)
-	movq %r10, 0xD8(%rsp)
-	movq %r11, 0xE0(%rsp)
+	movq %rbx, %r15          # K = i & 1
+	andq $1, %r15
+	subq %r15, %rbx          # i -= K;
+	shlq $3, %rbx
+	movq %rbx, %rcx          # In0 += In0s * i;
+	imul %r12, %rcx 
+	addq %rcx, %rsi
+	imul %r13, %rbx          # In1 += In1S * i;
+	addq %rbx, %rdx
+	# dot_product_mkn_1x1x8(Out, In0, In1, M, K, n, OutS, In0S, In0s, In1s);
+	movq %r14, %rcx
+	movq %r15, %r8
 	addq $8, %rsp
-	call dot_product_double_mkn_1x1x1_sse4
+	call dot_product_double_mkn_1x1x8_sse4
 	subq $8, %rsp
-	movq 0xA0(%rsp), %rax
-	movq 0xA8(%rsp), %rcx
-	movq 0xB0(%rsp), %rdx
-	movq 0xB8(%rsp), %rsi
-	movq 0xC0(%rsp), %rdi
-	movq 0xC8(%rsp), %r8
-	movq 0xD0(%rsp), %r9
-	movq 0xD8(%rsp), %r10
-	movq 0xE0(%rsp), %r11
-
-	movq 0x78(%rsp), %rsi	# In0 = _In0
-	movq 0x80(%rsp), %rdx	# In1 = _In1
+	movq RSP_Out_, %rdi      # Out = _Out;
+	movq RSP_In0_, %rsi      # In0 = _In0;
+	movq RSP_In1_, %rdx      # In1 = _In1;
+	movq RSP_m, %rcx
+	movq RSP_k, %r8
+	movq RSP_n, %r9
+	movq 0x08(%rsp), %r10
+	movq 0x10(%rsp), %r11
+	movq 0x18(%rsp), %r12
+	movq 0x20(%rsp), %r13
 
 7:
-	movq %r11, %r8		# } i
-	test %r15, %r15		# if (N) {
-	jz 8f
+	movq %rcx, %rbx          # h = m
+	cmpq %rbx, %r14          # if (M < h) {
+	jge 8f
 
-	subq %r15, %r12		# j -= N;
-	shlq $3, %r12
-	addq %r12, %rdi		# Out += j;
-	addq %r12, %rdx		# In1 += j;
-	movq %r15, %r9		# N
-
-	# dot_product_mkn_1x1x1(Out, In0, In1, h, i, N, OutS, In0S, In0s, In1S);
+	movq %rbx, %r14          # M = h & 1
+	andq $1, %r14
+	subq %r15, %rbx          # h -= M;
+	shlq $3, %rbx
+	movq %rbx, %rcx          # Out += OutS * h;
+	imul %r10, %rcx 
+	addq %rcx, %rdi
+	imul %r11, %rbx          # In0 += In0S * i;
+	addq %rbx, %rsi
+	# dot_product_mkn_1x1x8(Out, In0, In1, M, k, n, OutS, In0S, In0s, In1s);
+	movq %r14, %rcx
 	addq $8, %rsp
-	call dot_product_double_mkn_1x1x1_sse4
+	call dot_product_double_mkn_1x1x8_sse4
 	subq $8, %rsp
-8:				# }
-
+	movq RSP_Out_, %rdi      # Out = _Out;
+	movq RSP_In0_, %rsi      # In0 = _In0;
+	movq RSP_In1_, %rdx      # In1 = _In1;
+	movq RSP_m, %rcx
+	movq RSP_k, %r8
+	movq RSP_n, %r9
+	movq 0x08(%rsp), %r10
+	movq 0x10(%rsp), %r11
+	movq 0x18(%rsp), %r12
+	movq 0x20(%rsp), %r13
+8:
 	movq %rbp, %rsp
 	pop %r15
 	pop %r14
@@ -534,208 +1049,197 @@ dot_product_double_mkn_4x4x4_sse4:
 	push %r15
 	movq %rsp, %rbp
 	subq $640, %rsp
-	andq $-64, %rsp
+	andq $-256, %rsp
 
 	mov 0x08(%rax), %r10
 	mov 0x10(%rax), %r11
 	mov 0x18(%rax), %r12
 	mov 0x20(%rax), %r13
-	# Out _In0 _In1 m   k   n  OutS In0S In0s In1S
-	# rdi rsi  rdx  rcx r8  r9 r10  r11  r12  r13
+	# _Out _In0 _In1 m   k   n  OutS In0S In0s In1S
+	# rdi  rsi  rdx  rcx r8  r9 r10  r11  r12  r13
 
-	movq %rdi, 0x10(%rsp) 	# _Out
-	movq %rsi, 0x18(%rsp) 	# _In0
-	movq %rdx, 0x20(%rsp) 	# _In1
-	movq %rcx, 0x28(%rsp) 	# m
-	movq %r8,  0x30(%rsp) 	# k
-	movq %r9,  0x38(%rsp) 	# n
-	shlq $3, %r10		# OutS
-	movq %r10, 0x40(%rsp)
-	shlq $3, %r11		# In0S
-	movq %r11, 0x50(%rsp)
-	shlq $3, %r12		# In0s
-	movq %r12, 0x58(%rsp)
-	shlq $3, %r13		# In1S
-	movq %r13, 0x60(%rsp)
+	movq %rdi, RSP_Out_     # _Out
+	movq %rsi, RSP_In0_     # _In0
+	movq %rdx, RSP_In1_     # _In1
+	movq %rcx, RSP_m        # m
+	movq %r8, RSP_k	        # k
+	movq %r9, RSP_n	        # n
 
-	movq 0x28(%rsp), %rdx	# M = m >> 2
-	shrq $2, %rdx
-	movq %rdx, 0x88(%rsp)
-	movq 0x30(%rsp), %rsi	# K = k >> 2
-	shrq $2, %rsi
-	movq %rsi, 0x90(%rsp)
-	movq 0x38(%rsp), %rdi	# N = n >> 2
-	shrq $2, %rdi
-	movq %rdi, 0x98(%rsp)
+	xorq %r14, %r14
+	addq $1, %r14
 
-	movq 0x10(%rsp), %rax	# Out = _Out;
-	movq %rax, 0x70(%rsp)
-	movq 0x18(%rsp), %r8	# In0 = _In0;
-	movq %r8, 0x78(%rsp)
+	testq %r10, %r10      # if (!OutS) {OutS = n;}
+	cmove %r9, %r10
+	shlq $3, %r10
+	movq %r10, RSP_OutS
+	testq %r11, %r11      # if (!In0S) {In0S = k;}
+	cmove %r8, %r11
+	shlq $3, %r11
+	movq %r11, RSP_In0S
+	testq %r12, %r12      # if (!In0s) {In1S = 1;}
+	cmove %r14, %r12
+	shlq $3, %r12
+	movq %r12, RSP_In0s
+	testq %r13, %r13      # if (!In1S) {In1S = n;}
+	cmove %r9, %r13
+	shlq $3, %r13
+	movq %r13, RSP_In1S
 
-	movq 0x88(%rsp), %rax 	# for (h = m; h; h--) {
-	test %rax, %rax
+	shrq $2, %rcx         # M = m >> 2;
+	movq %rcx, RSP_M
+	shrq $2, %r8          # K = k >> 2;
+	movq %r8, RSP_K
+	shrq $2, %r9          # N = n >> 2
+	movq %r9, RSP_N 
+
+	movq %rdi, RSP_Out    # Out = _Out; 
+	movq %rsi, RSP_In0    # In0 = _In0; 
+
+	test %rcx, %rcx       # for (h = M; h; h--) {
 	je 5f
 
-	.p2align 3,,4
-	.p2align 4
 0:
-	movq %rax, 0x08(%rsp)	# h
+	movq %rcx, RSP_h
+	movq RSP_Out, %rax       # Out_0 = Out + OutS * 0;
+	movq RSP_OutS, %rsi
+	movq %rax, RSP_Out_0
+	leaq 0(%rax, %rsi), %rbx # Out_1 = Out + Outs * 1;
+	movq %rbx, RSP_Out_1
+	leaq 0(%rbx, %rsi), %rcx # Out_2 = Out + Outs * 2;
+	movq %rcx, RSP_Out_2
+	leaq 0(%rcx, %rsi), %rdx # Out_3 = Out + Outs * 3;
+	movq %rdx, RSP_Out_3
+	addq %rdx, %rsi          # Out += OutS * 4;
+	movq %rsi, RSP_Out
+	movq RSP_In0, %r8        # in0_0 = In0 + In0S * 0;
+	movq RSP_In0S, %rsi
+	movq %r8, RSP_in0_0
+	leaq 0(%r8, %rsi), %r9   # in0_1 = In0 + In1S * 1; 
+	movq %r9, RSP_in0_1
+	leaq 0(%r9, %rsi), %r10  # in0_2 = In0 + In1S * 2; 
+	movq %r10, RSP_in0_2
+	leaq 0(%r10, %rsi), %r11 # in0_3 = In0 + In1S * 3; 
+	movq %r11, RSP_in0_3
+	addq %r11, %rsi          # In0 += In0S * 4;
+	movq %rsi, RSP_In0
+	movq RSP_In1_, %r12      # In1 = _In1;
+	movq %r12, RSP_In1
 
-	movq 0x70(%rsp), %rax	# Out_0 = Out + OutS * 0;
-	movq 0x40(%rsp), %rcx
-	movq %rax, 0xA0(%rsp)
-	leaq (%rax, %rcx), %rbx # Out_1 = Out + OutS * 1
-	movq %rbx, 0xA8(%rsp)
-	leaq (%rbx, %rcx), %rax # Out_2 = Out + OutS * 2
-	movq %rax, 0xB0(%rsp)
-	leaq (%rax, %rcx), %rbx # Out_3 = Out + OutS * 3
-	movq %rbx, 0xB8(%rsp)
-	addq %rcx, %rbx		# Out += OutS * 4;
-	movq %rbx, 0x70(%rsp)
-	movq 0x78(%rsp), %r8	# in0_0 = In0 + In0S * 0;
-	movq 0x50(%rsp), %r10
-	movq %r8, 0xC0(%rsp)
-	leaq (%r8, %r10), %r9	# in0_1 = In0 + In0S * 1
-	movq %r9, 0xC8(%rsp)
-	leaq (%r9, %r10), %r8	# in0_2 = In0 + In0S * 2
-	movq %r8, 0xD0(%rsp)
-	leaq (%r8, %r10), %r9	# in0_3 = In0 + In0S * 3
-	movq %r9, 0xD8(%rsp)
-	addq %r10, %r9		# In0 += In0S * 4;
-	movq %r9, 0x78(%rsp)
-	movq 0x20(%rsp), %r12	# In1 = _In1;
-	movq %r12, 0x80(%rsp)
-	
-	movq 0x90(%rsp), %rsi 	# for (i = K; i; i--) {
-	test %rsi, %rsi
+	movq RSP_K, %rsi         # for (i = K; i; i--) {
+	testq %rsi, %rsi
 	je 4f
 
-	.p2align 4,,8
-	.p2align 5
 1:
-	movq 0xA0(%rsp), %rax		# out_0 = Out_0;
-	movq 0xA8(%rsp), %rbx		# out_1 = Out_1;
-	movq 0xB0(%rsp), %rcx		# out_2 = Out_2;
-	movq 0xB8(%rsp), %rdx		# out_3 = Out_3;
-
-	movq 0x58(%rsp), %r10		# In0s
-	movq %r10, %r11
-	shlq $1, %r11
-
-	movq 0xC0(%rsp), %r8		# in0_0_0 = *(in0_0 + In0s * 0);
+	movq RSP_Out_0, %rax     # out_0 = Out_0;
+	movq RSP_Out_1, %rbx     # out_1 = Out_1;
+	movq RSP_Out_2, %rcx     # out_2 = Out_2;
+	movq RSP_Out_3, %rdx     # out_3 = Out_3;
+	movq RSP_in0_0, %r8      # in0_0_0 = *(in0_0 + In0s * 0);
+	movq RSP_In0s, %rdi
 	movddup 0x000(%r8), %xmm0
-	movapd %xmm0, 0x100(%rsp)
-	movddup (%r8, %r10), %xmm1 	# in0_0_1 = *(in0_0 + In0s * 1)
-	movapd %xmm1, 0x110(%rsp)
-	addq %r11, %r8
-	movddup 0x000(%r8), %xmm2 	# in0_0_2 = *(in0_0 + In0s * 2)
-	movapd %xmm2, 0x120(%rsp)
-	movddup (%r8, %r10), %xmm3 	# in0_0_3 = *(in0_0 + In0s * 3)
-	movapd %xmm3, 0x130(%rsp)
-	addq %r11, %r8			# in0_0 += In0s * 4
-	movq %r8, 0xC0(%rsp)
-
-	movq 0xC8(%rsp), %r8		# in0_1_0 = *(in0_1 + In0s * 0);
-	movddup 0x000(%r8), %xmm4
-	movapd %xmm4, 0x140(%rsp)
-	movddup (%r8, %r10), %xmm5 	# in0_1_1 = *(in0_1 + In0s * 1)
-	movapd %xmm5, 0x150(%rsp)
-	addq %r11, %r8
-	movddup 0x000(%r8), %xmm6 	# in0_1_2 = *(in0_1 + In0s * 2)
-	movapd %xmm6, 0x160(%rsp)
-	movddup (%r8, %r10), %xmm7 	# in0_1_3 = *(in0_1 + In0s * 3)
-	movapd %xmm7, 0x170(%rsp)
-	addq %r11, %r8			# in0_1 += In0s * 4
-	movq %r8, 0xC8(%rsp)
-
-	movq 0xD0(%rsp), %r8		# in0_2_0 = *(in0_2 + In0s * 0);
-	movddup 0x000(%r8), %xmm8
-	movapd %xmm8, 0x180(%rsp)
-	movddup (%r8, %r10), %xmm9 	# in0_2_1 = *(in0_2 + In0s * 1)
-	movapd %xmm9, 0x190(%rsp)
-	addq %r11, %r8
-	movddup 0x000(%r8), %xmm10 	# in0_2_2 = *(in0_2 + In0s * 2)
+	movapd %xmm0 , 0x100(%rsp)
+	addq %rdi, %r8           # in0_0_1 = *(in0_0 + In0s * 1);
+	movddup 0x000(%r8), %xmm1
+	movapd %xmm1 , 0x110(%rsp)
+	addq %rdi, %r8           # in0_0_2 = *(in0_0 + In0s * 2);
+	movddup 0x000(%r8), %xmm2
+	movapd %xmm2 , 0x120(%rsp)
+	addq %rdi, %r8           # in0_0_3 = *(in0_0 + In0s * 3);
+	movddup 0x000(%r8), %xmm3
+	movapd %xmm3 , 0x130(%rsp)
+	addq %rdi, %r8           # in0_0 += In0s * 4
+	movq %r8, RSP_in0_0
+	movq RSP_in0_1, %r9      # in0_1_0 = *(in0_1 + In0s * 0);
+	movddup 0x000(%r9), %xmm4
+	movapd %xmm4 , 0x140(%rsp)
+	addq %rdi, %r9           # in0_1_1 = *(in0_1 + In0s * 1);
+	movddup 0x000(%r9), %xmm5
+	movapd %xmm5 , 0x150(%rsp)
+	addq %rdi, %r9           # in0_1_2 = *(in0_1 + In0s * 2);
+	movddup 0x000(%r9), %xmm6
+	movapd %xmm6 , 0x160(%rsp)
+	addq %rdi, %r9           # in0_1_3 = *(in0_1 + In0s * 3);
+	movddup 0x000(%r9), %xmm7
+	movapd %xmm7 , 0x170(%rsp)
+	addq %rdi, %r9           # in0_1 += In0s * 4
+	movq %r9, RSP_in0_1
+	movq RSP_in0_2, %r10     # in0_2_0 = *(in0_2 + In0s * 0);
+	movddup 0x000(%r10), %xmm8
+	movapd %xmm8 , 0x180(%rsp)
+	addq %rdi, %r10          # in0_2_1 = *(in0_2 + In0s * 1);
+	movddup 0x000(%r10), %xmm9
+	movapd %xmm9 , 0x190(%rsp)
+	addq %rdi, %r10          # in0_2_2 = *(in0_2 + In0s * 2);
+	movddup 0x000(%r10), %xmm10
 	movapd %xmm10, 0x1A0(%rsp)
-	movddup (%r8, %r10), %xmm11 	# in0_2_3 = *(in0_2 + In0s * 3)
+	addq %rdi, %r10          # in0_2_3 = *(in0_2 + In0s * 3);
+	movddup 0x000(%r10), %xmm11
 	movapd %xmm11, 0x1B0(%rsp)
-	addq %r11, %r8			# in0_2 += In0s * 4
-	movq %r8, 0xD0(%rsp)
-
-	movq 0xD8(%rsp), %r8		# in0_3_0 = *(in0_3 + In0s * 0);
-	movddup 0x000(%r8), %xmm12
+	addq %rdi, %r10          # in0_2 += In0s * 4
+	movq %r10, RSP_in0_2
+	movq RSP_in0_3, %r11     # in0_3_0 = *(in0_3 + In0s * 0);
+	movddup 0x000(%r11), %xmm12
 	movapd %xmm12, 0x1C0(%rsp)
-	movddup (%r8, %r10), %xmm13 	# in0_3_1 = *(in0_3 + In0s * 1)
+	addq %rdi, %r11          # in0_3_1 = *(in0_3 + In0s * 1);
+	movddup 0x000(%r11), %xmm13
 	movapd %xmm13, 0x1D0(%rsp)
-	addq %r11, %r8
-	movddup 0x000(%r8), %xmm14 	# in0_3_2 = *(in0_3 + In0s * 2)
+	addq %rdi, %r11          # in0_3_2 = *(in0_3 + In0s * 2);
+	movddup 0x000(%r11), %xmm14
 	movapd %xmm14, 0x1E0(%rsp)
-	movddup (%r8, %r10), %xmm15 	# in0_3_3 = *(in0_3 + In0s * 3)
+	addq %rdi, %r11          # in0_3_3 = *(in0_3 + In0s * 3);
+	movddup 0x000(%r11), %xmm15
 	movapd %xmm15, 0x1F0(%rsp)
-	addq %r11, %r8			# in0_3 += In0s * 4
-	movq %r8, 0xD8(%rsp)
+	addq %rdi, %r11          # in0_3 += In0s * 4
+	movq %r11, RSP_in0_3
 
-
-	movq 0x80(%rsp), %r12		# in1_0 = In1 + In1S * 0;
-	movq 0x60(%rsp), %r11
-	leaq (%r12, %r11), %r13		# in1_1 = In1 + In1S * 1;
-	leaq (%r13, %r11), %r14		# in1_2 = In1 + In1S * 2;
-	leaq (%r14, %r11), %r15		# in1_3 = In1 + In1S * 3;
-	addq %r15, %r11
-	movq %r11, 0x80(%rsp)		# In1 += In1S * 4;
-
-	movq 0x98(%rsp), %rdi		# for (j = N; j; j--) {
-	test %rdi, %rdi
+	movq RSP_In1, %r12       # in1_0 = In1 + In1S * 0;
+	movq RSP_In1S, %rdi
+	leaq 0(%r12, %rdi), %r13 # in1_1 = In1 + In1S * 1;
+	leaq 0(%r13, %rdi), %r14 # in1_2 = In1 + In1S * 2;
+	leaq 0(%r14, %rdi), %r15 # in1_3 = In1 + In1S * 3;
+	addq %r15, %rdi          # In1 += In1S * 4;
+	movq %rdi, RSP_In1
+	
+	movq RSP_N, %rdi         # for (j = N; j; j--) {
+	testq %rdi, %rdi
 	je 3f
 
-	.p2align 5,,16
-	.p2align 6
 2:
 	# in1_0_0 = *(in1_0 + 0);
 	# in1_0_1 = *(in1_0 + 1);
 	# in1_0_2 = *(in1_0 + 2);
 	# in1_0_3 = *(in1_0 + 3);
 	# in1_0 += 4;
-	movupd 0x000(%r12), %xmm8
-	movupd 0x010(%r12), %xmm9
+	# ...
+	# in1_3_0 = *(in1_3 + 0);
+	# in1_3_1 = *(in1_3 + 1);
+	# in1_3_0 = *(in1_3 + 0);
+	# in1_1_1 = *(in1_3 + 1);
+	# in1_3 += 4;
+	movupd 0x000(%r12), %xmm8 
+	movupd 0x010(%r12), %xmm9 
 	addq $32, %r12
-	# in1_1_0 = *(in1_1 + 0);
-	# in1_1_1 = *(in1_1 + 1);
-	# in1_1_2 = *(in1_1 + 2);
-	# in1_1_3 = *(in1_1 + 3);
-	# in1_1 += 4;
 	movupd 0x000(%r13), %xmm10
 	movupd 0x010(%r13), %xmm11
 	addq $32, %r13
-	# in1_2_0 = *(in1_2 + 0);
-	# in1_2_1 = *(in1_2 + 1);
-	# in1_2_2 = *(in1_2 + 2);
-	# in1_2_3 = *(in1_2 + 3);
-	# in1_2 += 4;
-	movupd 0x000(%r14), %xmm12
-	movupd 0x010(%r14), %xmm13
+	movupd 0x000(%r14), %xmm12 
+	movupd 0x010(%r14), %xmm13 
 	addq $32, %r14
-	# in1_3_0 = *(in1_3 + 0);
-	# in1_3_1 = *(in1_3 + 1);
-	# in1_3_2 = *(in1_3 + 2);
-	# in1_3_3 = *(in1_3 + 3);
-	# in1_3 += 4;
 	movupd 0x000(%r15), %xmm14
 	movupd 0x010(%r15), %xmm15
 	addq $32, %r15
-
 	# i0 = in0_0_0;
 	# i1 = in0_0_1;
 	# i2 = in0_0_2;
 	# i3 = in0_0_3;
 	movapd 0x100(%rsp), %xmm0
-	movapd 0x100(%rsp), %xmm1
+	movapd %xmm0, %xmm1
 	movapd 0x110(%rsp), %xmm2
-	movapd 0x110(%rsp), %xmm3
+	movapd %xmm2, %xmm3
 	movapd 0x120(%rsp), %xmm4
-	movapd 0x120(%rsp), %xmm5
+	movapd %xmm4, %xmm5
 	movapd 0x130(%rsp), %xmm6
-	movapd 0x130(%rsp), %xmm7
+	movapd %xmm6, %xmm7
 	# o0  = i0 * in1_0_0;
 	# o1  = i0 * in1_0_1;
 	# o2  = i0 * in1_0_2;
@@ -784,13 +1288,13 @@ dot_product_double_mkn_4x4x4_sse4:
 	# i2 = in0_1_2;
 	# i3 = in0_1_3;
 	movapd 0x140(%rsp), %xmm0
-	movapd 0x140(%rsp), %xmm1
+	movapd %xmm0, %xmm1
 	movapd 0x150(%rsp), %xmm2
-	movapd 0x150(%rsp), %xmm3
+	movapd %xmm2, %xmm3
 	movapd 0x160(%rsp), %xmm4
-	movapd 0x160(%rsp), %xmm5
+	movapd %xmm4, %xmm5
 	movapd 0x170(%rsp), %xmm6
-	movapd 0x170(%rsp), %xmm7
+	movapd %xmm6, %xmm7
 	# o0  = i0 * in1_0_0;
 	# o1  = i0 * in1_0_1;
 	# o2  = i0 * in1_0_2;
@@ -839,13 +1343,13 @@ dot_product_double_mkn_4x4x4_sse4:
 	# i2 = in0_2_2;
 	# i3 = in0_2_3;
 	movapd 0x180(%rsp), %xmm0
-	movapd 0x180(%rsp), %xmm1
+	movapd %xmm0, %xmm1
 	movapd 0x190(%rsp), %xmm2
-	movapd 0x190(%rsp), %xmm3
+	movapd %xmm2, %xmm3
 	movapd 0x1A0(%rsp), %xmm4
-	movapd 0x1A0(%rsp), %xmm5
+	movapd %xmm4, %xmm5
 	movapd 0x1B0(%rsp), %xmm6
-	movapd 0x1B0(%rsp), %xmm7
+	movapd %xmm6, %xmm7
 	# o0  = i0 * in1_0_0;
 	# o1  = i0 * in1_0_1;
 	# o2  = i0 * in1_0_2;
@@ -894,13 +1398,13 @@ dot_product_double_mkn_4x4x4_sse4:
 	# i2 = in0_3_2;
 	# i3 = in0_3_3;
 	movapd 0x1C0(%rsp), %xmm0
-	movapd 0x1C0(%rsp), %xmm1
+	movapd %xmm0, %xmm1
 	movapd 0x1D0(%rsp), %xmm2
-	movapd 0x1D0(%rsp), %xmm3
+	movapd %xmm2, %xmm3
 	movapd 0x1E0(%rsp), %xmm4
-	movapd 0x1E0(%rsp), %xmm5
+	movapd %xmm4, %xmm5
 	movapd 0x1F0(%rsp), %xmm6
-	movapd 0x1F0(%rsp), %xmm7
+	movapd %xmm6, %xmm7
 	# o0  = i0 * in1_0_0;
 	# o1  = i0 * in1_0_1;
 	# o2  = i0 * in1_0_2;
@@ -944,156 +1448,137 @@ dot_product_double_mkn_4x4x4_sse4:
 	# out_3 += 4;
 	addq $32, %rdx
 
-	subq $1, %rdi		# } // for (j = n; j; j--) {
-	jnz 2b
+	subq $1, %rdi            # } // for (j = N; j; j--) {
+	jne 2b
 
 3:
-	subq $1, %rsi		# } // for (i = k; i; i--) {
-	jnz 1b
+	subq $1, %rsi            # } // for (i = K; k; k--) {
+	jne 1b
 
 4:
-	movq 0x08(%rsp), %rax	# } // for (h = m; h; h--) {
-	subq $1, %rax
-	jnz 0b
+	movq RSP_h, %rcx         # } // for (h = M; h; h--) {
+	subq $1, %rcx
+	jne 0b
 
 5:
-
-	movq 0x10(%rsp), %rax	# Out = _Out
-	movq %rax, 0x70(%rsp)
-	movq 0x18(%rsp), %r8	# In0 = _In0
-	movq %r8,  0x78(%rsp)
-	movq 0x20(%rsp), %r12	# In1 = _In1
-	movq %r12, 0x80(%rsp)
-
-	movq 0x28(%rsp), %rax	# M = m & 3
-	andq $3, %rax
-	movq 0x30(%rsp), %r14	# K = k & 3
-	andq $3, %r14
-	movq 0x38(%rsp), %r15	# N = n & 3
-	andq $3, %r15
-
-	# Out _In0 _In1 m   k   n  OutS In0S In0s In1S
-	# rdi rsi  rdx  rcx r8  r9 r10  r11  r12  r13
-	movq 0x70(%rsp), %rdi	# Out
-	movq 0x78(%rsp), %rsi	# In0
-	movq 0x80(%rsp), %rdx	# In1
-	movq 0x28(%rsp), %rcx	# m
-	movq 0x30(%rsp), %r8	# k
-	movq 0x38(%rsp), %r9	# n
-	movq 0x40(%rsp), %r10	# OutS
+	# _Out _In0 _In1 m   k   n  OutS In0S In0s In1S
+	# rdi  rsi  rdx  rcx r8  r9 r10  r11  r12  r13
+	movq RSP_Out_, %rdi      # Out = _Out;
+	movq RSP_In0_, %rsi      # In0 = _In0;
+	movq RSP_In1_, %rdx      # In1 = _In1;
+	movq RSP_m, %rcx         # m
+	movq RSP_k, %r8          # k
+	movq RSP_n, %r9          # n
+	movq RSP_OutS, %r10      # OutS
 	shrq $3, %r10
 	movq %r10, 0x08(%rsp)
-	movq 0x50(%rsp), %r11	# In0S
+	movq RSP_In0S, %r11      # In0S
 	shrq $3, %r11
 	movq %r11, 0x10(%rsp)
-	movq 0x58(%rsp), %r12	# In0s
+	movq RSP_In0s, %r12      # In0s
 	shrq $3, %r12
 	movq %r12, 0x18(%rsp)
-	movq 0x60(%rsp), %r13	# In1S
+	movq RSP_In1S, %r13      # In1S
 	shrq $3, %r13
 	movq %r13, 0x20(%rsp)
 
-	movq %rcx, %r10		# h = m;
-	movq %r8, %r11		# i = k;
-	movq %r9, %r12		# j = n;
+	movq RSP_M, %r14         # M <<= 2
+	shlq $2, %r14
+	movq RSP_K, %r15         # K <<= 2
+	shlq $2, %r15
+	movq RSP_N, %rax         # N <<= 2
+	shlq $2, %rax
 
-	test %rax, %rax		# if (M) {
-	jz 6f
+	movq %r9, %rbx           # j = n;
+	cmpq %rbx, %rax          # if (N < j) {
+	jge 6f
 
-	subq %rax, %r10		# h -= M;
-	movq 0x40(%rsp), %rbx	# OutS
-	movq 0x50(%rsp), %r13	# In0S
-
-	imulq %r10, %rbx 	# Out += OutS * h
-	addq %rbx, %rdi
-	imulq %r10, %r13	# In0 += In0S * h
-	addq %r13, %rsi
-	movq %rax, %rcx		# M
-
-	# dot_product_mkn_2x2x2(Out, In0, In1, M, k, n, OutS, In0S, In0s, In1S);
-	movq %rax, 0xA0(%rsp)
-	movq %rcx, 0xA8(%rsp)
-	movq %rdx, 0xB0(%rsp)
-	movq %rsi, 0xB8(%rsp)
-	movq %rdi, 0xC0(%rsp)
-	movq %r8,  0xC8(%rsp)
-	movq %r9,  0xD0(%rsp)
-	movq %r10, 0xD8(%rsp)
-	movq %r11, 0xE0(%rsp)
+	movq %rbx, %rax          # N = j & 3;
+	andq $3, %rax
+	subq %rax, %rbx          # j -= N;
+	shlq $3, %rbx
+	addq %rbx, %rdi          # Out += j;
+	addq %rbx, %rdx          # In1 += j;
+	# dot_product_mkn_2x2x2(Out, In0, In1, M, K, N, OutS, In0S, In0s, In1s);
+	movq %r14, %rcx
+	movq %r15, %r8
+	movq %rax, %r9
 	addq $8, %rsp
 	call dot_product_double_mkn_2x2x2_sse4
 	subq $8, %rsp
-	movq 0xA0(%rsp), %rax
-	movq 0xA8(%rsp), %rcx
-	movq 0xB0(%rsp), %rdx
-	movq 0xB8(%rsp), %rsi
-	movq 0xC0(%rsp), %rdi
-	movq 0xC8(%rsp), %r8
-	movq 0xD0(%rsp), %r9
-	movq 0xD8(%rsp), %r10
-	movq 0xE0(%rsp), %r11
+	movq RSP_Out_, %rdi      # Out = _Out;
+	movq RSP_In0_, %rsi      # In0 = _In0;
+	movq RSP_In1_, %rdx      # In1 = _In1;
+	movq RSP_m, %rcx
+	movq RSP_k, %r8
+	movq RSP_n, %r9
+	movq 0x08(%rsp), %r10
+	movq 0x10(%rsp), %r11
+	movq 0x18(%rsp), %r12
+	movq 0x20(%rsp), %r13
 
-	movq 0x70(%rsp), %rdi	# Out = _Out
-	movq 0x78(%rsp), %rsi	# In0 = _In0
+6:                               # } // if (N < n) {
 
-6:
-	movq %r10, %rcx		# } h
-	test %r14, %r14		# if (K) {
-	jz 7f
+	movq %r8, %rbx           # i = k
+	cmpq %rbx, %r15          # if (K < i) {
+	jge 7f
 
-	subq %r14, %r11		# i -= K;
-	movq 0x58(%rsp), %rbx	# In0s
-	movq 0x60(%rsp), %r13	# In1S
-
-	imulq %r11, %rbx	# In0 += In0s * i	
-	addq %rbx, %rsi
-	imulq %r11, %r13	# In1 += In1S * i	
-	addq %r13, %rdx
-	movq %r14, %r8		# K
-
-	# dot_product_mkn_2x2x2(Out, In0, In1, h, K, n, OutS, In0S, In0s, In1S);
-	movq %rax, 0xA0(%rsp)
-	movq %rcx, 0xA8(%rsp)
-	movq %rdx, 0xB0(%rsp)
-	movq %rsi, 0xB8(%rsp)
-	movq %rdi, 0xC0(%rsp)
-	movq %r8,  0xC8(%rsp)
-	movq %r9,  0xD0(%rsp)
-	movq %r10, 0xD8(%rsp)
-	movq %r11, 0xE0(%rsp)
+	movq %rbx, %r15          # K = i & 3
+	andq $3, %r15
+	subq %r15, %rbx          # i -= K;
+	shlq $3, %rbx
+	movq %rbx, %rcx          # In0 += In0s * i;
+	imul %r12, %rcx 
+	addq %rcx, %rsi
+	imul %r13, %rbx          # In1 += In1S * i;
+	addq %rbx, %rdx
+	# dot_product_mkn_2x2x2(Out, In0, In1, M, K, n, OutS, In0S, In0s, In1s);
+	movq %r14, %rcx
+	movq %r15, %r8
 	addq $8, %rsp
 	call dot_product_double_mkn_2x2x2_sse4
 	subq $8, %rsp
-	movq 0xA0(%rsp), %rax
-	movq 0xA8(%rsp), %rcx
-	movq 0xB0(%rsp), %rdx
-	movq 0xB8(%rsp), %rsi
-	movq 0xC0(%rsp), %rdi
-	movq 0xC8(%rsp), %r8
-	movq 0xD0(%rsp), %r9
-	movq 0xD8(%rsp), %r10
-	movq 0xE0(%rsp), %r11
-
-	movq 0x78(%rsp), %rsi	# In0 = _In0
-	movq 0x80(%rsp), %rdx	# In1 = _In1
+	movq RSP_Out_, %rdi      # Out = _Out;
+	movq RSP_In0_, %rsi      # In0 = _In0;
+	movq RSP_In1_, %rdx      # In1 = _In1;
+	movq RSP_m, %rcx
+	movq RSP_k, %r8
+	movq RSP_n, %r9
+	movq 0x08(%rsp), %r10
+	movq 0x10(%rsp), %r11
+	movq 0x18(%rsp), %r12
+	movq 0x20(%rsp), %r13
 
 7:
-	movq %r11, %r8		# } i
-	test %r15, %r15		# if (N) {
-	jz 8f
+	movq %rcx, %rbx          # h = m
+	cmpq %rbx, %r14          # if (M < h) {
+	jge 8f
 
-	subq %r15, %r12		# j -= N;
-	shlq $3, %r12
-	addq %r12, %rdi		# Out += j;
-	addq %r12, %rdx		# In1 += j;
-	movq %r15, %r9		# N
-
-	# dot_product_mkn_1x1x1(Out, In0, In1, h, i, N, OutS, In0S, In0s, In1S);
+	movq %rbx, %r14          # M = h & 3
+	andq $3, %r14
+	subq %r15, %rbx          # h -= M;
+	shlq $3, %rbx
+	movq %rbx, %rcx          # Out += OutS * h;
+	imul %r10, %rcx 
+	addq %rcx, %rdi
+	imul %r11, %rbx          # In0 += In0S * i;
+	addq %rbx, %rsi
+	# dot_product_mkn_2x2x2(Out, In0, In1, M, k, n, OutS, In0S, In0s, In1s);
+	movq %r14, %rcx
 	addq $8, %rsp
-	call dot_product_double_mkn_1x1x1_sse4
+	call dot_product_double_mkn_2x2x2_sse4
 	subq $8, %rsp
-8:				# }
-
+	movq RSP_Out_, %rdi      # Out = _Out;
+	movq RSP_In0_, %rsi      # In0 = _In0;
+	movq RSP_In1_, %rdx      # In1 = _In1;
+	movq RSP_m, %rcx
+	movq RSP_k, %r8
+	movq RSP_n, %r9
+	movq 0x08(%rsp), %r10
+	movq 0x10(%rsp), %r11
+	movq 0x18(%rsp), %r12
+	movq 0x20(%rsp), %r13
+8:
 	movq %rbp, %rsp
 	pop %r15
 	pop %r14
@@ -1103,6 +1588,8 @@ dot_product_double_mkn_4x4x4_sse4:
 	pop %rbp
 	pop %rsp
 	ret
+
+// Laus deo
 
 //------------------------------------------------------------------------------
 

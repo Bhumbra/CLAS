@@ -2,7 +2,7 @@
 # define clas_cache_txx
 
 //------------------------------------------------------------------------------
-# include "clas_defs.h"
+# include "clas.txx"
 
 // A possible vmdot read cache scheme (for thread-safety do not cache OUT):
 // Fast: out(8), In0 (8x64x2)     , In1T (64x8)         - 12352

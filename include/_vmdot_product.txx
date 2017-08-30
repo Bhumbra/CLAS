@@ -1,7 +1,7 @@
 # ifndef _vmdot_product_txx
 # define _vmdot_product_txx
 //------------------------------------------------------------------------------
-# include "clas_defs.h"
+# include "clas.txx"
 # include "clas_cache.txx"
 # include "clas_unroll.txx"
  

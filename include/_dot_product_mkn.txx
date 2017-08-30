@@ -2,7 +2,7 @@
 # define _dot_product_mkn_txx
 
 //------------------------------------------------------------------------------
-# include "clas_defs.h"
+# include "clas.txx"
 
 //------------------------------------------------------------------------------
 template <class T, class U>
@@ -15,7 +15,7 @@ static NOINLINE void dot_product_mkn_1x1x1 (T* _Out,
 																						volatile U OutS = 0, 
 																						volatile U In0S = 0, 
 																						volatile U In0s = 0, 
-																						volatile const U In1S = 0) { 
+																						volatile U In1S = 0) { 
 
 	register T o0; 
 	register T i0;
@@ -29,26 +29,34 @@ static NOINLINE void dot_product_mkn_1x1x1 (T* _Out,
 	T *in0_0;
 	T *in1_0;
 
-	U h;
+	U h, M, K, N;
 	register U i;
 	register U j;
+
+	if (!OutS) {OutS = n;}
+	if (!In0S) {In0S = k;}
+	if (!In0s) {In0s = (U)1;}
+	if (!In1S) {In1S = n;}
+	m = M;
+	k = K;
+	n = N;
 
 	Out = _Out;
 	In0 = _In0;
 
-	for (h = m; h; h--) {
+	for (h = M; h; h--) {
 		Out_0 = Out + OutS * 0;
 		Out += OutS * 1;
 		in0_0 = In0 + In0S * 0;
 		In0 += In0S * 1;
 		In1 = _In1;
-		for (i = k; i; i--) {
+		for (i = K; i; i--) {
 			out_0 = Out_0;
 			in0_0_0 = *(in0_0 + In0s * 0);
 			in0_0 += In0s * 1;
 			in1_0 = In1 + In1S * 0;
 			In1 += In1S * 1;
-			for (j = n; j; j--) {
+			for (j = N; j; j--) {
 				in1_0_0 = *(in1_0 + 0);
 				in1_0 += 1;
 				i0 = in0_0_0;
@@ -71,7 +79,7 @@ static NOINLINE void dot_product_mkn_1x1x2 (T* _Out,
 																						volatile U OutS = 0, 
 																						volatile U In0S = 0, 
 																						volatile U In0s = 0, 
-																						volatile const U In1S = 0) { 
+																						volatile U In1S = 0) { 
 
 	register T o0, o1; 
 	register T i0; 
@@ -79,7 +87,7 @@ static NOINLINE void dot_product_mkn_1x1x2 (T* _Out,
 
 	T in0_0_0;
 
-	U h, N;
+	U h, M, K, N;
 	register U i;
 	register U j;
 
@@ -90,18 +98,24 @@ static NOINLINE void dot_product_mkn_1x1x2 (T* _Out,
 	T *in0_0;
 	T *in1_0;
 
+	if (!OutS) {OutS = n;}
+	if (!In0S) {In0S = k;}
+	if (!In0s) {In0s = (U)1;}
+	if (!In1S) {In1S = n;}
+	m = M;
+	k = K;
 	N = n >> 1;
 
 	Out = _Out;
 	In0 = _In0;
 
-	for (h = m; h; h--) {
+	for (h = M; h; h--) {
 		Out_0 = Out + OutS * 0;
 		Out += OutS * 1;
 		in0_0 = In0 + In0S * 0;
 		In0 += In0S * 1;
 		In1 = _In1;
-		for (i = k; i; i--) {
+		for (i = K; i; i--) {
 			out_0 = Out_0;
 			in0_0_0 = *(in0_0 + In0s * 0);
 			in0_0 += In0s * 1;
@@ -123,9 +137,10 @@ static NOINLINE void dot_product_mkn_1x1x2 (T* _Out,
 	Out = _Out;
 	In0 = _In0;
 	In1 = _In1;
-	N = n & 1;
 	j = n;
-	if (N) {
+	N <<= 1;
+	if (N < n) {
+		N = n & 1;
 		j -= N;
 		Out += j;
 		In1 += j;
@@ -144,7 +159,7 @@ static NOINLINE void dot_product_mkn_1x1x4 (T* _Out,
 																						volatile U OutS = 0, 
 																						volatile U In0S = 0, 
 																						volatile U In0s = 0, 
-																						volatile const U In1S = 0) { 
+																						volatile U In1S = 0) { 
 
 	register T o0, o1, o2, o3; 
 	register T i0; 
@@ -152,7 +167,7 @@ static NOINLINE void dot_product_mkn_1x1x4 (T* _Out,
 
 	T in0_0_0;
 
-	U h, N;
+	U h, M, K, N;
 	register U i;
 	register U j;
 
@@ -163,18 +178,24 @@ static NOINLINE void dot_product_mkn_1x1x4 (T* _Out,
 	T *in0_0;
 	T *in1_0;
 
+	if (!OutS) {OutS = n;}
+	if (!In0S) {In0S = k;}
+	if (!In0s) {In0s = (U)1;}
+	if (!In1S) {In1S = n;}
+	m = M;
+	k = K;
 	N = n >> 2;
 
 	Out = _Out;
 	In0 = _In0;
 
-	for (h = m; h; h--) {
+	for (h = M; h; h--) {
 		Out_0 = Out + OutS * 0;
 		Out += OutS * 1;
 		in0_0 = In0 + In0S * 0;
 		In0 += In0S * 1;
 		In1 = _In1;
-		for (i = k; i; i--) {
+		for (i = K; i; i--) {
 			out_0 = Out_0;
 			in0_0_0 = *(in0_0 + In0s * 0);
 			in0_0 += In0s * 1;
@@ -202,9 +223,10 @@ static NOINLINE void dot_product_mkn_1x1x4 (T* _Out,
 	Out = _Out;
 	In0 = _In0;
 	In1 = _In1;
-	N = n & 3;
 	j = n;
-	if (N) {
+	N <<= 2;
+	if (N < n) {
+		N = n & 3;
 		j -= N;
 		Out += j;
 		In1 += j;
@@ -223,7 +245,7 @@ static NOINLINE void dot_product_mkn_1x1x8 (T* _Out,
 																						volatile U OutS = 0, 
 																						volatile U In0S = 0, 
 																						volatile U In0s = 0, 
-																						volatile const U In1S = 0) { 
+																						volatile U In1S = 0) { 
 
 	register T o0, o1, o2, o3, o4, o5, o6, o7; 
 	register T i0; 
@@ -231,10 +253,9 @@ static NOINLINE void dot_product_mkn_1x1x8 (T* _Out,
 
 	T in0_0_0;
 
-	U h, N;
+	U h, M, K, N;
 	register U i;
 	register U j;
-
 
 	T *Out, *In0, *In1;
 	T *Out_0; 
@@ -242,18 +263,24 @@ static NOINLINE void dot_product_mkn_1x1x8 (T* _Out,
 	T *in0_0;
 	T *in1_0;
 
+	if (!OutS) {OutS = n;}
+	if (!In0S) {In0S = k;}
+	if (!In0s) {In0s = (U)1;}
+	if (!In1S) {In1S = n;}
+	m = M;
+	k = K;
 	N = n >> 3;
 
 	Out = _Out;
 	In0 = _In0;
 
-	for (h = m; h; h--) {
+	for (h = M; h; h--) {
 		Out_0 = Out + OutS * 0;
 		Out += OutS * 1;
 		in0_0 = In0 + In0S * 0;
 		In0 += In0S * 1;
 		In1 = _In1;
-		for (i = k; i; i--) {
+		for (i = K; i; i--) {
 			out_0 = Out_0;
 			in0_0_0 = *(in0_0 + In0s * 0);
 			in0_0 += In0s * 1;
@@ -293,9 +320,10 @@ static NOINLINE void dot_product_mkn_1x1x8 (T* _Out,
 	Out = _Out;
 	In0 = _In0;
 	In1 = _In1;
-	N = n & 7;
 	j = n;
-	if (N) {
+	N <<= 3;
+	if (N < n) {
+		N = n & 7;
 		j -= N;
 		Out += j;
 		In1 += j;
@@ -314,7 +342,7 @@ static NOINLINE void dot_product_mkn_2x2x2 (T* _Out,
 																						volatile U OutS = 0, 
 																						volatile U In0S = 0, 
 																						volatile U In0s = 0, 
-																						volatile const U In1S = 0) { 
+																						volatile U In1S = 0) { 
 
 	register T o0, o1;
 	register T i0, i1;
@@ -334,6 +362,10 @@ static NOINLINE void dot_product_mkn_2x2x2 (T* _Out,
 	register U i;
 	register U j;
 
+	if (!OutS) {OutS = n;}
+	if (!In0S) {In0S = k;}
+	if (!In0s) {In0s = (U)1;}
+	if (!In1S) {In1S = n;}
 	M = m >> 1;
 	K = k >> 1;
 	N = n >> 1;
@@ -395,33 +427,38 @@ static NOINLINE void dot_product_mkn_2x2x2 (T* _Out,
 	Out = _Out;
 	In0 = _In0;
 	In1 = _In1;
-	M = m & 1;
-	K = k & 1;
-	N = n & 1;
-	h = m;
-	i = k;
+	M <<= 1;
+	K <<= 1;
+	N <<= 1;
 	j = n;
-	if (M) {
-		h -= M;
-		Out += OutS * h;
-		In0 += In0S * h;
-		dot_product_mkn_1x1x1(Out, In0, In1, M, k, n, OutS, In0S, In0s, In1S);
-		Out = _Out;
-		In0 = _In0;
-	}
-	if (K) {
-		i -= K;
-		In0 += In0s * i;
-		In1 += In1S * i;
-		dot_product_mkn_1x1x1(Out, In0, In1, h, K, n, OutS, In0S, In0s, In1S);
-		In0 = _In0;
-		In1 = _In1;
-	}
-	if (N) {
+	if (N < j) {
+		N = j & 1;
 		j -= N;
 		Out += j;
 		In1 += j;
-		dot_product_mkn_1x1x1(Out, In0, In1, h, i, N, OutS, In0S, In0s, In1S);
+		dot_product_mkn_1x1x1(Out, In0, In1, M, K, N, OutS, In0S, In0s, In1S);
+		Out = _Out;
+		In1 = _In1;
+	}
+	i = k;
+	if (K < i) {
+		K = i & 1;
+		i -= K;
+		In0 += In0s * i;
+		In1 += In1S * i;
+		dot_product_mkn_1x1x8(Out, In0, In1, M, K, n, OutS, In0S, In0s, In1S);
+		In0 = _In0;
+		In1 = _In1;
+	}
+	h = m;
+	if (M < h) {
+		M = h & 1;
+		h -= M;
+		Out += OutS * h;
+		In0 += In0S * h;
+		dot_product_mkn_1x1x8(Out, In0, In1, M, k, n, OutS, In0S, In0s, In1S);
+		Out = _Out;
+		In0 = _In0;
 	}
 }
 
@@ -437,11 +474,6 @@ static NOINLINE void dot_product_mkn_4x4x4 (T* _Out,
 																						volatile U In0S = 0, 
 																						volatile U In0s = 0, 
 																						volatile U In1S = 0) { 
-	if (!OutS) (OutS = n);
-	if (!In0S) (In0S = k);
-	if (!In0s) (In0s = 1);
-	if (!In1S) (In1S = n);
-
 	register T o0, o1, o2, o3;
 	register T i0, i1, i2, i3;
 	register T in1_0_0, in1_0_1, in1_0_2, in1_0_3; 
@@ -464,6 +496,10 @@ static NOINLINE void dot_product_mkn_4x4x4 (T* _Out,
 	register U i;
 	register U j;
 
+	if (!OutS) {OutS = n;}
+	if (!In0S) {In0S = k;}
+	if (!In0s) {In0s = (U)1;}
+	if (!In1S) {In1S = n;}
 	M = m >> 2;
 	K = k >> 2;
 	N = n >> 2;
@@ -645,33 +681,38 @@ static NOINLINE void dot_product_mkn_4x4x4 (T* _Out,
 	Out = _Out;
 	In0 = _In0;
 	In1 = _In1;
-	M = m & 3;
-	K = k & 3;
-	N = n & 3;
-	h = m;
-	i = k;
+	M <<= 2;
+	K <<= 2;
+	N <<= 2;
 	j = n;
-	if (M) {
+	if (N < j) {
+		N = j & 3;
+		j -= N;
+		Out += j;
+		In1 += j;
+		dot_product_mkn_2x2x2(Out, In0, In1, M, K, N, OutS, In0S, In0s, In1S);
+		Out = _Out;
+		In1 = _In1;
+	}
+	i = k;
+	if (K < i) {
+		K = i & 3;
+		i -= K;
+		In0 += In0s * i;
+		In1 += In1S * i;
+		dot_product_mkn_2x2x2(Out, In0, In1, M, K, n, OutS, In0S, In0s, In1S);
+		In0 = _In0;
+		In1 = _In1;
+	}
+	h = m;
+	if (M < h) {
+		M = h & 3;
 		h -= M;
 		Out += OutS * h;
 		In0 += In0S * h;
 		dot_product_mkn_2x2x2(Out, In0, In1, M, k, n, OutS, In0S, In0s, In1S);
 		Out = _Out;
 		In0 = _In0;
-	}
-	if (K) {
-		i -= K;
-		In0 += In0s * i;
-		In1 += In1S * i;
-		dot_product_mkn_2x2x2(Out, In0, In1, h, K, n, OutS, In0S, In0s, In1S);
-		In0 = _In0;
-		In1 = _In1;
-	}
-	if (N) {
-		j -= N;
-		Out += j;
-		In1 += j;
-		dot_product_mkn_2x2x2(Out, In0, In1, h, i, N, OutS, In0S, In0s, In1S);
 	}
 }
 
