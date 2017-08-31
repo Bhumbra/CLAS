@@ -1004,12 +1004,12 @@ dot_product_double_mkn_2x2x2_sse4:
 
 	movq %rbx, %r14          # M = h & 1
 	andq $1, %r14
-	subq %r15, %rbx          # h -= M;
+	subq %r14, %rbx          # h -= M;
 	shlq $3, %rbx
 	movq %rbx, %rcx          # Out += OutS * h;
 	imul %r10, %rcx 
 	addq %rcx, %rdi
-	imul %r11, %rbx          # In0 += In0S * i;
+	imul %r11, %rbx          # In0 += In0S * h;
 	addq %rbx, %rsi
 	# dot_product_mkn_1x1x8(Out, In0, In1, M, k, n, OutS, In0S, In0s, In1s);
 	movq %r14, %rcx
@@ -1556,12 +1556,12 @@ dot_product_double_mkn_4x4x4_sse4:
 
 	movq %rbx, %r14          # M = h & 3
 	andq $3, %r14
-	subq %r15, %rbx          # h -= M;
+	subq %r14, %rbx          # h -= M;
 	shlq $3, %rbx
 	movq %rbx, %rcx          # Out += OutS * h;
 	imul %r10, %rcx 
 	addq %rcx, %rdi
-	imul %r11, %rbx          # In0 += In0S * i;
+	imul %r11, %rbx          # In0 += In0S * h;
 	addq %rbx, %rsi
 	# dot_product_mkn_2x2x2(Out, In0, In1, M, k, n, OutS, In0S, In0s, In1s);
 	movq %r14, %rcx
