@@ -61,6 +61,34 @@ static inline U set_thread_load(U* td, volatile U n, U mt = 1, U md = 1) {
 	}
 	return (f);
 }
+//------------------------------------------------------------------------------
+template <class T, class U>
+static inline U set_max_threads(U MT = (U)0, T FT = (T)1.) { 
+	U NT;
+	U TT = std::thread::hardware_concurrency();
+
+	MT = (!MT || MT > TT) ? TT : MT;
+	if (FT <= 0.) {
+		NT = 0.;
+		return(NT);
+	}
+	else if (FT >= 1.) {
+		NT = MT;
+		return(NT);
+	}
+
+	NT = (U) (FT * (T)MT);
+	if (NT <= 0) {
+		NT = (U)1;
+		return (NT);
+	}
+	else if (NT > MT) {
+		NT = MT;
+		return (NT);
+	}
+	return (NT);
+}	
+
 
 //------------------------------------------------------------------------------
 #endif
