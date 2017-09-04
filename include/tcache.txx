@@ -15,8 +15,8 @@
 // LOCALITY = 0(NTA), 1(L3), 2(L2), 3(L1)
 //------------------------------------------------------------------------------
 
-// uncomment next line to disable prefetching
-// # define DO_NOT_PREFETCH 1
+// uncomment next line to disable C++ prefetching
+# define DO_NOT_PREFETCH 1
 
 # ifndef DO_NOT_PREFETCH
 # define PREFETCH_READ_0(PREFETCH_PTR) __builtin_prefetch (PREFETCH_PTR, 0, 0)

@@ -3,8 +3,9 @@
 C++ Linear Algebra Subroutines - a biologically-inspired library of linear algebra operations optimised for machine
 learning.
 
-This library has only recently been started and is at a proof-of-concept stage. Documentation is thus scant. Although
-CLAS is mostly written in C++, architecture-optimised routines are coded in C and assembler.
+This library has only recently been started and following a successful proof-of-concept stage is under active document.
+Documentation is thus scant. Although CLAS is mostly written in C++, architecture-optimised routines are coded in C and
+assembler.
 
 REQUIREMENTS
 ------------
@@ -17,15 +18,15 @@ true in practice.
 
 INSTALLATION
 ------------
-No formal installer has yet been written. However the combination of C++, C, and assembler code means that CLAS should
-not be compiled manually but only through the makefile. Check (using `gcc -v') that your default g++ version is 5.2 or
-later. If so the CLAS library can be compiled using:
+No formal installer has yet been written. However the combination of C++, C, and assembler means that CLAS should not be
+compiled manually but through the makefile. Check (using `gcc -v') that your default g++ version is 5.2 or later.  If so
+the CLAS library can be compiled using:
 
 sh-4.3$ make 
 
 Normally I code CLAS on a Gentoo GNU/Linux build, whose latest Portage snapshots are more than sufficiently up-to-date
 to compile CLAS this way. A number of DEB-based and RPM-based GNU/Linux distributions however default to gcc 4.8.X but
-accommodate gcc 5.x installations that can be evoked from /usr/bin/gcc-5. Without having to change any environment
+accommodate gcc 5.x installations that can be invoked using /usr/bin/gcc-5. Without having to change any environment
 variables or symlinks, a convenient way to compile CLAS such cases is using a different makefile call instead:
 
 sh-4.3$ make -f makefile.gcc-5 
@@ -47,9 +48,9 @@ The source file must be linked to the libclas archive during compiling e.g.:
 
 sh-4.3$ g++ sourcefile.cc -o executable.run -L/CLAS_LIB_DIRECTORY/ -lclas
 
-If it is desired to compare with BLAS, it is necessary to include the inclusions and linkage options specific to the
-tested BLAS implementation. An example of a BLAS vs CLAS test (using PpenBLAS) is included in tests/blasvstest.cc and
-can be compiled thus:
+If it is desired to compare CLAS with BLAS, it is necessary to include the inclusions and linkage options specific to
+the tested BLAS implementation. A rough example of a BLAS vs CLAS test (using OpenBLAS) is included in
+tests/blasvstest.cc and can be compiled thus:
 
 sh-4.3$ make -f maketest
 
@@ -61,7 +62,10 @@ outputting to an executable bin/blasvsclas.run.
 
 It may be necessary to modify maketest or maketest.gcc5 to include the relevant paths to OpenBLAS for a given system.
 For a fair test, please use the most recent stable release (OpenBLAS 0.2.19), because it appears OpenBLAS 0.2.20 kills
-all other multithreaded libraries running from the same executable although I'm sure the authors will correct soon.
+all other multithreaded libraries running from the same executable although I'm hopeful the authors will correct this
+soon. Please also note that I've so far only coded SSE4 assembler and therefore for now CLAS will inherently be
+disadvantaged in comparison to BLAS implementations adopting AVX2 instructions for Intel architectures that support them
+(e.g. Haswell etc...).
 
 USAGE
 -----
@@ -70,8 +74,7 @@ following function (with argument types and defaults shown):
 
 	void clas::mmdot_product_double(double* Out, double* In0, double* In1, uint64_t m, uint64_t k, uint64_t n,
 					bool OutT = false, bool In0T = false, bool In1T = false, bool ColM = false, 
-					double* In2 = 0, uint64_t NT = 0, 
-					uint64_t U0 = 0, uint64_t U1 = 0, uint64_t UD= 0, uint64_t Arch = 0);
+					double* In2 = 0, uint64_t NT = 0, double FT = 1.);
 
 ... where the first 6 arguments are compulsory:
 
@@ -87,7 +90,7 @@ following function (with argument types and defaults shown):
 
 	n: is the number of columns in Out and In1.
 
-... and the next 6 arguments are optional:
+... and the next 7 arguments are optional:
 
 	OutT (default false): is a boolean flag that is true for a transposed product.
 
@@ -101,22 +104,11 @@ following function (with argument types and defaults shown):
 	addition, or if In2 = Out, this adds the matrix product to the existing data content of Out).
 
 	NT (default 0): is the maximum number of threads used (0 denotes a maximum of all C++11-detectable 
-	threads).
+	threads at runtime), multiplied by FT (see below).
 
-... while the remaining 4 arguments are _not_ for general use and should be omitted since they are subject to change and
-intended only for purely diagnostic purposes:
-
-	U0 (default 0): is the unroll outer radix, which can be 1, 2, 4, or 8 (0 denotes cache-optimised dynamic 
-	choice).
-
-	U1 (default 0): is the unroll inner radix, which can be 1, 2, 4, 8, 16, or 32 (0 denotes automated 
-	choice).
-
-	UD (default 0): represents the unroll direction, which can be 2 (rows X matrix) or 3 (matrix X columns) 
-	(0 denotes automated choice)
-
-	Arch (default 0): represents which compiled architecture code to use, which can be 1 (C++) or 2 (SSE4) 
-	(0 denotes automated choice)
+	FT (default 1.): is the coefficient multiplied by NT to specify the maximum number of threads used. 
+	For example, if NT = 0, and FT = 0.25, then this means CLAS will use a maximum of 25% of all threads 
+	detectable at runtime.
 
 MOTIVATION
 -----------
@@ -144,28 +136,31 @@ disadvantaged by its BLAS heritage, especially in the context of deep learning, 
 - it provides no option to offset the output matrix by a vector containing bias values added to the matrix product.
 
 CLAS is an experiment that aims to overcome these limitations. However rather than simply devising another reference
-specification, CLAS is intended to implement design strategies inspired by biology that should improve its performance
-for deep learning applications:
+specification, CLAS is intended to implement design strategies inspired by biology to improve its performance
+particularly for deep learning applications:
 
-- distribute thread loads evenly so each thread corresponds to a node or group of nodes with minimal write
-  inter-dependence.
+- distribute thread loads evenly so that the operation of each thread corresponds to a node or group of nodes with
+  minimal write inter-dependence.
 
-- recruit threads as required for optimum performance up to a user-specifiable maximum.
+- recruit threads only as required for optimum performance up to a user-specifiable maximum that may be expressed an
+  absolute number or fraction of total number threads available at runtime.
 
 - minimal memory footprint inside and outside each thread (i.e. no 'malloc', 'new' etc... to allocate floating point
   arrays).
 
-In practice, these motivations might conflict with the aim of extremely efficient L1 and L2 (and L3) caching performed
-by the fastest BLAS implementations, but with the availability of many threads I suspect cache handling isn't everything
-in deep learning and the best solution is likely to be somewhere in between.
+In practice, these motivations must dovetail with efficient cache usage but recent progress that has been extremely
+promising as a result of combining three strategies:
+
+- copies of read data restricted to sizes optimal for L1 and L2 caching within individual thread loads.
+- architecture-dependent assembler coded for inner-most three loops with inner-most two using SIMD instructions.
+- outer-most loop multithreaded in a way that guarantees each thread writes to mutually exclusive regions of memory.
 
 IMPROVEMENTS
 ------------
 My day-job is as a biologist so CLAS writing is slow. Intended improvements for the near future are:
 
-- assembler-coded instructions for Intel architectures for double precision matrix-matrix multiplication for all 8 matrix transposition combinations.
-
-- in addition to matrix multiplication (mmdot_product), code routines for simpler products i.e. ewise_product, inner_product, and outer_product.
-
+- in addition to matrix multiplication (mmdot_product), code routines for simpler products i.e. ewise_product,
+  inner_product, and outer_product - in a manner that is most convenient for deep learning applications.
+- assembler-coded instructions for Intel architectures beyond SSE4 instructions such as the newer AVX2 extensions.
 - create a proper installer and provide better documentation.
 

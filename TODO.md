@@ -1,6 +1,10 @@
 Todo:
 
-1. Cache-manager classes have been coded but gcc-compiled assembler for matrix-multipication does not implement SIMD
-   instructions. A combination of inline assembler (for copying) and native assembler (for multiplication) need to coded
-   to use SSE_X instructions.
+1. Code objects and SSE4 assembler to perform multiplications simpler compared to matrix-matrix products i.e.
+   ewise_product, inner-product, and outer_product.
 
+2. Accelerate SIMD operations using AVX2 extensions.
+
+3. Documentation.
+
+4. Installer.

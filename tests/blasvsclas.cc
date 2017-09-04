@@ -10,14 +10,13 @@
 
 # include <iostream>
 # include <cblas.h>
-# include <clas.h>
-# include "tictoc.txx"
+#include <clas.h>
+#include "tictoc.txx"
 
 #pragma hdrstop
 #pragma argsused
 
 void Cout(double* X, uint64_t r, uint64_t c, bool tr = false);
-
 //---------------------------------------------------------------------------
 
 int main(int argc, char* argv[])
@@ -25,25 +24,31 @@ int main(int argc, char* argv[])
 	std::cout << std::endl << "Start" << std::endl;
 	uint64_t h, i, j;
 
-	uint64_t m = 30;   // maxuend rows -                  (1 for inner/rmdot)
+	uint64_t m = 30; // maxuend rows -                     (1 for inner/rmdot)
 	uint64_t k = 784; // maxuend cols (and multiple rows)  (1 for outer/mrdot)
 	uint64_t n = 1024; // multiple cols  - for ewise, m = n (1 for inner/cmdot)
 	uint64_t N = 200; // repeats
-	bool transpose[] = {false, false, false};
+	bool transpose[] = {0, 0, 0};
 	bool ColMajor = false;
 	
 	bool showInputs = false;
 	bool showResult[] = {0, 0, 0};
 	bool benchMark[] =  {1, 1, 1}; 
-	uint64_t repDispMax = 10;
+	uint64_t repDispMax = 5; // maximum iterations for displaying individual executation times
 
-	uint64_t nt = 0; // number of threads (-1 - force unithread, 0 - all threads) 
-	uint64_t u0 = 0; // maximum outer unroll (0 - optimal)
-	uint64_t u1 = 0; // maximum inner unroll (0 - optimal)
+	uint64_t blasnt = 0; // maximum number of threads for BLAS to use (0 - all threads)
+	if (blasnt) { // set_num_threads isn't offered in old versions of OpenBLAS
+		//openblas_set_num_threads( (int)blasnt);
+	}
+	uint64_t nt = 0; // maximum number of threads (0 - all threads) 
+	double   ft = 1; // maximum fraction of threads (1 - all threads, 0 - main thread) 
+	uint64_t D = 0; // Dimension argument
+	uint64_t R = 0; // Radix argument
+	uint64_t A = 0; // Architecture argument
 	
-	double c0 = 1.;  // coefficient to multiply with multiplicand
-	double c1 = 1.;  // coefficient to multiply with multiple
-	int maxuend = 0;  // 0 means not used - non-zero is casted to double
+	double c0 = 0.;  // coefficient to multiply with multiplicand
+	double c1 = 1;  // coefficient to multiply with multiple
+	int maxuend = 1;  // 0 means not used - non-zero is casted to double
 
 	uint64_t zr, zc;
 	double* d = 0;
@@ -79,6 +84,7 @@ int main(int argc, char* argv[])
 
 	struct timeb t, t0;
 	double* dt = new double[N+1];
+	double Dt;
 
 	for (i = 0; i < m*k; i++) {
 		a[i] = (double)((int)(i+1)) * c0;
@@ -153,24 +159,25 @@ int main(int argc, char* argv[])
 		c[i] = 0.;
 	}
 	if (showResult[h++]) {
-		clas::mmdot_product_double(z, x, y, m, k, n, transpose[0], transpose[1], transpose[2], ColMajor, d, -1, u0, u1);
+		clas::mmdot_product_double(z, x, y, m, k, n, transpose[0], transpose[1], transpose[2], ColMajor, d, nt, 0., D, R, A);
 		std::cout << std::endl;
 		Cout(z, zr, zc);
 		std::cout << std::endl;
-	}
-	for (i = 0; i < zr*zc; i++) {
-		z[i] = 0.;
+		for (i = 0; i < zr*zc; i++) {
+			z[i] = 0.;
+		}
 	}
 
 	if (showResult[h++]) {
-		clas::mmdot_product_double(z, x, y, m, k, n, transpose[0], transpose[1], transpose[2], ColMajor, d, nt, u0, u1);
+		clas::mmdot_product_double(z, x, y, m, k, n, transpose[0], transpose[1], transpose[2], ColMajor, d, nt, ft, D, R, A);
 		std::cout << std::endl;
 		Cout(z, zr, zc);
 		std::cout << std::endl;
+		for (i = 0; i < zr*zc; i++) {
+			z[i] = 0.;
+		}
 	}
-	for (i = 0; i < zr*zc; i++) {
-		z[i] = 0.;
-	}
+
 
 	// BENCHMARKS
 
@@ -192,30 +199,35 @@ int main(int argc, char* argv[])
 				std::cout << "\t Rep #" << i << ": " << dt[i] << " ms" << std::endl;
 			}
 		}
-		std::cout << "\t Mean time per rep. = " << (1000.*toc(t0))/(double)(N) << " ms" << std::endl;
+		Dt = 1000.*toc(t0);
+		std::cout << "\t Total time = " << Dt << " ms" << std::endl;
+		std::cout << "\t Mean time per rep. = " << Dt/(double)(N) << " ms" << std::endl << std::endl;
+		
 	}
 
 	if (benchMark[h++]) {
 		tic(t0);
 		for (i = 0; i<N; i++) {
 			tic(t);
-			clas::mmdot_product_double(z, x, y, m, k, n, transpose[0], transpose[1], transpose[2], ColMajor, d, -1, u0, u1);
+			clas::mmdot_product_double(z, x, y, m, k, n, transpose[0], transpose[1], transpose[2], ColMajor, d, nt, 0., D, R, A);
 			dt[i] = 1000. * toc(t);
 		}
-		std::cout << "clas::mmdot_product_double (single thread):" << std::endl;
+		std::cout << "clas::mmdot_product_double (single-thread):" << std::endl;
 		if (N <= repDispMax) {
 			for (i = 0; i<N; i++) {
 				std::cout << "\t Rep #" << i << ": " << dt[i] << " ms" << std::endl;
 			}
 		}
-		std::cout << "\t Mean time per rep. = " << (1000.*toc(t0))/(double)(N) << " ms" << std::endl;
+		Dt = 1000.*toc(t0);
+		std::cout << "\t Total time = " << Dt << " ms" << std::endl;
+		std::cout << "\t Mean time per rep. = " << Dt/(double)(N) << " ms" << std::endl << std::endl;
 	}
 
 	if (benchMark[h++]) {
 		tic(t0);
 		for (i = 0; i<N; i++) {
 			tic(t);
-			clas::mmdot_product_double(z, x, y, m, k, n, transpose[0], transpose[1], transpose[2], ColMajor, d, nt, u0, u1);
+			clas::mmdot_product_double(z, x, y, m, k, n, transpose[0], transpose[1], transpose[2], ColMajor, d, nt, ft, D, R, A);
 			dt[i] = 1000. * toc(t);
 		}
 		std::cout << "clas::mmdot_product_double (multithreaded):" << std::endl;
@@ -224,8 +236,11 @@ int main(int argc, char* argv[])
 				std::cout << "\t Rep #" << i << ": " << dt[i] << " ms" << std::endl;
 			}
 		}
-		std::cout << "\t Mean time per rep. = " << (1000.*toc(t0))/(double)(N) << " ms" << std::endl;
+		Dt = 1000.*toc(t0);
+		std::cout << "\t Total time = " << Dt << " ms" << std::endl;
+		std::cout << "\t Mean time per rep. = " << Dt/(double)(N) << " ms" << std::endl << std::endl;
 	}
+
 
 	delete[] dt;
 	delete[] x;

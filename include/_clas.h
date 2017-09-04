@@ -5,7 +5,7 @@
 // Cannot be mixed with clas.h, and does not use C-code or assembler.
 
 //------------------------------------------------------------------------------
-# define EXCLUDE_C_SOURCE_FILES 1
+# define CLAS_HEADERS_ONLY 1
 
 //------------------------------------------------------------------------------
 namespace clas {

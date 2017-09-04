@@ -1,6 +1,5 @@
-Completed: template code for following array products:  ewise (element wise), outer, and inner.
+Completed: 
+- template code for following array products:  ewise (element wise), outer, inner, and mmdot.
+- SSE4 assembly SIMD instructions for fast single-threaded double-precision matrix products (mmdot).
+- C++-class based objects implementing std::thread constructs to multi-threaded matrix products (mmdot).
 
-Different implementations of matrix-matrix multiplication (mmdot) have been tested for all 8 possible transposition
-permutations, but will be improved by cache manager classes which are currently being coded. Unfortunately gcc still
-cannot SIMD-compile code from these manager classes so a combination of inline assembler (for copying) and native
-assembler need to be coded.

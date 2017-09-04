@@ -9,7 +9,7 @@
 // A double-precision read cache scheme (for thread-safety do not cache Out):
 // Fast: In0 (8x64)    , In1T (64x8)      - 8192  bytes
 // Slow: In0 ([_8x8x64), In1T (64x[8x_8]) - 65536 bytes
-// Shared: In1
+// Shared: In0 and In1                    - 1048576 bytes per thread
 
 //------------------------------------------------------------------------------
 // Minimum double length:	pre-outer-aligned  8192 
@@ -33,9 +33,15 @@
 # define DOT_PRODUCT_DOUBLE_MKN_1X1X8 dot_product_mkn_1x1x8
 # define DOT_PRODUCT_DOUBLE_MKC_1X8X1 dot_product_mkc_1x8x1
 # else                     							// calling wrapper C and assembler
+# ifndef CLAS_HEADERS_ONLY
 # include "dot_product_double_mkn.c" 
 # include "dot_product_double_mkc.c" 
 # include "dot_product_double_mnk.c" 
+# else
+# include "dot_product_double_mkn.h" 
+# include "dot_product_double_mkc.h" 
+# include "dot_product_double_mnk.h" 
+# endif
 # define THIS_DOUBLE_MKN this -> double_mkn
 # define THIS_DOUBLE_MKN_1X1X1 this -> double_mkn_1x1x1
 # define THIS_DOUBLE_MKN_4X4X4 this -> double_mkn_4x4x4
@@ -51,8 +57,8 @@
 # endif
 
 //------------------------------------------------------------------------------
-# include "clas_threads.txx"
 # include "mcache.txx"
+# include "clas_threads.txx"
 # include "_dot_product_mnk.txx"
 # include "_dot_product_mkn.txx"
 # include "_dot_product_mkc.txx"
@@ -81,9 +87,11 @@ class tmmdot {
 		void setCmj(bool _OPT = false, bool _I0T = false, bool _I1T = false, bool _ColM = false);
 		void setStr(U _OPS = (U)0, U _I0S = (U)0, U _I1S = (U)0, U _I2S = (U)0,
 								U _OPs = (U)0, U _I0s = (U)0, U _I1s = (U)0, U _I2s = (U)0);
+		void chkStr();
 		void setDRA(U _D = (U)0, U _R = (U)0, U _A = (U)0);
-		virtual void exec();
+		void exec();
 		void mkn();
+		void nop() {};
 		void mkn_kmn_64x64x64(T* _OP, T* _I0, T* _I1, U M, U K, U N); // an experiment
 		void mkn_64x64x64(T* _OP, T* _I0, T* _I1, U M, U K, U N);
 		void mkn_64x8x64(T* _OP, T* _I0, T* _I1, U M, U K, U N);
@@ -98,6 +106,7 @@ class tmmdot {
 		void double_mkn_8x8x8(T* _OP, T* _I0, T* _I1, U M, U K, U N);
 		void double_mkn_4x4x4(T* _OP, T* _I0, T* _I1, U M, U K, U N);
 		void double_mkn_1x1x1(T* _OP, T* _I0, T* _I1, U M, U K, U N);
+		std::thread Thread;
 	protected:
 		T* OP;
 		T* I0;
@@ -138,6 +147,7 @@ class tmmdot {
 		U D;
 		U R;
 		U A;
+		U sizeofT;
 		mcache<T, U> cacher;
 	private:
 };
@@ -146,6 +156,7 @@ class tmmdot {
 //---------------------------------------------------------------------------
 template <class T, class U>
 tmmdot<T, U>::tmmdot() {
+	this -> sizeofT = sizeof(T);
 	this -> cacher.init((T*)this -> cache, (U)2);
 	this -> setAln();
 	this -> init();
@@ -172,6 +183,7 @@ void tmmdot<T, U>::init(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N,
 												bool _OPT, bool _I0T, bool _I1T, 
 												bool _ColM, T* _I2, U _D, U _R, U _A) {
 	this -> setPtr(_OP, _I0, _I1, _I2);
+	if (!this -> OP) {return;}
 	this -> setDim(_M, _K, _N);
 	this -> setCmj(_OPT, _I0T, _I1T, _ColM);
 	this -> setDRA(_D, _R, _A);
@@ -214,12 +226,19 @@ void tmmdot<T, U>::setCmj(bool _OPT, bool _I0T, bool _I1T, bool _ColM) {
 		this -> I1C = !_I1T;
 	}
 	this -> setStr();
+	this -> chkStr();
 }
 
 //---------------------------------------------------------------------------
 template <class T, class U>
 void tmmdot<T, U>::setStr(U _OPS, U _I0S, U _I1S, U _I2S,
 													U _OPs, U _I0s, U _I1s, U _I2s) {
+
+	this -> op  = this -> OP;
+	this -> opc = this -> OPC;
+	this -> i2  = this -> I2;
+	this -> k   = this -> K;
+
 	this -> OPS = _OPS;
 	this -> I0S = _I0S;
 	this -> I1S = _I1S;
@@ -228,11 +247,6 @@ void tmmdot<T, U>::setStr(U _OPS, U _I0S, U _I1S, U _I2S,
 	this -> I0s = _I0s;
 	this -> I1s = _I1s;
 	this -> I2s = _I2s;
-
-	this -> op  = this -> OP;
-	this -> opc = this -> OPC;
-	this -> i2  = this -> I2;
-	this -> k   = this -> K;
 
 	if (!this -> opc) {
 		this -> m = this -> M;
@@ -266,8 +280,11 @@ void tmmdot<T, U>::setStr(U _OPS, U _I0S, U _I1S, U _I2S,
 		this -> i2S = this -> I2s;
 		this -> i2s = this -> I2S;
 	}
+}
 
-
+//---------------------------------------------------------------------------
+template <class T, class U>
+void tmmdot<T, U>::chkStr() {
 	if (! (this -> opS || this -> ops) ) {
 		this -> opS = this -> n;
 		this -> ops = (U)1;
@@ -322,7 +339,7 @@ void tmmdot<T, U>::exec() {
 							this -> i2, this -> i2S, this -> i2s, (U)1);
 	}
 	if (this -> A == (U)1) {return this -> mkn();}
-	switch (sizeof(T)) {
+	switch (this -> sizeofT) {
 		case (U)8: {return THIS_DOUBLE_MKN();}
 		default: {return this -> mkn();}
 	}

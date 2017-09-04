@@ -4,14 +4,14 @@
 // Header included when linking to clas-dependent external source code
 
 //------------------------------------------------------------------------------
-# define EXCLUDE_C_SOURCE_FILES 1
+# define CLAS_HEADERS_ONLY 1
 
 //------------------------------------------------------------------------------
 # include "products.hxx"
 
 //------------------------------------------------------------------------------
 namespace clas {
-# define mmdot_product_double mmdot_product_double_mt
+# define mmdot_product_double clas_mmdot_product_double
 }
 //------------------------------------------------------------------------------
 #endif

@@ -22,12 +22,14 @@ static inline U set_num_threads(volatile U NT = 0) {
 	n  = total load count
 	mt = maximum number of threads to use (default 1)
 	md = preferred minimum load per thread (default 1)
+	dm = preferred divisor load per through (default md)
 	outputs to td with thread per load and returns number of threads with loads.
 */
 template <class U>
-static inline U set_thread_load(U* td, volatile U n, U mt = 1, U md = 1) { 
+static inline U set_thread_load(U* td, volatile U n, U mt = 1, U md = 1, U dm = 0) { 
 
-	U i, f, R, D, Ur;
+	if (!dm) {dm = md;}
+	U i, f, R, D;
 	double d, r, q;
 
 	if (n < md * mt) {
@@ -38,7 +40,7 @@ static inline U set_thread_load(U* td, volatile U n, U mt = 1, U md = 1) {
 			R += *(td+f++);
 		}
 	}
-	else {
+	else if (md < 2) {
 		q = (double)(n)/(double)(mt);
 		f = (U)0;
 		R = (U)0;
@@ -53,6 +55,23 @@ static inline U set_thread_load(U* td, volatile U n, U mt = 1, U md = 1) {
 			else {
 				*(td+f) = d >= ((double)(D) + 0.5) ? D + 1 : D;
 			}
+			R += *(td+f++);
+		}
+	}
+	else {
+		D = n / mt;
+		if (n % D) {D ++;}
+		R = D % dm;
+		if (D < md) {
+			D = md;
+		}
+		else if (R) {
+			D += (dm - R);
+		}
+		f = (U)0;
+		R = (U)0;
+		while (R < n) {
+			*(td+f) = R + D > n ? n - R : D;
 			R += *(td+f++);
 		}
 	}

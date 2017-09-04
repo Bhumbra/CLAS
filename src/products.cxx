@@ -40,79 +40,6 @@ void inner_product_double_ut (double* Out,
 	inner_product_ut(Out, In0, In1, m, k, Outs, In0s, In1s, In2, UR);
 }
 //------------------------------------------------------------------------------
-void rmdot_product_double_ut (double* Out, 
-															double* In0, 
-															double* In1, 
-															volatile const uint64_t m, 
-															volatile const uint64_t k, 
-															volatile const uint64_t n,
-															double* In2,
-															volatile const bool In2Tr,
-															volatile uint64_t U0,
-															volatile uint64_t U1) {
-	rmdot_product_ut(Out, In0, In1, m, k, n, In2, In2Tr, U0, U1);
-}
-//------------------------------------------------------------------------------
-void cmdot_product_double_ut (double* Out, 
-															double* In0, 
-															double* In1, 
-															volatile const uint64_t m, 
-															volatile const uint64_t k, 
-															volatile const uint64_t n,
-															double* In2,
-															volatile const bool In2Tr,
-															volatile uint64_t U0,
-															volatile uint64_t U1) {
-	cmdot_product_ut(Out, In0, In1, m, k, n, In2, In2Tr, U0, U1);
-}
-//------------------------------------------------------------------------------
-void mrdot_product_double_ut (double* Out, 
-															double* In0, 
-															double* In1, 
-															volatile const uint64_t m, 
-															volatile const uint64_t k, 
-															volatile const uint64_t n,
-															volatile const bool OutCm,
-															volatile const bool InpSw,
-															double* In2,
-															volatile uint64_t U0,
-															volatile uint64_t U1) {
-	mrdot_product_ut(Out, In0, In1, m, k, n, OutCm, InpSw, In2, U0, U1);
-}
-//------------------------------------------------------------------------------
-void mcdot_product_double_ut (double* Out, 
-															double* In0, 
-															double* In1, 
-															volatile const uint64_t m, 
-															volatile const uint64_t k, 
-															volatile const uint64_t n,
-															volatile const bool OutCm,
-															volatile const bool InpSw,
-															double* In2,
-															volatile uint64_t U0,
-															volatile uint64_t U1) {
-	mcdot_product_ut(Out, In0, In1, m, k, n, OutCm, InpSw, In2, U0, U1);
-}
-//------------------------------------------------------------------------------
-void mmdot_product_double_ut (double* Out, 
-															double* In0, 
-															double* In1, 
-															volatile const uint64_t m, 
-															volatile const uint64_t k,
-															volatile const uint64_t n,
-															volatile bool OutT,
-															volatile bool In0T,
-															volatile bool In1T,
-															volatile bool ColM,
-															double* In2,
-															volatile uint64_t U0,
-															volatile uint64_t U1,
-															volatile uint64_t const UD,
-															volatile uint64_t const Arch) {
-	mmdot_product_ut(Out, In0, In1, m, k, n, OutT, In0T, In1T, ColM, In2, U0, U1, UD, Arch); 
-}
-
-//------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void ewise_product_double_mt (double* Out, 
 															double* In0, 
@@ -150,87 +77,30 @@ void inner_product_double_mt (double* Out,
 															volatile uint64_t UR) {
 	inner_product_mt(Out, In0, In1, m, k, Outs, In0s, In1s, In2, UR);
 }
+
 //------------------------------------------------------------------------------
-void rmdot_product_double_mt (double* Out, 
-															double* In0, 
-															double* In1, 
-															volatile const uint64_t m, 
-															volatile const uint64_t k, 
-															volatile const uint64_t n,
-															double* In2,
-															volatile const bool In2Tr,
-															volatile uint64_t U0,
-															volatile uint64_t U1,
-															volatile uint64_t NT) {
-	rmdot_product_mt(Out, In0, In1, m, k, n, In2, In2Tr, U0, U1, NT);
-}
-//------------------------------------------------------------------------------
-void cmdot_product_double_mt (double* Out, 
-															double* In0, 
-															double* In1, 
-															volatile const uint64_t m, 
-															volatile const uint64_t k, 
-															volatile const uint64_t n,
-															double* In2,
-															volatile const bool In2Tr,
-															volatile uint64_t U0,
-															volatile uint64_t U1,
-															volatile uint64_t NT) {
-	cmdot_product_mt(Out, In0, In1, m, k, n, In2, In2Tr, U0, U1, NT);
-}
-//------------------------------------------------------------------------------
-void mrdot_product_double_mt (double* Out, 
-															double* In0, 
-															double* In1, 
-															volatile const uint64_t m, 
-															volatile const uint64_t k, 
-															volatile const uint64_t n,
-															volatile const bool OutCm,
-															volatile const bool InpSw,
-															double* In2,
-															volatile uint64_t U0,
-															volatile uint64_t U1,
-															volatile uint64_t NT) {
-	mrdot_product_mt(Out, In0, In1, m, k, n, OutCm, InpSw, In2, U0, U1, NT);
-}
-//------------------------------------------------------------------------------
-void mcdot_product_double_mt (double* Out, 
-															double* In0, 
-															double* In1, 
-															volatile const uint64_t m, 
-															volatile const uint64_t k, 
-															volatile const uint64_t n,
-															volatile const bool OutCm,
-															volatile const bool InpSw,
-															double* In2,
-															volatile uint64_t U0,
-															volatile uint64_t U1,
-															volatile uint64_t NT) {
-	mcdot_product_mt(Out, In0, In1, m, k, n, OutCm, InpSw, In2, U0, U1, NT);
-}
-//------------------------------------------------------------------------------
-void mmdot_product_double_mt (double* Out, 
-															double* In0, 
-															double* In1, 
-															volatile const uint64_t m, 
-															volatile const uint64_t k,
-															volatile const uint64_t n,
-															volatile bool OutT,
-															volatile bool In0T,
-															volatile bool In1T,
-															volatile bool ColM,
-															double* In2,
-															volatile uint64_t NT,
-															volatile uint64_t U0,
-															volatile uint64_t U1,
-															volatile const uint64_t UD,
-															volatile const uint64_t Arch) { 
-	// NT penumultimate in template 
-	mmdot_product_mt(Out, In0, In1, m, k, n, OutT, In0T, In1T, ColM, In2, U0, U1, UD, NT, Arch); 
+void clas_mmdot_product_double (double* Out, 
+																double* In0, 
+																double* In1, 
+																volatile const uint64_t m, 
+																volatile const uint64_t k,
+																volatile const uint64_t n,
+																volatile bool OutT,
+																volatile bool In0T,
+																volatile bool In1T,
+																volatile bool ColM,
+																double* In2,
+																volatile uint64_t NT,
+																volatile double FT,
+																volatile uint64_t D,
+																volatile uint64_t R,
+																volatile uint64_t A) { 
+  MMDOT_DOUBLE_UINT64_T.init (Out, In0, In1, m, k, n, OutT, In0T, In1T, ColM, 
+															In2, NT, FT, D, R, A); 
+	MMDOT_DOUBLE_UINT64_T.exec();
 }
 
 //------------------------------------------------------------------------------
-
 } // namespace
 
 
