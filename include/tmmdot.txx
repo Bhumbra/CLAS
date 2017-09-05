@@ -235,7 +235,6 @@ void tmmdot<T, U>::setStr(U _OPS, U _I0S, U _I1S, U _I2S,
 													U _OPs, U _I0s, U _I1s, U _I2s) {
 
 	this -> op  = this -> OP;
-	this -> opc = this -> OPC;
 	this -> i2  = this -> I2;
 	this -> k   = this -> K;
 
@@ -248,7 +247,8 @@ void tmmdot<T, U>::setStr(U _OPS, U _I0S, U _I1S, U _I2S,
 	this -> I1s = _I1s;
 	this -> I2s = _I2s;
 
-	if (!this -> opc) {
+	if (!this -> OPC && this -> N > 1) {
+		this -> opc = false;
 		this -> m = this -> M;
 		this -> n = this -> N;
 		this -> i0 = this -> I0;
@@ -265,6 +265,7 @@ void tmmdot<T, U>::setStr(U _OPS, U _I0S, U _I1S, U _I2S,
 		this -> i2s = this -> I2s;
 	}
 	else {
+		this -> opc = true;
 		this -> m = this -> N;
 		this -> n = this -> M;
 		this -> i0 = this -> I1;

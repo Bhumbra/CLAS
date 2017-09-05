@@ -13,8 +13,8 @@
 # define THIS_PREF(NUM_THREADS) NUM_THREADS
 # endif
 //------------------------------------------------------------------------------
-// # include <iostream>
-// using namespace std;
+ # include <iostream>
+ using namespace std;
 
 //------------------------------------------------------------------------------
 template <class T, class U>
@@ -135,7 +135,7 @@ void mmdot<T, U>::pref(U Nt) {
 //---------------------------------------------------------------------------
 template <class T, class U>
 void mmdot<T, U>::exec() {
-	U mkn, d, g, G, Nt, Md;
+	U mkn, d, g, G, Nt, Md, r;
 
 	// If no threads, run execution from thread-blind class thread-blind 
 	if (!this -> NT) {
@@ -144,22 +144,21 @@ void mmdot<T, U>::exec() {
 	}
 
 	mkn = this -> m * this -> k * this -> n;
-	if (mkn <= 262144) {
+	r = this -> m < this -> n ? this -> m : this -> n;
+	if (r <= 4 || mkn <= 262144) {
 		tmmdot<T, U>::exec();
 		return;
 	}
-	else if (mkn <= 524288) {
-		Md = (U)32;
-	}
-	else if (mkn <= 1048576) {
-		Md = (U)16;
-	}
-	else if (mkn <= 2097152) {
-		Md = (U)8;
+	if (r <= 32 && mkn >= 2097152) {
+		Md = 2;
 	}
 	else {
-		Md = (U)4;
+		Md = 32;
+		while (Md > r || ( Md*Md*Md << 6) >= mkn) {
+			Md >>= 1;
+		}
 	}
+
 	Nt = set_thread_load(this -> T_load, this -> m, this -> NT, Md, (U)4);
 
 	THIS_PREF(Nt);
@@ -208,6 +207,7 @@ void mmdot<T, U>::exec() {
 	for (d = 0; d<Nt; d++) {
 		this -> Tmmdot[d].Thread.join();
 	}
+	//*/
 }
 
 //---------------------------------------------------------------------------
