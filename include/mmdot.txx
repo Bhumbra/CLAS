@@ -13,8 +13,6 @@
 # define THIS_PREF(NUM_THREADS) NUM_THREADS
 # endif
 //------------------------------------------------------------------------------
- # include <iostream>
- using namespace std;
 
 //------------------------------------------------------------------------------
 template <class T, class U>
@@ -135,7 +133,7 @@ void mmdot<T, U>::pref(U Nt) {
 //---------------------------------------------------------------------------
 template <class T, class U>
 void mmdot<T, U>::exec() {
-	U mkn, d, g, G, Nt, Md, r;
+	U mkn, d, g, G, Nt, r;
 
 	// If no threads, run execution from thread-blind class thread-blind 
 	if (!this -> NT) {
@@ -150,16 +148,18 @@ void mmdot<T, U>::exec() {
 		return;
 	}
 	if (r <= 32 && mkn >= 2097152) {
-		Md = 2;
+		G = 2;
 	}
 	else {
-		Md = 32;
-		while (Md > r || ( Md*Md*Md << 6) >= mkn) {
-			Md >>= 1;
+		G = 32;
+		while (G > r || ( G*G*G << 6) >= mkn) {
+			G >>= 1;
 		}
 	}
 
-	Nt = set_thread_load(this -> T_load, this -> m, this -> NT, Md, (U)4);
+	g = G > 3 ? G >> 1 : G;
+
+	Nt = set_thread_load(this -> T_load, this -> m, this -> NT, G, g);
 
 	THIS_PREF(Nt);
 

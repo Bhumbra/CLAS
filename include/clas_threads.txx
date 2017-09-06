@@ -2,6 +2,8 @@
 # define clas_threads_txx
 # include <thread>
 //------------------------------------------------------------------------------
+ # include <iostream>
+ using namespace std;
 //------------------------------------------------------------------------------
 template <class U>
 static inline U set_num_threads(volatile U NT = 0) { 
@@ -62,8 +64,11 @@ static inline U set_thread_load(U* td, volatile U n, U mt = 1, U md = 1, U dm = 
 		D = n / mt;
 		if (n % D) {D ++;}
 		R = D % dm;
-		if (D < md) {
+		if (D <= md) {
 			D = md;
+			while (D*mt < n) {
+				D += dm;
+			}
 		}
 		else if (R) {
 			D += (dm - R);
