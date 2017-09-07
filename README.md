@@ -3,9 +3,9 @@
 C++ Linear Algebra Subroutines - a biologically-inspired library of linear algebra operations optimised for machine
 learning.
 
-This library has only recently been started and following a successful proof-of-concept stage is under active document.
-Documentation is thus scant. Although CLAS is mostly written in C++, architecture-optimised routines are coded in C and
-assembler.
+This library has only recently been started and following a successful proof-of-concept stage is under active
+development. At this initial stage, documentation is scant. Although CLAS is mostly written in C++,
+architecture-optimised routines are coded in C and assembler.
 
 REQUIREMENTS
 ------------
@@ -62,19 +62,19 @@ outputting to an executable bin/blasvsclas.run.
 
 It may be necessary to modify maketest or maketest.gcc5 to include the relevant paths to OpenBLAS for a given system.
 For a fair test, please use the most recent stable release (OpenBLAS 0.2.19), because it appears OpenBLAS 0.2.20 kills
-all other multithreaded libraries running from the same executable although I'm hopeful the authors will correct this
+all other multithreaded libraries running from the same executable although hopefully the authors will correct this
 soon. Please also note that I've so far only coded SSE4 assembler and therefore for now CLAS will inherently be
 disadvantaged in comparison to BLAS implementations adopting AVX2 instructions for Intel architectures that support them
-(e.g. Haswell etc...).
+(e.g. Haswell, Broadwell, Skylake, Kaby Lake, etc...).
 
 USAGE
 -----
 Presently template code has been written for all matrix-matrix multiplication transposition permutations using the
 following function (with argument types and defaults shown):
 
-	void clas::mmdot_product_double(double* Out, double* In0, double* In1, uint64_t m, uint64_t k, uint64_t n,
-					bool OutT = false, bool In0T = false, bool In1T = false, bool ColM = false, 
-					double* In2 = 0, uint64_t NT = 0, double FT = 1.);
+void clas::mmdot_product_double(double* Out, double* In0, double* In1, uint64_t m, uint64_t k, uint64_t n,
+				bool OutT = false, bool In0T = false, bool In1T = false, bool ColM = false, 
+				double* In2 = 0, uint64_t NT = 0, double FT = 1.);
 
 ... where the first 6 arguments are compulsory:
 
