@@ -72,9 +72,11 @@ USAGE
 Presently template code has been written for all matrix-matrix multiplication transposition permutations using the
 following function (with argument types and defaults shown):
 
-void clas::mmdot_product_double(double* Out, double* In0, double* In1, uint64_t m, uint64_t k, uint64_t n,
-				bool OutT = false, bool In0T = false, bool In1T = false, bool ColM = false, 
-				double* In2 = 0, uint64_t NT = 0, double FT = 1.);
+	void clas::mmdot_product_double(double* Out, double* In0, double* In1, 
+					uint64_t m, uint64_t k, uint64_t n,
+					bool OutT = false, bool In0T = false, bool In1T = false, 
+					bool ColM = false, double* In2 = 0, 
+					uint64_t NT = 0, double FT = 1.);
 
 ... where the first 6 arguments are compulsory:
 
