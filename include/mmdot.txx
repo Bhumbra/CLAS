@@ -133,7 +133,7 @@ void mmdot<T, U>::pref(U Nt) {
 //---------------------------------------------------------------------------
 template <class T, class U>
 void mmdot<T, U>::exec() {
-	U mkn, d, g, G, Nt, r;
+	U mkn, d, g, G, Nt, R, r;
 
 	// If no threads, run execution from thread-blind class thread-blind 
 	if (!this -> NT) {
@@ -142,22 +142,40 @@ void mmdot<T, U>::exec() {
 	}
 
 	mkn = this -> m * this -> k * this -> n;
-	r = this -> m < this -> n ? this -> m : this -> n;
-	if (r <= 4 || mkn <= 262144) {
+	R = this -> m < this -> n ? this -> m : this -> n;
+	if (R <= 4 || mkn <= 262144) {
 		tmmdot<T, U>::exec();
 		return;
 	}
-	if (r <= 32 && mkn >= 2097152) {
-		G = 2;
+	G = (U)64;
+	if (mkn >= 2097152) {
+		while (G*G > R) {
+			G >>= 1;
+		}
 	}
 	else {
-		G = 32;
-		while (G > r || ( G*G*G << 6) >= mkn) {
+		while (G > R || ( G*G*G << 6) >= mkn) {
 			G >>= 1;
 		}
 	}
 
-	g = G > 3 ? G >> 1 : G;
+	r = R >> 1;
+	g = G > 4 ? G >> 1 : (U)4;
+
+	if (G < 4) {
+		g = G;
+	}
+	else if (G < R && G > r) {
+		G = r + R % 2;
+	}
+	else if (G > 4) {
+		r = G + g;
+		d = R % G;
+		if ( (d && d <= G >> 1) && d < R % (G + g) ) {
+			G += g;
+		}
+		if (g < 3)  {g = 4;}
+	}
 
 	Nt = set_thread_load(this -> T_load, this -> m, this -> NT, G, g);
 
