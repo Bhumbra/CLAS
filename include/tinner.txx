@@ -5,14 +5,8 @@
 # define tinner_txx
 
 //------------------------------------------------------------------------------
+# include "tmmdot.txx"
 
-
-
-//------------------------------------------------------------------------------
-# include "mcache.txx"
-# include "clas_threads.txx"
-
-//------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 template <class T, class U>
 class tinner {
@@ -33,6 +27,7 @@ class tinner {
 								U _OPs = (U)0, U _I0s = (U)0, U _I1s = (U)0, U _I2s = (U)0);
 		void chkStr();
 		void exec();
+		void pmqk();
 		std::thread Thread;
 	protected:
 		T* op;
@@ -139,7 +134,7 @@ void tmmdot<T, U>::chkStr() {
 	}
 
 	if (! (this -> i1S || this -> i1s) ) {
-		this -> i1s = this -> k;
+		this -> i1s = this -> q * this -> k;
 		this -> i1S = this -> m * this -> q * this -> k;
 	}
 
@@ -155,8 +150,39 @@ void tmmdot<T, U>::chkStr() {
 //---------------------------------------------------------------------------
 template <class T, class U>
 void tinner<T, U>::exec() {
+	U g;
+	if (this -> op != this -> i2) {
+		for (g = 0; g < this -> p; g--) {
+			replicate(this -> op + g * this -> opS, 
+								this -> m, this -> q, this -> ops,
+								this -> i2, this -> i2S, this -> i2s, (U)1);
+		}
+	}
+	if (this -> A == (U)1) {return this -> pmqk();}
+	this -> pmqk();
 }
 
+//---------------------------------------------------------------------------
+template <class T, class U>
+void tinner<T, U>::pmqk() {
+	U g, h;
+
+	T *_Out, *_In0, *_In1;
+	T *Out, *In0, *In1;
+
+	for (g = 0; g<p; g++) {
+		_Out = this -> op + g * this -> opS;
+		_In0 = this -> i0 + g * this -> i0S;
+		_In1 = this -> i1 + g * this -> i1S;
+		for (h = 0; h<m; h++) {
+			Out = _Out + h * this -> ops;
+			In0 = _In0 + h * this -> i0s;
+			In1 = _In1 + h * this -> i1s;
+			dot_product_mkc_1x8x1(Out, In1, In0, this -> q, this -> k, (U)1);
+		}
+	}
+
+}
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------

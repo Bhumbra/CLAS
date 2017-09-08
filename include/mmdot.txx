@@ -142,12 +142,20 @@ void mmdot<T, U>::exec() {
 	}
 
 	mkn = this -> m * this -> k * this -> n;
-	R = this -> m < this -> n ? this -> m : this -> n;
-	if (R <= 4 || mkn <= 262144) {
+	if (this -> m >= this -> n) {
+		R = this -> m;
+		r = this -> n;
+	}
+	else {
+		R = this -> n;
+		r = this -> m;
+	}
+	if ((r <= 4 && R <= 32) || mkn <= 524288) {
 		tmmdot<T, U>::exec();
 		return;
 	}
 	G = (U)64;
+	R = r;
 	if (mkn >= 2097152) {
 		while (G*G > R) {
 			G >>= 1;

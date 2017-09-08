@@ -601,6 +601,17 @@ void tmmdot<T, U>::mkn_8x64x8(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
 //---------------------------------------------------------------------------
 template <class T, class U>
 void tmmdot<T, U>::mkn_8x8x8(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
+	// Probably fast tracking to 4x4x4 is faster here
+	if (!this -> i1c) {
+		dot_product_mkn_4x4x4(_OP, _I0, _I1, _M, _K, _N, 
+		this -> opS, this -> i0S, this -> i0s, this -> i1S);
+	}
+	else {
+		dot_product_mkc_4x4x4(_OP, _I0, _I1, _M, _K, _N, 
+		this -> opS, this -> i0S, this -> i0s, this -> i1s);
+	}
+	return;
+	/*
 	U e, f, g, F;
 	T *_Out, *_In0, *_In1, *Out, *In0, *In1;
 	U Ms, Ks, Ns, _m, _k, _n;
@@ -661,6 +672,7 @@ void tmmdot<T, U>::mkn_8x8x8(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
 		_In1 = _I1;
 		this -> mkn_4x4x4(_Out, _In0, _In1, _M - _m, _K, _N);
 	}
+	*/
 }
 
 //---------------------------------------------------------------------------
@@ -695,6 +707,16 @@ void tmmdot<T, U>::mkn_1x1x1(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
 
 template <class T, class U>
 void tmmdot<T, U>::double_mkn_64x64x64(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
+/*
+	if (!this -> i1c) {
+		DOT_PRODUCT_DOUBLE_MKN_4X4X4(_OP, _I0, _I1, _M, _K, _N, 
+		this -> opS, this -> i0S, this -> i0s, this -> i1S, this -> A);
+	}
+	else {
+		DOT_PRODUCT_DOUBLE_MKC_4X4X4(_OP, _I0, _I1, _M, _K, _N, 
+		this -> opS, this -> i0S, this -> i0s, this -> i1s, this -> A);
+	} 
+	return;*/
 	U e, f, g, F;
 	T *_Out, *_In0, *_In1, *Out, *In0, *In1;
 	U Ms, Ks, Ns, _m, _k, _n;
@@ -887,6 +909,17 @@ void tmmdot<T, U>::double_mkn_8x64x8(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
 //---------------------------------------------------------------------------
 template <class T, class U>
 void tmmdot<T, U>::double_mkn_8x8x8(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
+	// Probably fast tracking to 4x4x4 is faster here.
+	if (!this -> i1c) {
+		DOT_PRODUCT_DOUBLE_MKN_4X4X4(_OP, _I0, _I1, _M, _K, _N, 
+		this -> opS, this -> i0S, this -> i0s, this -> i1S, this -> A);
+	}
+	else {
+		DOT_PRODUCT_DOUBLE_MKC_4X4X4(_OP, _I0, _I1, _M, _K, _N, 
+		this -> opS, this -> i0S, this -> i0s, this -> i1s, this -> A);
+	}
+	return;
+	/*
 	U e, f, g, F;
 	T *_Out, *_In0, *_In1, *Out, *In0, *In1;
 	U Ms, Ks, Ns, _m, _k, _n;
@@ -947,6 +980,7 @@ void tmmdot<T, U>::double_mkn_8x8x8(T* _OP, T* _I0, T* _I1, U _M, U _K, U _N) {
 		_In1 = _I1;
 		this -> double_mkn_4x4x4(_Out, _In0, _In1, _M - _m, _K, _N);
 	}
+	*/
 }
 
 //---------------------------------------------------------------------------
