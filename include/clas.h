@@ -11,6 +11,7 @@
 
 //------------------------------------------------------------------------------
 namespace clas {
+# define inner_product_double clas_inner_product_double
 # define mmdot_product_double clas_mmdot_product_double
 }
 //------------------------------------------------------------------------------

@@ -189,7 +189,6 @@ void mmdot<T, U>::exec() {
 
 	THIS_PREF(Nt);
 
-	/* // A thread-free version
 	for (d = 0, G = 0; d<Nt; d++, G += g) {
 		g = this -> T_load[d];
 	
@@ -206,31 +205,18 @@ void mmdot<T, U>::exec() {
 															(U)1, this -> i0s, 
 															this -> i1s, this -> i2s);
 	}
+	/* // A thread-free version
 	for (d = 0, G = 0; d<Nt; d++, G += g) {
 		// this -> Tmmdot[d].nop();
 		this -> Tmmdot[d].exec();
 	}
   */
-
 	///* // Threaded version
 	for (d = 0, G = 0; d<Nt; d++, G += g) {
-		g = this -> T_load[d];
-		this -> Tmmdot[d].init   (this -> op + G * this -> opS,
-															this -> i0 + G * this -> i0S,
-															this -> i1, g, 
-															this -> k, this -> n, 
-															false, this -> i0c,
-															this -> i1c, false,
-															this -> i2 + G * this -> i2S,
-															this -> D, this -> R, this -> A);
-		this -> Tmmdot[d].setStr (this -> n, this -> i0S,
-															this -> i1S, this -> i2S,
-															(U)1, this -> i0s, 
-															this -> i1s, this -> i2s);
 		this -> Tmmdot[d].Thread = std::thread(&tmmdot<T,U>::exec, &this -> Tmmdot[d]);
-		//this -> Tmmdot[d].Thread = std::thread(&tmmdot<T,U>::nop, &this -> Tmmdot[d]);
 	}
-	for (d = 0; d<Nt; d++) {
+	for (d = 0, G = 0; d<Nt; d++, G += g) {
+		//this -> Tmmdot[d].Thread = std::thread(&tmmdot<T,U>::nop, &this -> Tmmdot[d]);
 		this -> Tmmdot[d].Thread.join();
 	}
 	//*/

@@ -24,9 +24,9 @@ int main(int argc, char* argv[])
 	std::cout << std::endl << "Start" << std::endl;
 	uint64_t h, i, j;
 
-	uint64_t m = 30; // maxuend rows -                     (1 for inner/rmdot)
-	uint64_t k = 784; // maxuend cols (and multiple rows)  (1 for outer/mrdot)
-	uint64_t n = 1024; // multiple cols  - for ewise, m = n (1 for inner/cmdot)
+	uint64_t m = 30;  // multiplicand rows                     
+	uint64_t k = 784; // multiplicand cols (and multiple rows) 
+	uint64_t n = 1024;// multiple cols
 	uint64_t N = 200; // repeats
 	bool transpose[] = {0, 0, 0};
 	bool ColMajor = false;
@@ -36,19 +36,19 @@ int main(int argc, char* argv[])
 	bool benchMark[] =  {1, 1, 1}; 
 	uint64_t repDispMax = 5; // maximum iterations for displaying individual executation times
 
-	uint64_t blasnt = 0; // maximum number of threads for BLAS to use (0 - all threads)
-	if (blasnt) { // set_num_threads isn't offered in old versions of OpenBLAS
+	uint64_t blasnt = 0;     // maximum number of threads for BLAS to use (0 - all threads)
+	if (blasnt) {            // set_num_threads isn't offered in all versions of OpenBLAS
 		//openblas_set_num_threads( (int)blasnt);
 	}
 	uint64_t nt = 0; // maximum number of threads (0 - all threads) 
 	double   ft = 1; // maximum fraction of threads (1 - all threads, 0 - main thread) 
-	uint64_t D = 0; // Dimension argument
-	uint64_t R = 0; // Radix argument
-	uint64_t A = 0; // Architecture argument
+	uint64_t D = 0;  // Dimension argument
+	uint64_t R = 0;  // Radix argument
+	uint64_t A = 0;  // Architecture argument
 	
 	double c0 = 0.;  // coefficient to multiply with multiplicand
-	double c1 = 1;  // coefficient to multiply with multiple
-	int maxuend = 1;  // 0 means not used - non-zero is casted to double
+	double c1 = 1;   // coefficient to multiply with multiple
+	int maxuend = 0; // 0 means not used - non-zero is casted to double
 
 	uint64_t zr, zc;
 	double* d = 0;
