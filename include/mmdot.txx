@@ -133,29 +133,52 @@ void mmdot<T, U>::pref(U Nt) {
 //---------------------------------------------------------------------------
 template <class T, class U>
 void mmdot<T, U>::exec() {
-	U mkn, d, g, G, Nt, R, r;
+	U mkn, d, g, G, Nt, R, r, _D;
+	U outs, in0s, in1s, in2s, _M, _N;
 
-	// If no threads, run execution from thread-blind class thread-blind 
+	// If no threads, run execution from thread-blind class 
 	if (!this -> NT) {
 		tmmdot<T, U>::exec();
 		return;
 	}
-
-	mkn = this -> m * this -> k * this -> n;
-	if (this -> m >= this -> n) {
-		R = this -> m;
-		r = this -> n;
+	// If small dimensions, run execution from thread-blind class 
+	if (this -> m >=  this -> n) {
+		G = this -> m;
+		g = this -> n;
 	}
 	else {
-		R = this -> n;
-		r = this -> m;
+		G = this -> n;
+		g = this -> m;
 	}
-	if ((r <= 4 && R <= 32) || mkn <= 524288) {
+	mkn = this -> m * this -> k * this -> n;
+	if ((g <= 4 && G <= 32) || mkn <= 524288) {
 		tmmdot<T, U>::exec();
 		return;
 	}
+
+	// User-specifiable or dimension-optimised direction of distributing thread load
+
+	_D = this -> D;
+	if (!_D) {
+		_D = (this -> n > this -> m && this -> m <= (this -> NT >> 1)) ? (U)2 : (U)1;
+	}
+	in2s = (U)0;
+	if (_D != (U)2) {
+		R = this -> m;
+		outs = this -> opS;
+		in0s = this -> i0S;
+		in1s = (U)0;
+		if (this -> i2s) {
+			in2s = this -> i2S;
+		}
+	}
+	else {
+		R = this -> n;
+		outs = (U)1;
+		in0s = (U)0;
+		in1s = this -> i1s;
+	}
 	G = (U)64;
-	R = r;
 	if (mkn >= 2097152) {
 		while (G*G > R) {
 			G >>= 1;
@@ -166,10 +189,8 @@ void mmdot<T, U>::exec() {
 			G >>= 1;
 		}
 	}
-
 	r = R >> 1;
 	g = G > 4 ? G >> 1 : (U)4;
-
 	if (G < 4) {
 		g = G;
 	}
@@ -185,20 +206,29 @@ void mmdot<T, U>::exec() {
 		if (g < 3)  {g = 4;}
 	}
 
-	Nt = set_thread_load(this -> T_load, this -> m, this -> NT, G, g);
+	_M = this -> m;
+	_N = this -> n;
+	R = (_D != (U)2) ? _M : _N;
+	Nt = set_thread_load(this -> T_load, R, this -> NT, G, g);
 
 	THIS_PREF(Nt);
 
 	for (d = 0, G = 0; d<Nt; d++, G += g) {
 		g = this -> T_load[d];
+		if (_D != 2) {
+			_M = g;
+		}
+		else {
+			_N = g;
+		}
 	
-		this -> Tmmdot[d].init   (this -> op + G * this -> opS,
-															this -> i0 + G * this -> i0S,
-															this -> i1, g, 
-															this -> k, this -> n, 
+		this -> Tmmdot[d].init   (this -> op + G * outs,
+															this -> i0 + G * in0s,
+															this -> i1 + G * in1s, 
+															_M,  this -> k, _N, 
 															false, this -> i0c,
 															this -> i1c, false,
-															this -> i2 + G * this -> i2S,
+															this -> i2 + G * in2s,
 															this -> D, this -> R, this -> A);
 		this -> Tmmdot[d].setStr (this -> n, this -> i0S,
 															this -> i1S, this -> i2S,
@@ -213,10 +243,10 @@ void mmdot<T, U>::exec() {
   */
 	///* // Threaded version
 	for (d = 0, G = 0; d<Nt; d++, G += g) {
+		//this -> Tmmdot[d].Thread = std::thread(&tmmdot<T,U>::nop, &this -> Tmmdot[d]);
 		this -> Tmmdot[d].Thread = std::thread(&tmmdot<T,U>::exec, &this -> Tmmdot[d]);
 	}
 	for (d = 0, G = 0; d<Nt; d++, G += g) {
-		//this -> Tmmdot[d].Thread = std::thread(&tmmdot<T,U>::nop, &this -> Tmmdot[d]);
 		this -> Tmmdot[d].Thread.join();
 	}
 	//*/
