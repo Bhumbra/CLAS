@@ -25,14 +25,17 @@ class touter {
 		touter();
 		touter (T* _OP, T* _I0 = (T*)0, T* _I1 = (T*)0,
 						U _M = (U)0, U _N = (U)0, U _P = (U)1, U _Q = (U)1, 
-						T* _I2 = (T*)0, U _D = (U)0, U _R = (U)0, U _A = (U)0);
+						bool _I0C = false, T* _I2 = (T*)0, 
+						U _D = (U)0, U _R = (U)0, U _A = (U)0);
 		~touter<T, U>();
 		virtual void init(T* _OP = (T*)0, T* _I0 = (T*)0, T* _I1 = (T*)0,
 											U _M = (U)0, U _N = (U)0, U _P = (U)1, U _Q = (U)1,
-											T* _I2 = (T*)0, U _D = (U)0, U _R = (U)0, U _A = (U)0);
+											bool _I0C = false, T* _I2 = (T*)0, 
+											U _D = (U)0, U _R = (U)0, U _A = (U)0);
 		void setPtr(T* _OP = (T*)0 , T* _I0 = (T*)0, T* _I1 = (T*)0, T* _I2 = (T*)0);
 		void setDim(U _M = (U)0, U _N = (U)0, U _P = (U)1, U _Q = (U)1);
 		void setDRA(U _D = (U)0, U _R = (U)0, U _A = (U)0);
+		void setCmj(bool _I0T = false);
 		void setStr(U _OPS = (U)0, U _I0S = (U)0, U _I1S = (U)0, U _I2S = (U)0,
 								U _OPs = (U)0, U _I0s = (U)0, U _I1s = (U)0, U _I2s = (U)0);
 		void chkStr();
@@ -75,9 +78,9 @@ touter<T, U>::touter() {
 
 //---------------------------------------------------------------------------
 template <class T, class U>
-touter<T, U>::touter( T* _OP, T* _I0, T* _I1, U _M, U _N, U _P, U _Q, T* _I2, 
-											U _D, U _R, U _A) {
-	this -> init(	_OP, _I0, _I1, _M, _N, _P, _Q, _I2, _D, _R, _A);
+touter<T, U>::touter( T* _OP, T* _I0, T* _I1, U _M, U _N, U _P, U _Q,
+											bool _I0C, T* _I2, U _D, U _R, U _A) {
+	this -> init(	_OP, _I0, _I1, _M, _N, _P, _Q, _I0C, _I2, _D, _R, _A);
 }
 
 //---------------------------------------------------------------------------
@@ -89,11 +92,12 @@ touter<T, U>::~touter() {
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 template <class T, class U>
-void touter<T, U>::init(T* _OP, T* _I0, T* _I1, U _M, U _N, U _P, U _Q, T* _I2, 
-												U _D, U _R, U _A) {
+void touter<T, U>::init(T* _OP, T* _I0, T* _I1, U _M, U _N, U _P, U _Q, 
+												bool _I0C, T* _I2, U _D, U _R, U _A) {
 	this -> setPtr(_OP, _I0, _I1, _I2);
 	if (!this -> op) {return;}
 	this -> setDim(_M, _N, _P, _Q);
+	this -> setCmj(_I0C);
 	this -> setDRA(_D, _R, _A);
 }
 
@@ -116,10 +120,15 @@ void touter<T, U>::setDim(U _M, U _N, U _P, U _Q) {
 	this -> p = _P;
 	this -> q = _Q;
 	this -> nq = this -> n * this -> q;
+}
+
+//---------------------------------------------------------------------------
+template <class T, class U>
+void touter<T, U>::setCmj(bool _I0C) {
+	this -> i0c = _I0C;
 	this -> setStr();
 	this -> chkStr();
 }
-
 
 //---------------------------------------------------------------------------
 template <class T, class U>
@@ -152,8 +161,14 @@ void touter<T, U>::chkStr() {
 		this -> ops = this -> n * this -> q;
 	}
 	if (! (this -> i0S || this -> i0s) ) {
-		this -> i0S = (U)0;
-		this -> i0s = this -> n;
+		if (this -> i0c) {
+			this -> i0S = this -> k;
+			this -> i0s = (U)1;
+		}
+		else {
+			this -> i0S = (U)1;
+			this -> i0s = this -> m;
+		}
 	}
 
 	if (! (this -> i1S || this -> i1s) ) {
@@ -198,14 +213,14 @@ void touter<T, U>::pmnq() {
 
 	for (g = 0; g < this -> p; g++) {
 		_Out = this -> op + g * this -> opS;
-		_In0 = this -> i0 + g * this -> i0S;
+		_In0 = this -> i0;
 		_In1 = this -> i1 + g * this -> i1S;
 		for (h = 0; h < this -> m; h++) {
 			Out = _Out + h * this -> ops;
-			In0 = _In0 + h * this -> i0s;
+			In0 = _In0 + h * this -> i0S;
 			In1 = _In1 + h * this -> i1s;
 			dot_product_mkn_1x1x8(Out, In0, In1, this -> n, (U)1, this -> q,
-														this -> q, (U)1); 
+														this -> q, this -> i0S, this -> i0s, this -> k); 
 		}
 	}
 }

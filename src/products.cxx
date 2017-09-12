@@ -86,6 +86,7 @@ void clas_inner_product_double (double* Out,
 																volatile const uint64_t k,
 																volatile const uint64_t p,
 																volatile const uint64_t q,
+																bool i0c,
 																double* In2,
 																volatile uint64_t NT,
 																volatile double FT,
@@ -93,7 +94,7 @@ void clas_inner_product_double (double* Out,
 																volatile uint64_t R,
 																volatile uint64_t A) { 
   INNER_DOUBLE_UINT64_T.init (Out, In0, In1, m, k, p, q,
-															In2, NT, FT, D, R, A);
+															i0c, In2, NT, FT, D, R, A);
 	INNER_DOUBLE_UINT64_T.exec();
 }
 

@@ -15,12 +15,12 @@ class inner: public tinner<T, U> {
 		inner<T, U>();
 		inner(		T* _OP, T* _I0 = (T*)0, T* _I1 = (T*)0,
 							U _M = (U)0, U _K = (U)0, U _P = (U)0, U _Q = (U)0,
-							T* _I2 = (T*)0, U _MT = (U)0, T _FT = (T)1., 
+							bool _I0C = false, T* _I2 = (T*)0, U _MT = (U)0, T _FT = (T)1., 
 							U _D = (U)0, U _R = (U)0, U _A = (U)0);
 		~inner<T, U>();
 		void init(T* _OP = (T*)0 , T* _I0 = (T*)0, T* _I1 = (T*)0,
 							U _M = (U)0, U _K = (U)0, U _P = (U)0, U _Q = (U)0,
-							T* _I2 = (T*)0, U _MT = (U)0, T _FT = (T)1., 
+							bool _I0C= false, T* _I2 = (T*)0, U _MT = (U)0, T _FT = (T)1., 
 							U _D = (U)0, U _R = (U)0, U _A = (U)0);
 		void exec();
 	protected:
@@ -44,9 +44,9 @@ inner<T, U>::inner() {
 //---------------------------------------------------------------------------
 template <class T, class U>
 inner<T, U>::inner( T* _OP, T* _I0, T* _I1, U _M, U _K, U _P, U _Q,
-										T* _I2, U _MT, T _FT, U _D, U _R, U _A) {
+										bool _I0C, T* _I2, U _MT, T _FT, U _D, U _R, U _A) {
 	this -> init(	_OP, _I0, _I1, _M, _K, _P, _Q,
-								_I2, _MT, _FT, _D, _R, _A);
+								_I0C, _I2, _MT, _FT, _D, _R, _A);
 }
 
 //---------------------------------------------------------------------------
@@ -61,10 +61,11 @@ inner<T, U>::~inner() {
 //---------------------------------------------------------------------------
 template <class T, class U>
 void inner<T, U>::init (T* _OP, T* _I0, T* _I1, U _M, U _K, U _P, U _Q,
-												T* _I2, U _MT, T _FT, U _D, U _R, U _A) {
+												bool _I0C, T* _I2, U _MT, T _FT, U _D, U _R, U _A) {
 	this -> setPtr(_OP, _I0, _I1, _I2);
 	if (!this -> op) {return;}
 	this -> setDim(_M, _K, _P, _Q);
+	this -> setStr(_I0C);
 	this -> setDRA(_D, _R, _A);
 	this -> setThr(_MT, _FT);
 }
@@ -102,14 +103,14 @@ void inner<T, U>::exec() {
 	if (!unitp) {
 		G = P;
 		outs = this -> opS;
-		in0s = this -> i0S;
+		in0s = (U)0;
 		in1s = this -> i1S;
 		in2s = (U)0;
 	}
 	else if (!unitm) {
 		G = M;
 		outs = this -> ops;
-		in0s = this -> i0s;
+		in0s = this -> i0S;
 		in1s = this -> i1s;
 		in2s = this -> i2 ? (U)1 : (U)0;
 	}
@@ -141,7 +142,7 @@ void inner<T, U>::exec() {
 															this -> i0 + G * in0s,
 															this -> i1 + G * in1s,
 															M, this -> k, P, Q, 
-															this -> i2 + G * in2s,
+															this -> i0c, this -> i2 + G * in2s,
 															this -> D, this -> R, this -> A);
 	}
 	/* // A thread-free version
@@ -174,6 +175,7 @@ static inline void inner_product (T* OP,
 																	U k,
 																	U p,
 																	U q,
+																	bool i0c = false,
 																	T* I2 = (T*)0,
 																	U Nt = (U)0,
 																	T Ft = 0.,
@@ -181,7 +183,7 @@ static inline void inner_product (T* OP,
 																	U R = (U)0,
 																	U A = (U)0) {
 	inner<T, U> Inner;
-  Inner.init (OP, I0, I1, m, k, p, q, I2, Nt, Ft, D, R, A); 
+  Inner.init (OP, I0, I1, m, k, p, q, i0c, I2, Nt, Ft, D, R, A); 
   Inner.exec();
 }
 
