@@ -6,8 +6,8 @@
 # RDX	out_3 
 # RSI	i and OutS and In0S
 # RDI	j and In0s
-# R08	in0_0 and In1Sxn
-# R09	in0_1
+# R8	in0_0 and In1Sxn
+# R9	in0_1
 # R10	in0_2 
 # R11	in0_3 
 # R12	in1_0 

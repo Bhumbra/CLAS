@@ -13,12 +13,15 @@ lib/libclas.a:
 	$(SS) $(SFLAGS) src/x86_64_sse4/dot_product_double_mkn_sse4.S -o build/dot_product_double_mkn_sse4.o
 	$(SS) $(SFLAGS) src/x86_64_sse4/dot_product_double_mkc_sse4.S -o build/dot_product_double_mkc_sse4.o
 	$(SS) $(SFLAGS) src/x86_64_sse4/dot_product_double_mnk_sse4.S -o build/dot_product_double_mnk_sse4.o
+	$(SS) $(SFLAGS) src/x86_64_sse4/ent_product_double_mkn_sse4.S -o build/ent_product_double_mkn_sse4.o
 	$(CC) $(CFLAGS) src/dot_product_double_mkn.c -o build/dot_product_double_mkn.o $(INC)
 	$(CC) $(CFLAGS) src/dot_product_double_mkc.c -o build/dot_product_double_mkc.o $(INC)
 	$(CC) $(CFLAGS) src/dot_product_double_mnk.c -o build/dot_product_double_mnk.o $(INC)
+	$(CC) $(CFLAGS) src/ent_product_double_mkn.c -o build/ent_product_double_mkn.o $(INC)
 	$(XX) $(XFLAGS) src/products.cxx -o build/products.o $(INC) $(LIB)
 	@mkdir -p lib
 	$(AR) $(AFLAGS) lib/libclas.a build/products.o \
 			build/dot_product_double_mkn_sse4.o build/dot_product_double_mkn.o \
 			build/dot_product_double_mkc_sse4.o build/dot_product_double_mkc.o \
-			build/dot_product_double_mnk_sse4.o build/dot_product_double_mnk.o
+			build/dot_product_double_mnk_sse4.o build/dot_product_double_mnk.o \
+			build/ent_product_double_mkn_sse4.o build/ent_product_double_mkn.o

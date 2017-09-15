@@ -79,6 +79,27 @@ void inner_product_double_mt (double* Out,
 }
 
 //------------------------------------------------------------------------------
+void clas_ewise_product_double (double* Out, 
+																double* In0, 
+																double* In1, 
+																volatile const uint64_t m, 
+																volatile const uint64_t k,
+																volatile const uint64_t p,
+																volatile const uint64_t q,
+																bool i0c,
+																bool i1b,
+																double* In2,
+																volatile uint64_t NT,
+																volatile double FT,
+																volatile uint64_t D,
+																volatile uint64_t R,
+																volatile uint64_t A) { 
+  EWISE_DOUBLE_UINT64_T.init (Out, In0, In1, m, k, p, q,
+															i0c, i1b, In2, NT, FT, D, R, A);
+	EWISE_DOUBLE_UINT64_T.exec();
+}
+
+//------------------------------------------------------------------------------
 void clas_outer_product_double (double* Out, 
 																double* In0, 
 																double* In1, 
