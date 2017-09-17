@@ -59,13 +59,14 @@ class touter {
 		U k;
 		U p;
 		U q;
+		bool i0c;
+		bool i1b;
 		U D;
 		U R;
 		U A;
 		U kq;
 		U sizeofT;
-		bool i0c;
-		bool i1b;
+		U sizeofU;
 	private:
 };
 
@@ -74,6 +75,7 @@ class touter {
 template <class T, class U>
 touter<T, U>::touter() {
 	this -> sizeofT = sizeof(T);
+	this -> sizeofU = sizeof(U);
 	this -> init();
 }
 
@@ -203,7 +205,8 @@ void touter<T, U>::exec() {
 		}
 	}
 	if (this -> A == (U)1) {return this -> pmkq();}
-	switch (this -> sizeofT) {
+	g = this -> sizeofU == (U)8 ? this -> sizeofT : (U)0;
+	switch (g) {
 		case (U)8: {return THIS_DOUBLE_PMKQ();}
 		default: {return this -> pmkq();}
 	}

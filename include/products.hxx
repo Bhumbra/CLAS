@@ -2,7 +2,6 @@
 # define products_hxx
 
 # include "clas.hxx"
-# include "_products_mt.txx"
 # include "ewise.txx"
 # include "outer.txx"
 # include "inner.txx"
@@ -15,70 +14,6 @@ outer<double, uint64_t> OUTER_DOUBLE_UINT64_T;
 inner<double, uint64_t> INNER_DOUBLE_UINT64_T;
 mmdot<double, uint64_t> MMDOT_DOUBLE_UINT64_T;
 # endif
-//------------------------------------------------------------------------------
-void ewise_product_double_ut (double* Out, 
-															double* In0, 
-															double* In1, 
-															volatile const uint64_t m, 
-															volatile const uint64_t n, 
-															volatile const uint64_t Outs = 0,
-															volatile const uint64_t In0s = 0,
-															volatile const uint64_t In1s = 0,
-															volatile uint64_t UR = 0);
-//------------------------------------------------------------------------------
-void outer_product_double_ut (double* Out, 
-															double* In0, 
-															double* In1, 
-															volatile const uint64_t m, 
-															volatile const uint64_t n,
-															volatile const uint64_t Outs = 0,
-															volatile const uint64_t In0s = 0,
-															volatile const uint64_t In1s = 0,
-															volatile uint64_t UR = 0);
-//------------------------------------------------------------------------------
-void inner_product_double_ut (double* Out, 
-															double* In0, 
-															double* In1, 
-															volatile const uint64_t m, 
-															volatile const uint64_t k, 
-															volatile const uint64_t Outs = 1,
-															volatile uint64_t In0s = 1,
-															volatile uint64_t In1s = 1,
-															double* In2 = 0,
-															volatile uint64_t UR = 0);
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void ewise_product_double_mt (double* Out, 
-															double* In0, 
-															double* In1, 
-															volatile const uint64_t m, 
-															volatile const uint64_t n, 
-															volatile const uint64_t Outs = 0,
-															volatile const uint64_t In0s = 0,
-															volatile const uint64_t In1s = 0,
-															volatile uint64_t UR = 0);
-//------------------------------------------------------------------------------
-void outer_product_double_mt (double* Out, 
-															double* In0, 
-															double* In1, 
-															volatile const uint64_t m, 
-															volatile const uint64_t n,
-															volatile const uint64_t Outs = 0,
-															volatile const uint64_t In0s = 0,
-															volatile const uint64_t In1s = 0,
-															volatile uint64_t UR = 0);
-//------------------------------------------------------------------------------
-void inner_product_double_mt (double* Out, 
-															double* In0, 
-															double* In1, 
-															volatile const uint64_t m, 
-															volatile const uint64_t k, 
-															volatile const uint64_t Outs = 1,
-															volatile uint64_t In0s = 1,
-															volatile uint64_t In1s = 1,
-															double* In2 = 0,
-															volatile uint64_t UR = 0);
-
 //------------------------------------------------------------------------------
 void clas_ewise_product_double (double* Out, 
 																double* In0, 

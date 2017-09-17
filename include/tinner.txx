@@ -66,6 +66,7 @@ class tinner {
 		U R;
 		U A;
 		U sizeofT;
+		U sizeofU;
 	private:
 };
 
@@ -74,6 +75,7 @@ class tinner {
 template <class T, class U>
 tinner<T, U>::tinner() {
 	this -> sizeofT = sizeof(T);
+	this -> sizeofU = sizeof(U);
 	this -> init();
 }
 
@@ -204,7 +206,8 @@ void tinner<T, U>::exec() {
 		}
 	}
 	if (this -> A == (U)1) {return this -> pmqk();}
-	switch (this -> sizeofT) {
+	g = this -> sizeofU == (U)8 ? this -> sizeofT : (U)0;
+	switch (g) {
 		case (U)8: {return THIS_DOUBLE_PMQK();}
 		default: {return this -> pmqk();}
 	}

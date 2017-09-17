@@ -148,6 +148,7 @@ class tmmdot {
 		U R;
 		U A;
 		U sizeofT;
+		U sizeofU;
 		mcache<T, U> cacher;
 	private:
 };
@@ -157,6 +158,7 @@ class tmmdot {
 template <class T, class U>
 tmmdot<T, U>::tmmdot() {
 	this -> sizeofT = sizeof(T);
+	this -> sizeofU = sizeof(U);
 	this -> cacher.init((T*)this -> cache, (U)2);
 	this -> setAln();
 	this -> init();
@@ -335,12 +337,14 @@ void tmmdot<T, U>::setDRA(U _D, U _R, U _A) {
 //---------------------------------------------------------------------------
 template <class T, class U>
 void tmmdot<T, U>::exec() {
+	U g;
 	if (this -> op != this -> i2) {
 		replicate(this -> op, this -> m, this -> n, this -> opS,
 							this -> i2, this -> i2S, this -> i2s, (U)1);
 	}
 	if (this -> A == (U)1) {return this -> mkn();}
-	switch (this -> sizeofT) {
+	g = this -> sizeofU == (U)8 ? this -> sizeofT : (U)0;
+	switch (g) {
 		case (U)8: {return THIS_DOUBLE_MKN();}
 		default: {return this -> mkn();}
 	}

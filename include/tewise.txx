@@ -73,6 +73,7 @@ class tewise {
 		U A;
 		U kq;
 		U sizeofT;
+		U sizeofU;
 	private:
 };
 
@@ -81,6 +82,7 @@ class tewise {
 template <class T, class U>
 tewise<T, U>::tewise() {
 	this -> sizeofT = sizeof(T);
+	this -> sizeofU = sizeof(U);
 	this -> init();
 }
 
@@ -212,7 +214,8 @@ void tewise<T, U>::exec() {
 		}
 	}
 	if (this -> A == (U)1) {return this -> pmqk();}
-	switch (this -> sizeofT) {
+	g = this -> sizeofU == (U)8 ? this -> sizeofT : (U)0;
+	switch (g) {
 		case (U)8: {return THIS_DOUBLE_PMQK();}
 		default: {return this -> pmqk();}
 	}
