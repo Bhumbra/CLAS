@@ -174,24 +174,24 @@ three functions:
 Despite similarities in their specifications, the three functions perform very different calculations:
 
 - ewise_product_double calculates the entrywise (or elementwise) product of the vectors of the two dimensional array In0
-  (m*k) with the vectors of the four-dimensional array In1 (p*m*q*k) and writes the result to the four-dimensional array
-  Out (p*m*q*k). If however In1Br is true, then this denotes a singleton second dimension in In1 (p*1*q*k) and
-  broadcasts the same (1*q*k) data in In1 when multiplying with the m vectors of In0. Note that if In1Br is false, p =
-  1, and q = 1, then In0 and In1 are of identical sizes with each other (1*m*k*1) and with the size of Out.
+  (mxk) with the vectors of the four-dimensional array In1 (pxmxqxk) and writes the result to the four-dimensional array
+  Out (pxmxqxk). If however In1Br is true, then this denotes a singleton second dimension in In1 (px1xqxk) and
+  broadcasts the same (1xqxk) data in In1 when multiplying with the m vectors of In0. Note that if In1Br is false, p =
+  1, and q = 1, then In0 and In1 are of identical sizes with each other (1xmxkx1) and with the size of Out.
 
-- outer_product_double calculates the outer (or tensor) product of the vectors of the two dimensional array In0 (m*k)
-  with the vectors of the three-dimensional array In1 (p*m*q) and writes the result to the four-dimensional array Out
-  (p*m*k*q).  If however In1Br is true, then this denotes a singleton second dimension in In1 (p*1*q) and broadcasts the
-  same (1*q) data in In1 when multiplying with the m vectors of In0. Note that if In1Br is true _or_ false, m = 1, and p
+- outer_product_double calculates the outer (or tensor) product of the vectors of the two dimensional array In0 (mxk)
+  with the vectors of the three-dimensional array In1 (pxmxq) and writes the result to the four-dimensional array Out
+  (pxmxkxq).  If however In1Br is true, then this denotes a singleton second dimension in In1 (px1xq) and broadcasts the
+  same (1xq) data in In1 when multiplying with the m vectors of In0. Note that if In1Br is true _or_ false, m = 1, and p
   = 1, then In0 and In1 are of effectively single vectors of independent lengths (i.e. k and q) and Out is effectively
-  two dimensional since its outer-most two dimensions are singleton (i.e. having dimensions 1*1*k*q).
+  two dimensional since its outer-most two dimensions are singleton (i.e. having dimensions 1x1xkxq).
 	
-- inner_product_double calculates the inner (or dot) product of the vectors of the two dimensional array In0 (m*k) with
-  the vectors of the four-dimensional array In1 (p*m*q*k) and writes the result to the three-dimensional array Out
-  (p*m*q).  If however In1Br is true, then this denotes a singleton second dimension in In1 (p*1*q*k) and broadcasts the
-  same (1*q*k) data in In1 when multiplying with the m vectors of In0. Note that if In1Br is false, p = 1, and q = 1,
-  then In0 and In1 are of identical sizes with each other (1*m*k*1) and Out is effectively one dimensional since its
-  outer two dimensions are singleton (i.e. having dimensions 1*1*m). 
+- inner_product_double calculates the inner (or dot) product of the vectors of the two dimensional array In0 (mxk) with
+  the vectors of the four-dimensional array In1 (pxmxqxk) and writes the result to the three-dimensional array Out
+  (pxmxq).  If however In1Br is true, then this denotes a singleton second dimension in In1 (px1xqxk) and broadcasts the
+  same (1xqxk) data in In1 when multiplying with the m vectors of In0. Note that if In1Br is false, p = 1, and q = 1,
+  then In0 and In1 are of identical sizes with each other (1xmxkx1) and Out is effectively one dimensional since its
+  outer two dimensions are singleton (i.e. having dimensions 1x1xm). 
 
 Perhaps this will require more explanation with some useful examples and needs than up more than a few lines of README
 text...  I'm not there yet, but better documention is to follow in the future!
