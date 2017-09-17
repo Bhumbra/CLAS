@@ -67,10 +67,11 @@ soon. Please also note that I've so far only coded SSE4 assembler and therefore 
 disadvantaged in comparison to BLAS implementations adopting AVX2 instructions for Intel architectures that support them
 (e.g. Haswell, Broadwell, Skylake, Kaby Lake, etc...).
 
-USAGE
------
-Presently template code has been written for all matrix-matrix multiplication transposition permutations using the
-following function (with argument types and defaults shown):
+USAGE OF PRODUCT FUNCTIONS FOR MATRICES
+---------------------------------------
+
+Presently template code and SSE4 assembler has been written for all matrix-matrix multiplication transposition
+permutations using the following function (with argument types and defaults shown):
 
 	void clas::mmdot_product_double(double* Out, double* In0, double* In1, 
 					uint64_t m, uint64_t k, uint64_t n,
@@ -111,8 +112,92 @@ following function (with argument types and defaults shown):
 	FT (default 1.): is the coefficient multiplied by NT to specify the maximum number of threads used. 
 	For example, if NT = 0, and FT = 0.25, then this means CLAS will use a maximum of 25% of all threads 
 	detectable at runtime.
+	
 
-MOTIVATION
+
+USAGE OF PRODUCT FUNCTIONS FOR VECTOR ARRAYS
+--------------------------------------------
+
+Presently, template code and SSE4 assembler has been writtein for three types of multiplications using the following
+three functions:
+
+	void clas::ewise_product_double(double* Out, double* In0, double* In1, 
+					uint64_t m, uint64_t k, uint64_t p, uint64_t q,
+					bool In0Cm = false, bool In1Br = false, In2 = 0, 
+					uint64_t NT = 0, double FT = 1.);
+
+	void clas::inner_product_double(double* Out, double* In0, double* In1, 
+					uint64_t m, uint64_t k, uint64_t p, uint64_t q,
+					bool In0Cm = false, bool In1Br = false, In2 = 0, 
+					uint64_t NT = 0, double FT = 1.);
+
+	void clas::outer_product_double(double* Out, double* In0, double* In1, 
+					uint64_t m, uint64_t k, uint64_t p, uint64_t q,
+					bool In0Cm = false, bool In1Br = false, In2 = 0, 
+					uint64_t NT = 0, double FT = 1.);
+
+... where the first 7 arguments are compulsory:
+
+	Out: is the pointer for a multidimensional product array of row-major vectors.
+
+	In0: is the pointer for a two-dimensional multiplicand array.
+
+	In1: is the pointer for a multidimensional multiple array of row-major vectors.
+
+	m: is the number of vectors in In0.
+	
+	k: is the vector size in In0.
+
+	p: is outer-most dimension of In1.
+
+	q: is the innermost (for outer) or second-from-innermost (for ewise and inner) dimension  of In2.
+
+... and the next 5 arguments are optional:
+
+	In0Cm (default false): is a boolean flag that is true to denote column-major ordering for In0.
+
+	In1Br (default false): is a boolean flag that is true to denote a singleton second dimension in In1
+	and broadcast the vectors of In1 to use the same values in In1 to multiply with each of the m vectors 
+	in In0. 
+
+	In2 (default 0): is a pointer for an m-length vector added to the vectors of Out, where the ith 
+	element of In2 corresponds to the ith vector in In0 (0 denotes no addition, or if In2 = Out, this 
+	adds the product to the existing data content of Out).
+
+	NT (default 0): is the maximum number of threads used (0 denotes a maximum of all C++11-detectable 
+	threads at runtime), multiplied by FT (see below).
+
+	FT (default 1.): is the coefficient multiplied by NT to specify the maximum number of threads used. 
+	For example, if NT = 0, and FT = 0.25, then this means CLAS will use a maximum of 25% of all threads 
+	detectable at runtime.
+
+Despite similarities in their specifications, the three functions perform very different calculations:
+
+- ewise_product_double calculates the entrywise (or elementwise) product of the vectors of the two dimensional array In0
+  (m*k) with the vectors of the four-dimensional array In1 (p*m*q*k) and writes the result to the four-dimensional array
+  Out (p*m*q*k). If however In1Br is true, then this denotes a singleton second dimension in In1 (p*1*q*k) and
+  broadcasts the same (1*q*k) data in In1 when multiplying with the m vectors of In0. Note that if In1Br is false, p =
+  1, and q = 1, then In0 and In1 are of identical sizes with each other (1*m*k*1) and with the size of Out.
+
+- outer_product_double calculates the outer (or tensor) product of the vectors of the two dimensional array In0 (m*k)
+  with the vectors of the three-dimensional array In1 (p*m*q) and writes the result to the four-dimensional array Out
+  (p*m*k*q).  If however In1Br is true, then this denotes a singleton second dimension in In1 (p*1*q) and broadcasts the
+  same (1*q) data in In1 when multiplying with the m vectors of In0. Note that if In1Br is true _or_ false, m = 1, and p
+  = 1, then In0 and In1 are of effectively single vectors of independent lengths (i.e. k and q) and Out is effectively
+  two dimensional since its outer-most two dimensions are singleton (i.e. having dimensions 1*1*k*q).
+	
+- inner_product_double calculates the inner (or dot) product of the vectors of the two dimensional array In0 (m*k) with
+  the vectors of the four-dimensional array In1 (p*m*q*k) and writes the result to the three-dimensional array Out
+  (p*m*q).  If however In1Br is true, then this denotes a singleton second dimension in In1 (p*1*q*k) and broadcasts the
+  same (1*q*k) data in In1 when multiplying with the m vectors of In0. Note that if In1Br is false, p = 1, and q = 1,
+  then In0 and In1 are of identical sizes with each other (1*m*k*1) and Out is effectively one dimensional since its
+  outer two dimensions are singleton (i.e. having dimensions 1*1*m). 
+
+Perhaps this will require more explanation with some useful examples and needs than up more than a few lines of README
+text...  I'm not there yet, but better documention is to follow in the future!
+
+	
+MOTIVATION 
 -----------
 
 The motivation behind CLAS is to execute floating point operations in a way that is optimised for machine learning using
@@ -157,12 +242,19 @@ promising as a result of combining three strategies:
 - architecture-dependent assembler coded for inner-most three loops with inner-most two using SIMD instructions.
 - outer-most loop multithreaded in a way that guarantees each thread writes to mutually exclusive regions of memory.
 
+At the moment, most of the functions that perform the simpler products (i.e. ewise_, inner_, and outer_) simply borrow
+code written for the matrix operations and or not yet optimised for vector operations. Despite this, they are already
+very competitive in comparison to their CBLAS equivalents (i.e. cblas_dgemv and cblas_dger), and there is no entrywise
+product of arrays offered by the BLAS.
+
 IMPROVEMENTS
 ------------
 My day-job is as a biologist so CLAS writing is slow. Intended improvements for the near future are:
 
-- in addition to matrix multiplication (mmdot_product), code routines for simpler products i.e. ewise_product,
-  inner_product, and outer_product - in a manner that is most convenient for deep learning applications.
+- write example code to illustrate the usage of ewise_, outer_, and inner_ products
+- write single- and multi-threaded stride code intended for very fast convolution operations.
 - assembler-coded instructions for Intel architectures beyond SSE4 instructions such as the newer AVX2 extensions.
-- create a proper installer and provide better documentation.
+- create a proper installer.
+- provide better documentation.
+
 
