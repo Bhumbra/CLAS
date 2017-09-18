@@ -159,8 +159,8 @@ three functions:
 	In0Cm (default false): is a boolean flag that is true to denote column-major ordering for In0.
 
 	In1Br (default false): is a boolean flag that is true to denote a singleton second dimension in In1
-	and broadcast the vectors of In1 to use the same values in In1 to multiply with each of the m vectors 
-	in In0. If In1Br is true, the functions adopt a second dimension for In1 of m rather than 1.
+	and broadcast the vectors of In1 to use the same elements within In1 to multiply with each of the m vectors in
+	In0. If In1Br is false, the functions adopt a second dimension for In1 of m rather than 1.
 
 	In2 (default 0): is a pointer for an m-length vector added to the vectors of Out, where the _i_th 
 	element of In2 corresponds to the _i_th vector in In0 (0 denotes no addition, or if In2 = Out, this 
