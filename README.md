@@ -256,7 +256,6 @@ IMPROVEMENTS
 ------------
 My day-job is as a biologist so CLAS writing is slow. Intended improvements for the near future are:
 
-- write example code to illustrate the usage of ewise, outer, and inner products
 - write single- and multi-threaded stride code intended for very fast convolution operations.
 - assembler-coded instructions for Intel architectures beyond SSE4 instructions such as the newer AVX2 extensions.
 - create a proper installer.
