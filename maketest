@@ -1,20 +1,20 @@
-CC := g++
+XX := g++
 SRCDIR := tests
 BUILDDIR := bin
-TARGET := bin/blasvsclas.run
 SRCEXT := cc
+TARGET := bin/blasvsclas.sh
 
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
-OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
-CFLAGS := -std=c++11 -O3 -msse4.1
-LIB := -pthread -lclas -L lib -L /opt/OpenBLAS/lib -lopenblas
-INC := -I include -I lib -I/opt/OpenBLAS/include
+TARGETS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=))
+CFLAGS := -std=c++11 -O3 -msse4.1 -pthread
+ARCH := -lopenblas -lclas
+LIB := -L lib -L /opt/OpenBLAS/lib
+INC := -I include -I/opt/OpenBLAS/include
 
-$(TARGET): $(OBJECTS)
-	@echo " Linking..."
-	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB)
-
-$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
+$(BUILDDIR)/%: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)
-	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
+	@echo " $(XX) $(CFLAGS) $(INC) $(LIB) -o $@ $< $(ARCH)"; $(XX) $(CFLAGS) $(INC) $(LIB) -o $@ $< $(ARCH)
+
+$(TARGET): $(TARGETS)
+	@echo " cp tests/blasvsclas.sh bin/"; cp tests/blasvsclas.sh bin/
 

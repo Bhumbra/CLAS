@@ -49,8 +49,8 @@ The source file must be linked to the libclas archive during compiling e.g.:
 sh-4.3$ g++ sourcefile.cc -o executable.run -L/CLAS_LIB_DIRECTORY/ -lclas
 
 If it is desired to compare CLAS with BLAS, it is necessary to include the inclusions and linkage options specific to
-the tested BLAS implementation. A rough example of a BLAS vs CLAS test (using OpenBLAS) is included in
-tests/blasvstest.cc and can be compiled thus:
+the tested BLAS implementation. A rough example of a few BLAS vs CLAS tests (using OpenBLAS) is included in
+tests/ and can be compiled thus:
 
 sh-4.3$ make -f maketest
 
@@ -58,7 +58,11 @@ or
 
 sh-4.3$ make -f maketest.gcc-5
 
-outputting to an executable bin/blasvsclas.run.
+outputting to 4 executables in bin/, namely bvc_ewise, bvc_outer, bvc_inner, and bvc_mmdot each of which can be run
+by a user specifying input arguments to test different array dimensions. An example running all four executables is
+scripted blasvsclas.sh which can be run from console thus:
+
+sh-4.3$ bin/blasvsclas.sh
 
 It may be necessary to modify maketest or maketest.gcc5 to include the relevant paths to OpenBLAS for a given system.
 For a fair test, please use the most recent stable release (OpenBLAS 0.2.19), because it appears OpenBLAS 0.2.20 kills
@@ -67,8 +71,8 @@ soon. Please also note that I've so far only coded SSE4 assembler and therefore 
 disadvantaged in comparison to BLAS implementations adopting AVX2 instructions for Intel architectures that support them
 (e.g. Haswell, Broadwell, Skylake, Kaby Lake, etc...).
 
-USAGE OF PRODUCT FUNCTIONS FOR MATRICES
----------------------------------------
+USAGE OF PRODUCT FUNCTION FOR MATRICES
+--------------------------------------
 
 Presently template code and SSE4 assembler has been written for all matrix-matrix multiplication transposition
 permutations using the following function (with argument types and defaults shown):
@@ -112,13 +116,11 @@ permutations using the following function (with argument types and defaults show
 	FT (default 1.): is the coefficient multiplied by NT to specify the maximum number of threads used. 
 	For example, if NT = 0, and FT = 0.25, then this means CLAS will use a maximum of 25% of all threads 
 	detectable at runtime.
-	
-
 
 USAGE OF PRODUCT FUNCTIONS FOR VECTOR ARRAYS
 --------------------------------------------
 
-Presently, template code and SSE4 assembler has been writtein for three types of multiplications using the following
+Presently, template code and SSE4 assembler has been written for three types of multiplications using the following
 three functions:
 
 	void clas::ewise_product_double(double* Out, double* In0, double* In1, 
@@ -144,13 +146,13 @@ three functions:
 
 	In1: is the pointer for a multidimensional multiple array of row-major vectors.
 
-	m: is the number of vectors in In0.
+	m: is the number of vectors in In0 and (if In1Br is false) the second dimension of In1.
 	
-	k: is the vector size in In0.
+	k: is the vector length in In0 (and of In1 for ewise and inner).
 
-	p: is outer-most dimension of In1.
+	p: is the first (outer-most) dimension of In1.
 
-	q: is the innermost (for outer) or second-from-innermost (for ewise and inner) dimension  of In2.
+	q: is the third (innermost for outer or second-from-innermost for ewise and inner) dimension of In2.
 
 ... and the next 5 arguments are optional:
 
@@ -158,10 +160,10 @@ three functions:
 
 	In1Br (default false): is a boolean flag that is true to denote a singleton second dimension in In1
 	and broadcast the vectors of In1 to use the same values in In1 to multiply with each of the m vectors 
-	in In0. 
+	in In0. If In1Br is true, the functions adopt a second dimension for In1 of m rather than 1.
 
-	In2 (default 0): is a pointer for an m-length vector added to the vectors of Out, where the ith 
-	element of In2 corresponds to the ith vector in In0 (0 denotes no addition, or if In2 = Out, this 
+	In2 (default 0): is a pointer for an m-length vector added to the vectors of Out, where the _i_th 
+	element of In2 corresponds to the _i_th vector in In0 (0 denotes no addition, or if In2 = Out, this 
 	adds the product to the existing data content of Out).
 
 	NT (default 0): is the maximum number of threads used (0 denotes a maximum of all C++11-detectable 
@@ -177,7 +179,8 @@ Despite similarities in their specifications, the three functions perform very d
   (mxk) with the vectors of the four-dimensional array In1 (pxmxqxk) and writes the result to the four-dimensional array
   Out (pxmxqxk). If however In1Br is true, then this denotes a singleton second dimension in In1 (px1xqxk) and
   broadcasts the same (1xqxk) data in In1 when multiplying with the m vectors of In0. Note that if In1Br is false, p =
-  1, and q = 1, then In0 and In1 are of identical sizes with each other (1xmxkx1) and with the size of Out.
+  1, and q = 1, then In0 and In1 are effectively two-dimensional with identical sizes with each other (1xmx1xk) and with
+  the size of Out.
 
 - outer_product_double calculates the outer (or tensor) product of the vectors of the two dimensional array In0 (mxk)
   with the vectors of the three-dimensional array In1 (pxmxq) and writes the result to the four-dimensional array Out
@@ -193,8 +196,8 @@ Despite similarities in their specifications, the three functions perform very d
   then In0 and In1 are of identical sizes with each other (1xmxkx1) and Out is effectively one dimensional since its
   outer two dimensions are singleton (i.e. having dimensions 1x1xm). 
 
-Perhaps this will require more explanation with some useful examples and needs than up more than a few lines of README
-text...  I'm not there yet, but better documention is to follow in the future!
+Perhaps this will require more explanation with some useful examples beyond the few lines here within the README text.
+More detailed documention is to follow in the future!
 
 	
 MOTIVATION 
@@ -204,9 +207,11 @@ The motivation behind CLAS is to execute floating point operations in a way that
 biologically-inspired concepts. Generally, deep-learning libraries are dependent on calls to vendor-optimised BLAS
 libraries to perform the heavy lifting for fast multiplication of weight matrices with data. However the BLAS
 specification was originally devised in the 1970s for FORTRAN programmers to standardise low-level kernel operations
-then Level 3 (matrix-matrix) BLAS operations were introduced in the 1980s well before the rise of deep-learning. While
-the venerable BLAS standard is still universally used its double-precision matrix multiplication routine (dgemm) is
-disadvantaged by its BLAS heritage, especially in the context of deep learning, in the following ways:
+then Level 3 (matrix-matrix) BLAS operations were introduced in the 1980s well before the rise of deep-learning. 
+
+While the venerable BLAS standard is still universally used, deep-learning is likely to benefit strongly from a more
+tailored specification. For example, the double-precision matrix multiplication routine (dgemm) is disadvantaged by its
+BLAS heritage, particularly in the context of deep learning, in the following ways:
 
 - its specification, by necessity, in C and FORTRAN differ (the C version has an additional first parameter).
 
@@ -242,16 +247,16 @@ promising as a result of combining three strategies:
 - architecture-dependent assembler coded for inner-most three loops with inner-most two using SIMD instructions.
 - outer-most loop multithreaded in a way that guarantees each thread writes to mutually exclusive regions of memory.
 
-At the moment, most of the functions that perform the simpler products (i.e. ewise_, inner_, and outer_) simply borrow
+At the moment, most of the functions that perform the simpler products (i.e. ewise, inner, and outer) simply borrow
 code written for the matrix operations and or not yet optimised for vector operations. Despite this, they are already
-very competitive in comparison to their CBLAS equivalents (i.e. cblas_dgemv and cblas_dger), and there is no entrywise
-product of arrays offered by the BLAS.
+very competitive in comparison to their CBLAS equivalents (i.e. cblas_dgemv and cblas_dger; there is no entrywise
+product equivalent in CBLAS).
 
 IMPROVEMENTS
 ------------
 My day-job is as a biologist so CLAS writing is slow. Intended improvements for the near future are:
 
-- write example code to illustrate the usage of ewise_, outer_, and inner_ products
+- write example code to illustrate the usage of ewise, outer, and inner products
 - write single- and multi-threaded stride code intended for very fast convolution operations.
 - assembler-coded instructions for Intel architectures beyond SSE4 instructions such as the newer AVX2 extensions.
 - create a proper installer.
