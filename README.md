@@ -49,8 +49,8 @@ The source file must be linked to the libclas archive during compiling e.g.:
 sh-4.3$ g++ sourcefile.cc -o executable.run -L/CLAS_LIB_DIRECTORY/ -lclas
 
 If it is desired to compare CLAS with BLAS, it is necessary to include the inclusions and linkage options specific to
-the tested BLAS implementation. A rough example of a few BLAS vs CLAS tests (using OpenBLAS) is included in
-tests/ and can be compiled thus:
+the tested BLAS implementation. A rough set of test examples of a few BLAS vs CLAS benchmarks (using OpenBLAS) is
+included in tests/ and can be compiled thus:
 
 sh-4.3$ make -f maketest
 
@@ -59,8 +59,8 @@ or
 sh-4.3$ make -f maketest.gcc-5
 
 outputting to 4 executables in bin/, namely bvc_ewise, bvc_outer, bvc_inner, and bvc_mmdot each of which can be run
-by a user specifying input arguments to test different array dimensions. An example running all four executables is
-scripted blasvsclas.sh which can be run from console thus:
+specifying input arguments to test different array dimensions. An example script running all four executables is
+provided in bin/blasvsclas.sh which can be run from console thus:
 
 sh-4.3$ bin/blasvsclas.sh
 
